@@ -80,11 +80,6 @@ export default function GraphCanvas({
   expandedInterests,
   onSelectNode,
 }: Props) {
-  // Build child color lists for orbit dots
-  const { interests: interestData } = useMemo(() => {
-    // Lazy import to avoid circular — pull directly from the data
-    return { interests: [] as Array<{ id: string; activityIds: string[] }> };
-  }, []);
 
   const flowNodes: Node[] = useMemo(
     () =>
