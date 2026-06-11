@@ -39,7 +39,7 @@ export function buildInterestNodes(selectedIds: string[]): HobbyNode[] {
   return selectedIds.map((id, idx) => {
     const interest = interests.find((i) => i.id === id)!;
     const angle = (idx / Math.max(total, 1)) * Math.PI * 2 - Math.PI / 2;
-    const r = total === 1 ? 0 : total <= 3 ? 160 : 200;
+    const r = total === 1 ? 0 : total <= 3 ? 240 : 320;
     return {
       id,
       label: interest.label,
@@ -66,13 +66,13 @@ export function buildActivityNodes(
   const activityIds = interest.activityIds;
   const total = activityIds.length;
   const toCenter = Math.atan2(interestPos.y - centerY, interestPos.x - centerX);
-  const spread = Math.min(Math.PI * 1.1, (total - 1) * 0.38);
+  const spread = Math.min(Math.PI * 1.4, (total - 1) * 0.45);
 
   return activityIds.flatMap((id, idx) => {
     const activity = activities.find((a) => a.id === id);
     if (!activity) return [];
     const angle = toCenter + (idx / Math.max(total - 1, 1) - 0.5) * spread;
-    const dist = 155;
+    const dist = 210;
     return [
       {
         id,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import {
   Background,
   Controls,
@@ -8,6 +8,7 @@ import {
   type Node,
   type Edge,
   type NodeMouseHandler,
+  type OnNodesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import type { HobbyNode, HobbyEdge } from "@/types/graph";
@@ -80,6 +81,48 @@ export default function GraphCanvas({
   expandedInterests,
   onSelectNode,
 }: Props) {
+  const [posOverrides, setPosOverrides] = useState<Record<string, { x: number; y: number }>>({});
+
+  // Map each interest node to its activity children for cluster dragging
+  const interestChildMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const edge of hobbyEdges) {
+      if (!map[edge.source]) map[edge.source] = [];
+      map[edge.source].push(edge.target);
+    }
+    return map;
+  }, [hobbyEdges]);
+
+  const handleNodesChange: OnNodesChange = useCallback(
+    (changes) => {
+      setPosOverrides((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const change of changes) {
+          if (change.type !== "position" || !change.position) continue;
+          changed = true;
+          const hobbyNode = hobbyNodes.find((n) => n.id === change.id);
+          if (!hobbyNode || hobbyNode.type !== "interest") {
+            next[change.id] = change.position;
+            continue;
+          }
+          // Move interest node and all visible children together
+          const prevPos = prev[change.id] ?? hobbyNode.position;
+          const dx = change.position.x - prevPos.x;
+          const dy = change.position.y - prevPos.y;
+          next[change.id] = change.position;
+          for (const childId of interestChildMap[change.id] ?? []) {
+            const childNode = hobbyNodes.find((n) => n.id === childId);
+            if (!childNode) continue;
+            const childPos = prev[childId] ?? childNode.position;
+            next[childId] = { x: childPos.x + dx, y: childPos.y + dy };
+          }
+        }
+        return changed ? next : prev;
+      });
+    },
+    [hobbyNodes, interestChildMap],
+  );
 
   const flowNodes: Node[] = useMemo(
     () =>
@@ -87,9 +130,9 @@ export default function GraphCanvas({
         const isSelected = n.id === selectedId;
         const isInterest = n.type === "interest";
         const color = n.color ?? "#7F77DD";
+        const position = posOverrides[n.id] ?? n.position;
 
         if (isInterest) {
-          // Gather child colors for orbiting dots
           const interest = n.data as { activityIds: string[] };
           const childColors = (interest.activityIds ?? [])
             .slice(0, 6)
@@ -97,7 +140,7 @@ export default function GraphCanvas({
 
           return {
             id: n.id,
-            position: n.position,
+            position,
             type: "orbitInterest",
             selected: isSelected,
             data: {
@@ -113,7 +156,7 @@ export default function GraphCanvas({
         // Activity node — standard styled
         return {
           id: n.id,
-          position: n.position,
+          position,
           data: { label: n.label },
           style: {
             background: isSelected ? color : "#FDFCF8",
@@ -139,7 +182,7 @@ export default function GraphCanvas({
           },
         };
       }),
-    [hobbyNodes, selectedId, expandedInterests],
+    [hobbyNodes, selectedId, expandedInterests, posOverrides],
   );
 
   const flowEdges: Edge[] = useMemo(
@@ -173,8 +216,9 @@ export default function GraphCanvas({
         edges={flowEdges}
         nodeTypes={nodeTypes}
         onNodeClick={handleNodeClick}
+        onNodesChange={handleNodesChange}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={{ padding: 0.45 }}
         minZoom={0.25}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
