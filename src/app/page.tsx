@@ -11,6 +11,8 @@ import NicheMode from "../components/NicheMode";
 import ResourceLinks from "../components/ResourceLinks";
 import { nicheContent } from "../data/nicheContent";
 import { getResources } from "../data/resources";
+import type { Activity } from "@/types/graph";
+import QuickFilters, { type ActiveFilters } from "../components/QuickFilters";
 
 import {
   buildInterestNodes,
@@ -90,6 +92,13 @@ export default function Home() {
     (typeof activities)[0] | null
   >(null);
   const [isNicheMode, setIsNicheMode] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
+    environment: [],
+    social: [],
+    difficulty: [],
+    cost: [],
+  });
+  const [noMatchHint, setNoMatchHint] = useState(false);
 
   // ── Onboarding ─────────────────────────────────────────
   function toggleInterest(id: string) {
@@ -102,6 +111,24 @@ export default function Home() {
     setSelectedId(null);
     setRandomReason(null);
     setScreen("app");
+  }
+
+  function toggleFilter(category: keyof ActiveFilters, value: string) {
+    setActiveFilters((prev) => {
+      const current = prev[category];
+      return {
+        ...prev,
+        [category]: current.includes(value)
+          ? current.filter((v) => v !== value)
+          : [...current, value],
+      };
+    });
+    setNoMatchHint(false);
+  }
+
+  function clearFilters() {
+    setActiveFilters({ environment: [], social: [], difficulty: [], cost: [] });
+    setNoMatchHint(false);
   }
 
   // ── Graph construction ─────────────────────────────────
@@ -129,9 +156,38 @@ export default function Home() {
     });
   }, [expandedInterests, interestPosMap]);
 
+  const filteredActivityNodes = useMemo(() => {
+    const { environment, social, difficulty, cost } = activeFilters;
+    const hasFilters =
+      environment.length > 0 ||
+      social.length > 0 ||
+      difficulty.length > 0 ||
+      cost.length > 0;
+    if (!hasFilters) return activityNodes;
+    return activityNodes.filter((n) => {
+      const a = n.data as Activity;
+      if (environment.length > 0 && !environment.includes(a.tags.environment)) return false;
+      if (social.length > 0 && !social.includes(a.tags.social)) return false;
+      if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty)) return false;
+      if (cost.length > 0 && !cost.includes(a.tags.cost)) return false;
+      return true;
+    });
+  }, [activityNodes, activeFilters]);
+
+  // Interests with all activities filtered out appear collapsed
+  const effectiveExpandedInterests = useMemo(() => {
+    const filteredIds = new Set(filteredActivityNodes.map((n) => n.id));
+    return new Set(
+      [...expandedInterests].filter((id) => {
+        const interest = interests.find((i) => i.id === id);
+        return interest?.activityIds.some((aid) => filteredIds.has(aid));
+      }),
+    );
+  }, [expandedInterests, filteredActivityNodes]);
+
   const allNodes = useMemo(
-    () => [...interestNodes, ...activityNodes],
-    [interestNodes, activityNodes],
+    () => [...interestNodes, ...filteredActivityNodes],
+    [interestNodes, filteredActivityNodes],
   );
   const visibleIds = useMemo(
     () => new Set(allNodes.map((n) => n.id)),
@@ -163,12 +219,32 @@ export default function Home() {
 
   // ── Random activity ────────────────────────────────────
   function handleRandom() {
-    const pool = activities.filter((a) =>
-      selectedInterests.some((si) =>
+    const { environment, social, difficulty, cost } = activeFilters;
+    const hasFilters =
+      environment.length > 0 ||
+      social.length > 0 ||
+      difficulty.length > 0 ||
+      cost.length > 0;
+
+    const pool = activities.filter((a) => {
+      const inInterests = selectedInterests.some((si) =>
         interests.find((i) => i.id === si)?.activityIds.includes(a.id),
-      ),
-    );
-    if (pool.length === 0) return;
+      );
+      if (!inInterests) return false;
+      if (hasFilters) {
+        if (environment.length > 0 && !environment.includes(a.tags.environment)) return false;
+        if (social.length > 0 && !social.includes(a.tags.social)) return false;
+        if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty)) return false;
+        if (cost.length > 0 && !cost.includes(a.tags.cost)) return false;
+      }
+      return true;
+    });
+
+    if (pool.length === 0) {
+      setNoMatchHint(true);
+      return;
+    }
+    setNoMatchHint(false);
     const pick = pool[Math.floor(Math.random() * pool.length)];
     const parent = interests.find(
       (i) =>
@@ -201,7 +277,7 @@ export default function Home() {
     ? (INTEREST_COLORS[selectedId] ?? ACTIVITY_COLORS[selectedId] ?? "#7F77DD")
     : "#7F77DD";
 
-  const isExpanded = selectedId ? expandedInterests.has(selectedId) : false;
+  const isExpanded = selectedId ? effectiveExpandedInterests.has(selectedId) : false;
   const activityDetail = detail?.type === "activity" ? detail.data : null;
 
   const checklist = useMemo(
@@ -218,12 +294,13 @@ export default function Home() {
   const saved = activityDetail ? isSaved(savedIds, activityDetail.id) : false;
 
   const hintText = useMemo(() => {
+    if (noMatchHint) return "No activities match — try clearing a filter";
     if (expandedInterests.size === 0)
       return "Tap an interest to reveal activities";
     if (!selectedId || interests.some((i) => i.id === selectedId))
       return "Tap an activity to explore it";
     return null;
-  }, [expandedInterests, selectedId]);
+  }, [expandedInterests, selectedId, noMatchHint]);
 
   return (
     <>
@@ -285,6 +362,15 @@ export default function Home() {
               </div>
             </header>
 
+            {/* Quick filters */}
+            <div className="mb-4">
+              <QuickFilters
+                activeFilters={activeFilters}
+                onToggle={toggleFilter}
+                onClear={clearFilters}
+              />
+            </div>
+
             <section className="grid flex-1 gap-4 md:grid-cols-[1.45fr_0.85fr]">
               {/* Graph panel */}
               <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col gap-4">
@@ -312,7 +398,7 @@ export default function Home() {
                   nodes={allNodes}
                   edges={graphEdges}
                   selectedId={selectedId}
-                  expandedInterests={expandedInterests}
+                  expandedInterests={effectiveExpandedInterests}
                   onSelectNode={handleSelectNode}
                 />
               </div>
