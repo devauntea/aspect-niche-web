@@ -10,6 +10,8 @@ type Props = {
   activityLabel: string;
   accentColor: string;
   tags: Record<string, string>;
+  onCreateNiche: () => void;
+  isCreating: boolean;
 };
 
 type Status = "idle" | "loading" | "loaded" | "error";
@@ -19,6 +21,8 @@ export default function RabbitHolePanel({
   activityLabel,
   accentColor,
   tags,
+  onCreateNiche,
+  isCreating,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
@@ -218,9 +222,38 @@ export default function RabbitHolePanel({
 
               {/* Footer */}
               <div className="flex items-center justify-between pt-3 border-t border-[#E8E4DA]">
-                <span className="text-[10px] text-[#B0ADA8]">
-                  Powered by Groq · Llama 3
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] text-[#B0ADA8]">
+                    Powered by Groq · Llama 3
+                  </span>
+                  <button
+                    onClick={onCreateNiche}
+                    disabled={isCreating}
+                    className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all"
+                    style={{
+                      border: "1.5px solid #7F77DD40",
+                      background: "#7F77DD0e",
+                      color: "#7F77DD",
+                      opacity: isCreating ? 0.7 : 1,
+                      transform: isCreating ? "none" : undefined,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isCreating) (e.currentTarget as HTMLButtonElement).style.background = "#7F77DD18";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background = "#7F77DD0e";
+                    }}
+                  >
+                    {isCreating ? (
+                      <>
+                        <span className="inline-block w-2 h-2 rounded-full border border-[#7F77DD] border-t-transparent animate-spin flex-shrink-0" />
+                        Creating...
+                      </>
+                    ) : (
+                      "✦ Create a niche"
+                    )}
+                  </button>
+                </div>
                 <button
                   onClick={handleRefresh}
                   className="text-[10px] font-medium hover:underline"

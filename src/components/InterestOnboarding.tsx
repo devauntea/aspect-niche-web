@@ -1,6 +1,11 @@
 "use client";
 
+import React from "react";
 import { interests } from "../data/activities";
+import {
+  IconFitness, IconCreative, IconOutdoor, IconTech, IconSocial, IconCulinary,
+  IconAdventure, IconNature, IconCraft, IconMind, IconCommunity,
+} from "./icons";
 
 interface Props {
   selected: string[];
@@ -15,15 +20,27 @@ const INTEREST_COLORS: Record<string, string> = {
   tech: "#378ADD",
   social: "#EF9F27",
   culinary: "#D85A30",
+  adventure: "#D4537E",
+  nature: "#1D9E75",
+  craft: "#7F77DD",
+  mind: "#378ADD",
+  community: "#EF9F27",
 };
 
-const INTEREST_EMOJI: Record<string, string> = {
-  fitness: "🏃",
-  creative: "🎨",
-  outdoor: "🌿",
-  tech: "💻",
-  social: "🎲",
-  culinary: "🍳",
+type IconComponent = (props: { size?: number; className?: string }) => React.ReactElement;
+
+const INTEREST_ICON: Record<string, IconComponent> = {
+  fitness: IconFitness,
+  creative: IconCreative,
+  outdoor: IconOutdoor,
+  tech: IconTech,
+  social: IconSocial,
+  culinary: IconCulinary,
+  adventure: IconAdventure,
+  nature: IconNature,
+  craft: IconCraft,
+  mind: IconMind,
+  community: IconCommunity,
 };
 
 const INTEREST_BLURB: Record<string, string> = {
@@ -33,6 +50,11 @@ const INTEREST_BLURB: Record<string, string> = {
   tech: "Build, tinker, create with code",
   social: "Connect through play",
   culinary: "Cook, taste, experiment",
+  adventure: "Push limits, seek the rush",
+  nature: "Slow down, look closer",
+  craft: "Make it by hand, make it yours",
+  mind: "Think deeper, learn always",
+  community: "Show up, give back, belong",
 };
 
 export default function InterestOnboarding({
@@ -84,7 +106,7 @@ export default function InterestOnboarding({
                 }}
               >
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-xl">{INTEREST_EMOJI[interest.id]}</span>
+                  {(() => { const Icon = INTEREST_ICON[interest.id]; return Icon ? <Icon size={28} /> : null; })()}
                   {isSelected && (
                     <div
                       className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"

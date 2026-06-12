@@ -11,12 +11,18 @@ import NicheMode from "../components/NicheMode";
 import ResourceLinks from "../components/ResourceLinks";
 import { nicheContent } from "../data/nicheContent";
 import { getResources } from "../data/resources";
-import type { Activity } from "@/types/graph";
+import type { Activity, HobbyEdge, HobbyNode } from "@/types/graph";
 import QuickFilters, { type ActiveFilters } from "../components/QuickFilters";
 import RabbitHolePanel from "../components/RabbitHolePanel";
 import { IconAppMark } from "../components/icons";
 import { applyForceLayout } from "@/lib/forceLayout";
 import { getChecked, saveChecked } from "@/lib/checklistStorage";
+import {
+  getCustomNiches,
+  addCustomNiche,
+  removeCustomNiche,
+  type CustomNiche,
+} from "@/lib/customNiches";
 
 import {
   buildInterestNodes,
@@ -109,6 +115,11 @@ export default function Home() {
   const [checkedActivityId, setCheckedActivityId] = useState<string | null>(null);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
   const [allDone, setAllDone] = useState(false);
+  const [customNiches, setCustomNiches] = useState<CustomNiche[]>(
+    () => getCustomNiches(),
+  );
+  const [creatingNiche, setCreatingNiche] = useState<string | null>(null);
+  const [newNodeId, setNewNodeId] = useState<string | null>(null);
 
   // ── Onboarding ─────────────────────────────────────────
   function toggleInterest(id: string) {
@@ -203,18 +214,57 @@ export default function Home() {
     );
   }, [expandedInterests, filteredActivityNodes]);
 
+  const customNodes = useMemo((): HobbyNode[] => {
+    return customNiches
+      .filter(
+        (n) =>
+          expandedInterests.has(n.categoryId) &&
+          selectedInterests.includes(n.categoryId),
+      )
+      .map((n) => {
+        const pos = interestPosMap[n.categoryId] ?? { x: 300, y: 260 };
+        const angle = ((n.createdAt % 1000) / 1000) * Math.PI * 2;
+        const dist = 200;
+        return {
+          id: n.id,
+          label: n.label,
+          type: "activity" as const,
+          data: {
+            id: n.id,
+            label: n.label,
+            description: n.description,
+            beginnerTip: n.beginnerTip,
+            tags: n.tags,
+            source: "ai-generated" as const,
+          } as Activity,
+          color: "#7F77DD",
+          position: {
+            x: pos.x + Math.cos(angle) * dist,
+            y: pos.y + Math.sin(angle) * dist,
+          },
+        };
+      });
+  }, [customNiches, expandedInterests, selectedInterests, interestPosMap]);
+
   const allNodes = useMemo(
-    () => [...interestNodes, ...filteredActivityNodes],
-    [interestNodes, filteredActivityNodes],
+    () => [...interestNodes, ...filteredActivityNodes, ...customNodes],
+    [interestNodes, filteredActivityNodes, customNodes],
   );
   const visibleIds = useMemo(
     () => new Set(allNodes.map((n) => n.id)),
     [allNodes],
   );
-  const graphEdges = useMemo(
-    () => buildVisibleEdges(visibleIds, selectedInterests),
-    [visibleIds, selectedInterests],
-  );
+  const graphEdges = useMemo((): HobbyEdge[] => {
+    const base = buildVisibleEdges(visibleIds, selectedInterests);
+    const customEdges: HobbyEdge[] = customNiches
+      .filter((n) => visibleIds.has(n.id))
+      .map((n) => ({
+        id: `e-${n.categoryId}-${n.id}`,
+        source: n.categoryId,
+        target: n.id,
+      }));
+    return [...base, ...customEdges];
+  }, [visibleIds, selectedInterests, customNiches]);
 
   const layoutNodes = useMemo(
     () =>
@@ -289,15 +339,72 @@ export default function Home() {
     setSavedIds(toggleSaved(id));
   }
 
+  // ── Create niche ───────────────────────────────────────
+  async function handleCreateNiche(categoryId: string, categoryLabel: string) {
+    if (creatingNiche) return;
+    const existing = activities.map((a) => a.label);
+    setCreatingNiche(categoryId);
+    try {
+      const res = await fetch("/api/create-niche", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categoryId, categoryLabel, existingActivities: existing }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = (await res.json()) as {
+        id: string;
+        label: string;
+        description: string;
+        beginnerTip: string;
+        difficulty: CustomNiche["tags"]["difficulty"];
+        environment: CustomNiche["tags"]["environment"];
+        social: CustomNiche["tags"]["social"];
+        cost: CustomNiche["tags"]["cost"];
+        timeCommitment: CustomNiche["tags"]["timeCommitment"];
+        whyItsNiche: string;
+      };
+      const newNiche: CustomNiche = {
+        id: data.id,
+        label: data.label,
+        description: data.description,
+        beginnerTip: data.beginnerTip,
+        categoryId,
+        categoryLabel,
+        tags: {
+          difficulty: data.difficulty,
+          environment: data.environment,
+          social: data.social,
+          cost: data.cost,
+          timeCommitment: data.timeCommitment,
+        },
+        whyItsNiche: data.whyItsNiche,
+        createdAt: Date.now(),
+        source: "ai-generated",
+      };
+      addCustomNiche(newNiche);
+      setCustomNiches(getCustomNiches());
+      setExpandedInterests((prev) => new Set([...prev, categoryId]));
+      setSelectedId(newNiche.id);
+      setNewNodeId(newNiche.id);
+      setTimeout(() => setNewNodeId(null), 1000);
+    } catch (err) {
+      console.error("Create niche failed:", err);
+    } finally {
+      setCreatingNiche(null);
+    }
+  }
+
   // ── Detail data ────────────────────────────────────────
   const detail = useMemo(() => {
     if (!selectedId) return null;
     const activity = activities.find((a) => a.id === selectedId);
     if (activity) return { type: "activity" as const, data: activity };
+    const customNiche = customNiches.find((n) => n.id === selectedId);
+    if (customNiche) return { type: "custom" as const, data: customNiche };
     const interest = interests.find((i) => i.id === selectedId);
     if (interest) return { type: "interest" as const, data: interest };
     return null;
-  }, [selectedId]);
+  }, [selectedId, customNiches]);
 
   const accentColor = selectedId
     ? (INTEREST_COLORS[selectedId] ?? ACTIVITY_COLORS[selectedId] ?? "#7F77DD")
@@ -305,6 +412,7 @@ export default function Home() {
 
   const isExpanded = selectedId ? effectiveExpandedInterests.has(selectedId) : false;
   const activityDetail = detail?.type === "activity" ? detail.data : null;
+  const customDetail = detail?.type === "custom" ? detail.data : null;
 
   const checklist = useMemo(
     () => (activityDetail ? getBeginnerChecklist(activityDetail) : []),
@@ -339,6 +447,18 @@ export default function Home() {
       setAllDone(false);
     }
   }
+
+  // Parent interest of the currently selected activity (for Create a niche)
+  const selectedInterestForNiche = useMemo(() => {
+    if (!activityDetail) return null;
+    return (
+      interests.find(
+        (i) =>
+          selectedInterests.includes(i.id) &&
+          i.activityIds.includes(activityDetail.id),
+      ) ?? null
+    );
+  }, [activityDetail, selectedInterests]);
 
   const hintText = useMemo(() => {
     if (noMatchHint) return "No activities match — try clearing a filter";
@@ -470,11 +590,98 @@ export default function Home() {
                   selectedId={selectedId}
                   expandedInterests={effectiveExpandedInterests}
                   onSelectNode={handleSelectNode}
+                  newNodeId={newNodeId}
                 />
               </div>
 
               {/* Detail panel */}
-              {detail?.type !== "activity" ? (
+              {detail?.type === "activity" ? null : detail?.type === "custom" ? (
+                /* ── Custom (AI-generated) niche ── */
+                <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col gap-4 overflow-y-auto max-h-[620px]">
+                  <h2 className="text-base font-semibold">Details</h2>
+                  <div className="h-0.5 rounded-full w-8" style={{ background: "#7F77DD" }} />
+
+                  {/* Title + AI badge */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Activity</p>
+                      <span
+                        className="text-[10px] font-semibold rounded-full px-2 py-0.5"
+                        style={{ background: "#7F77DD14", color: "#7F77DD" }}
+                      >
+                        ✦ AI Created
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-semibold tracking-tight leading-tight">
+                      {customDetail!.label}
+                    </h3>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-[#5A5855] leading-relaxed">
+                    {customDetail!.description}
+                  </p>
+
+                  {/* Why it's niche */}
+                  <div
+                    className="rounded-xl p-3.5 flex flex-col gap-1"
+                    style={{ background: "#7F77DD0e", border: "1px solid #7F77DD20" }}
+                  >
+                    <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "#7F77DD" }}>
+                      Why it&apos;s niche
+                    </p>
+                    <p className="text-xs text-[#5A5855] leading-relaxed">
+                      {customDetail!.whyItsNiche}
+                    </p>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      diffLabel[customDetail!.tags.difficulty],
+                      envLabel[customDetail!.tags.environment],
+                      costLabel[customDetail!.tags.cost],
+                    ].filter(Boolean).map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full px-2.5 py-1 text-[11px] font-medium"
+                        style={{ background: "#7F77DD12", color: "#7F77DD" }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Beginner tip */}
+                  <div className="rounded-xl p-3.5 flex gap-3" style={{ background: "#FAF8F2" }}>
+                    <span className="text-base flex-shrink-0">💡</span>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">First step</p>
+                      <p className="text-xs text-[#1A1916] leading-relaxed">{customDetail!.beginnerTip}</p>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div className="flex items-center gap-2">
+                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Category</p>
+                    <span className="text-xs font-medium" style={{ color: "#7F77DD" }}>
+                      {customDetail!.categoryLabel}
+                    </span>
+                  </div>
+
+                  {/* Remove from graph */}
+                  <button
+                    onClick={() => {
+                      removeCustomNiche(customDetail!.id);
+                      setCustomNiches(getCustomNiches());
+                      setSelectedId(null);
+                    }}
+                    className="text-xs text-[#B0ADA8] hover:text-red-400 transition-colors mt-auto text-center"
+                  >
+                    Remove from graph
+                  </button>
+                </div>
+              ) : (
                 <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col overflow-y-auto max-h-[620px]">
                   <h2 className="text-base font-semibold mb-5">Details</h2>
 
@@ -538,8 +745,10 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-              ) : (
-                /* ── Activity: flip card ── */
+              )}
+
+              {/* ── Activity: flip card ── */}
+              {detail?.type === "activity" && (
                 <div className="flip-scene rounded-3xl shadow-sm" style={{ height: 620 }}>
                   <div className={`flip-card w-full h-full${isNicheMode && nicheContent[activityDetail!.id] ? " is-flipped" : ""}`}>
 
@@ -790,6 +999,18 @@ export default function Home() {
                   activityLabel={activityDetail.label}
                   accentColor={accentColor}
                   tags={activityDetail.tags as Record<string, string>}
+                  onCreateNiche={() =>
+                    selectedInterestForNiche
+                      ? handleCreateNiche(
+                          selectedInterestForNiche.id,
+                          selectedInterestForNiche.label,
+                        )
+                      : undefined
+                  }
+                  isCreating={
+                    !!selectedInterestForNiche &&
+                    creatingNiche === selectedInterestForNiche.id
+                  }
                 />
               </div>
             )}

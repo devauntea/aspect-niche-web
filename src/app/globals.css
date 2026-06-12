@@ -88,6 +88,16 @@ body {
   animation: nodePulse 3s ease-in-out infinite;
 }
 
+/* ── New node entrance ───────────────────────────── */
+@keyframes nodeEntrance {
+  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.node-new {
+  animation: nodeEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 /* ── Surprise Me backdrop ─────────────────────────── */
 @keyframes fadeInBackdrop {
   from {

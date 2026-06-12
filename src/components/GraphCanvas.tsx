@@ -22,6 +22,7 @@ type Props = {
   selectedId: string | null;
   expandedInterests: Set<string>;
   onSelectNode: (id: string) => void;
+  newNodeId?: string | null;
 };
 
 const ACTIVITY_COLORS: Record<string, string> = {
@@ -80,6 +81,7 @@ export default function GraphCanvas({
   selectedId,
   expandedInterests,
   onSelectNode,
+  newNodeId,
 }: Props) {
   const [posOverrides, setPosOverrides] = useState<Record<string, { x: number; y: number }>>({});
 
@@ -155,6 +157,7 @@ export default function GraphCanvas({
             position,
             type: "orbitInterest",
             selected: isSelected,
+            className: n.id === newNodeId ? "node-new" : undefined,
             style: {
               opacity: dimmed ? 0.4 : 1,
               transition: "opacity 0.2s ease",
@@ -174,6 +177,7 @@ export default function GraphCanvas({
           id: n.id,
           position,
           data: { label: n.label },
+          className: n.id === newNodeId ? "node-new" : undefined,
           style: {
             background: isSelected ? color : "#FDFCF8",
             color: isSelected ? "#FFFFFF" : "#1A1916",
@@ -201,7 +205,7 @@ export default function GraphCanvas({
           },
         };
       }),
-    [hobbyNodes, selectedId, expandedInterests, posOverrides, connectedIds],
+    [hobbyNodes, selectedId, expandedInterests, posOverrides, connectedIds, newNodeId],
   );
 
   const flowEdges: Edge[] = useMemo(

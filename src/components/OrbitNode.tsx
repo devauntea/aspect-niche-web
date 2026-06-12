@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { IconAppMark } from "./icons";
 
 interface OrbitNodeData {
   label: string;
@@ -63,6 +64,7 @@ function OrbitNode({ data, selected }: NodeProps) {
 
       {/* Main interest node */}
       <div
+        className={!selected ? "node-breathe" : undefined}
         style={{
           background: selected ? color : "#FFFFFF",
           color: selected ? "#FFFFFF" : "#1A1916",
@@ -75,13 +77,27 @@ function OrbitNode({ data, selected }: NodeProps) {
           boxShadow: selected
             ? `0 0 0 4px ${color}28, 0 6px 20px ${color}35`
             : `0 2px 8px ${color}22`,
-          transition: "all 0.2s ease",
+          transition: "box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease",
           whiteSpace: "nowrap",
           cursor: "pointer",
           position: "relative",
           zIndex: 1,
         }}
       >
+        {/* Subtle watermark */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0.15,
+            pointerEvents: "none",
+          }}
+        >
+          <IconAppMark size={14} />
+        </div>
         {label}
         {/* Expand indicator */}
         {!isExpanded && dotCount > 0 && (
