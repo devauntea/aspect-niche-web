@@ -79,6 +79,15 @@ body {
   transform-origin: center center;
 }
 
+/* ── Node breathe ────────────────────────────────── */
+@keyframes nodePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.node-breathe {
+  animation: nodePulse 3s ease-in-out infinite;
+}
+
 /* ── Surprise Me backdrop ─────────────────────────── */
 @keyframes fadeInBackdrop {
   from {

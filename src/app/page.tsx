@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import SurpriseCard from "../components/SurpriseCard";
 import GraphCanvas from "../components/GraphCanvas";
 import LogoAnimation from "../components/LogoAnimation";
@@ -14,6 +14,9 @@ import { getResources } from "../data/resources";
 import type { Activity } from "@/types/graph";
 import QuickFilters, { type ActiveFilters } from "../components/QuickFilters";
 import RabbitHolePanel from "../components/RabbitHolePanel";
+import { IconAppMark } from "../components/icons";
+import { applyForceLayout } from "@/lib/forceLayout";
+import { getChecked, saveChecked } from "@/lib/checklistStorage";
 
 import {
   buildInterestNodes,
@@ -100,6 +103,12 @@ export default function Home() {
     cost: [],
   });
   const [noMatchHint, setNoMatchHint] = useState(false);
+  const [showEditHint, setShowEditHint] = useState(() => {
+    try { return !localStorage.getItem("aspect-niche-hint-shown"); } catch { return false; }
+  });
+  const [checkedActivityId, setCheckedActivityId] = useState<string | null>(null);
+  const [checkedItems, setCheckedItems] = useState<number[]>([]);
+  const [allDone, setAllDone] = useState(false);
 
   // ── Onboarding ─────────────────────────────────────────
   function toggleInterest(id: string) {
@@ -131,6 +140,14 @@ export default function Home() {
     setActiveFilters({ environment: [], social: [], difficulty: [], cost: [] });
     setNoMatchHint(false);
   }
+
+  useEffect(() => {
+    if (!showEditHint) return;
+    try { localStorage.setItem("aspect-niche-hint-shown", "1"); } catch {}
+    const t = setTimeout(() => setShowEditHint(false), 3000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Graph construction ─────────────────────────────────
   const interestNodes = useMemo(
@@ -197,6 +214,14 @@ export default function Home() {
   const graphEdges = useMemo(
     () => buildVisibleEdges(visibleIds, selectedInterests),
     [visibleIds, selectedInterests],
+  );
+
+  const layoutNodes = useMemo(
+    () =>
+      expandedInterests.size > 0
+        ? applyForceLayout(allNodes, graphEdges)
+        : allNodes,
+    [allNodes, graphEdges, expandedInterests],
   );
 
   // ── Node tap ───────────────────────────────────────────
@@ -294,6 +319,27 @@ export default function Home() {
   );
   const saved = activityDetail ? isSaved(savedIds, activityDetail.id) : false;
 
+  // Sync checklist state when activity changes (update-during-render pattern)
+  if ((activityDetail?.id ?? null) !== checkedActivityId) {
+    setCheckedActivityId(activityDetail?.id ?? null);
+    setCheckedItems(activityDetail ? getChecked(activityDetail.id) : []);
+    setAllDone(false);
+  }
+
+  function toggleChecked(idx: number) {
+    const next = checkedItems.includes(idx)
+      ? checkedItems.filter((i) => i !== idx)
+      : [...checkedItems, idx];
+    setCheckedItems(next);
+    if (activityDetail) saveChecked(activityDetail.id, next);
+    if (next.length === checklist.length && checklist.length > 0) {
+      setAllDone(true);
+      setTimeout(() => setAllDone(false), 2000);
+    } else {
+      setAllDone(false);
+    }
+  }
+
   const hintText = useMemo(() => {
     if (noMatchHint) return "No activities match — try clearing a filter";
     if (expandedInterests.size === 0)
@@ -324,6 +370,7 @@ export default function Home() {
                 onClick={() => setScreen("onboarding")}
                 className="flex items-center gap-2"
               >
+                <IconAppMark size={20} />
                 <span className="text-lg font-semibold tracking-tight">
                   aspect<span className="text-[#7F77DD]">·niche</span>
                 </span>
@@ -360,6 +407,28 @@ export default function Home() {
                     {savedIds.length > 0 ? `${savedIds.length} saved` : "Saved"}
                   </span>
                 </button>
+
+                {/* Edit interests */}
+                <div className="relative ml-1">
+                  <button
+                    onClick={() => {
+                      setShowEditHint(false);
+                      setScreen("onboarding");
+                    }}
+                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-white transition-colors hover:border-[#7F77DD] hover:text-[#7F77DD]"
+                    style={{ borderColor: "#E8E4DA", color: "#5A5855" }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                      <path d="M7.5 1.5L9.5 3.5L3.5 9.5H1.5V7.5L7.5 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                    </svg>
+                    Edit interests
+                  </button>
+                  {showEditHint && (
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium bg-[#1A1916] text-white pointer-events-none z-50">
+                      ← Change your interests here
+                    </div>
+                  )}
+                </div>
               </div>
             </header>
 
@@ -396,7 +465,7 @@ export default function Home() {
                   </button>
                 </div>
                 <GraphCanvas
-                  nodes={allNodes}
+                  nodes={layoutNodes}
                   edges={graphEdges}
                   selectedId={selectedId}
                   expandedInterests={effectiveExpandedInterests}
@@ -405,370 +474,311 @@ export default function Home() {
               </div>
 
               {/* Detail panel */}
-              <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col overflow-y-auto max-h-[620px]">
-                <h2 className="text-base font-semibold mb-5">Details</h2>
+              {detail?.type !== "activity" ? (
+                <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col overflow-y-auto max-h-[620px]">
+                  <h2 className="text-base font-semibold mb-5">Details</h2>
 
-                {/* ── Empty ── */}
-                {!detail && (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-8 gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-[#F0EDE6] flex items-center justify-center">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <circle
-                          cx="10"
-                          cy="10"
-                          r="7"
-                          stroke="#B0ADA8"
-                          strokeWidth="1.5"
-                        />
-                        <circle cx="10" cy="10" r="2.5" fill="#B0ADA8" />
-                        <line
-                          x1="10"
-                          y1="3"
-                          x2="10"
-                          y2="5.5"
-                          stroke="#B0ADA8"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="10"
-                          y1="14.5"
-                          x2="10"
-                          y2="17"
-                          stroke="#B0ADA8"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="3"
-                          y1="10"
-                          x2="5.5"
-                          y2="10"
-                          stroke="#B0ADA8"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                        <line
-                          x1="14.5"
-                          y1="10"
-                          x2="17"
-                          y2="10"
-                          stroke="#B0ADA8"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-sm font-medium text-[#5A5855]">
-                      Nothing selected
-                    </p>
-                    <p className="text-xs text-[#B0ADA8] leading-relaxed max-w-[180px]">
-                      Tap an interest to expand it, then pick an activity.
-                    </p>
-                  </div>
-                )}
-
-                {/* ── Interest ── */}
-                {detail?.type === "interest" && (
-                  <div className="flex flex-col gap-4">
-                    <div
-                      className="h-0.5 rounded-full w-8"
-                      style={{ background: accentColor }}
-                    />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
-                        Interest
+                  {/* ── Empty ── */}
+                  {!detail && (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#F0EDE6] flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="10" r="7" stroke="#B0ADA8" strokeWidth="1.5" />
+                          <circle cx="10" cy="10" r="2.5" fill="#B0ADA8" />
+                          <line x1="10" y1="3" x2="10" y2="5.5" stroke="#B0ADA8" strokeWidth="1.5" strokeLinecap="round" />
+                          <line x1="10" y1="14.5" x2="10" y2="17" stroke="#B0ADA8" strokeWidth="1.5" strokeLinecap="round" />
+                          <line x1="3" y1="10" x2="5.5" y2="10" stroke="#B0ADA8" strokeWidth="1.5" strokeLinecap="round" />
+                          <line x1="14.5" y1="10" x2="17" y2="10" stroke="#B0ADA8" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <p className="text-sm font-medium text-[#5A5855]">Nothing selected</p>
+                      <p className="text-xs text-[#B0ADA8] leading-relaxed max-w-[180px]">
+                        Tap an interest to expand it, then pick an activity.
                       </p>
-                      <h3 className="text-2xl font-semibold tracking-tight">
-                        {detail.data.label}
-                      </h3>
                     </div>
-                    <p className="text-sm text-[#5A5855] leading-relaxed">
-                      {isExpanded
-                        ? `${(detail.data as (typeof interests)[0]).activityIds.length} activities revealed. Tap any to explore.`
-                        : "Tap this node in the graph to reveal activities."}
-                    </p>
-                    {isExpanded && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {(detail.data as (typeof interests)[0]).activityIds.map(
-                          (id) => {
+                  )}
+
+                  {/* ── Interest ── */}
+                  {detail?.type === "interest" && (
+                    <div className="flex flex-col gap-4">
+                      <div className="h-0.5 rounded-full w-8" style={{ background: accentColor }} />
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">Interest</p>
+                        <h3 className="text-2xl font-semibold tracking-tight">{detail.data.label}</h3>
+                      </div>
+                      <p className="text-sm text-[#5A5855] leading-relaxed">
+                        {isExpanded
+                          ? `${(detail.data as (typeof interests)[0]).activityIds.length} activities revealed. Tap any to explore.`
+                          : "Tap this node in the graph to reveal activities."}
+                      </p>
+                      {isExpanded && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {(detail.data as (typeof interests)[0]).activityIds.map((id) => {
                             const act = activities.find((a) => a.id === id);
                             return act ? (
                               <button
                                 key={id}
                                 onClick={() => setSelectedId(id)}
                                 className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
-                                style={{
-                                  background: `${accentColor}14`,
-                                  color: accentColor,
-                                }}
+                                style={{ background: `${accentColor}14`, color: accentColor }}
                               >
                                 {act.label}
                               </button>
                             ) : null;
-                          },
-                        )}
-                      </div>
-                    )}
-                    <button
-                      onClick={() => handleSelectNode(detail.data.id)}
-                      className="rounded-2xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                      style={{ background: accentColor }}
-                    >
-                      {isExpanded ? "Collapse activities" : "Show activities →"}
-                    </button>
-                  </div>
-                )}
-
-                {/* ── Activity ── */}
-                {detail?.type === "activity" && activityDetail && (
-                  <div className="flex flex-col gap-4">
-                    <div
-                      className="h-0.5 rounded-full w-8"
-                      style={{ background: accentColor }}
-                    />
-
-                    {/* Title + save */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
-                          Activity
-                        </p>
-                        <h3 className="text-2xl font-semibold tracking-tight leading-tight">
-                          {activityDetail.label}
-                        </h3>
-                      </div>
+                          })}
+                        </div>
+                      )}
                       <button
-                        onClick={() => handleToggleSave(activityDetail.id)}
-                        className="mt-1 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
-                        style={{
-                          background: saved ? `${accentColor}18` : "#F0EDE6",
-                          border: saved
-                            ? `1.5px solid ${accentColor}40`
-                            : "1.5px solid transparent",
-                        }}
-                        title={saved ? "Remove from saved" : "Save activity"}
+                        onClick={() => handleSelectNode(detail.data.id)}
+                        className="rounded-2xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                        style={{ background: accentColor }}
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
-                            fill={saved ? accentColor : "none"}
-                            stroke={saved ? accentColor : "#9A9690"}
-                            strokeWidth="1.3"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        {isExpanded ? "Collapse activities" : "Show activities →"}
                       </button>
                     </div>
+                  )}
+                </div>
+              ) : (
+                /* ── Activity: flip card ── */
+                <div className="flip-scene rounded-3xl shadow-sm" style={{ height: 620 }}>
+                  <div className={`flip-card w-full h-full${isNicheMode && nicheContent[activityDetail!.id] ? " is-flipped" : ""}`}>
 
-                    {/* Niche mode toggle */}
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-[#5A5855] leading-relaxed flex-1 mr-3">
-                        {isNicheMode && nicheContent[activityDetail.id]
-                          ? nicheContent[activityDetail.id].description
-                          : activityDetail.description}
-                      </p>
-                      <NicheMode
-                        isNiche={isNicheMode}
-                        onToggle={() => setIsNicheMode((n) => !n)}
-                        accentColor={accentColor}
-                      />
-                    </div>
+                    {/* Front face */}
+                    <div className="flip-card__face border border-[#E8E4DA] bg-white p-5 flex flex-col gap-4 overflow-y-auto">
+                      <h2 className="text-base font-semibold">Details</h2>
+                      <div className="h-0.5 rounded-full w-8" style={{ background: accentColor }} />
 
-                    {/* Niche content */}
-                    {isNicheMode && nicheContent[activityDetail.id] && (
-                      <div
-                        className="rounded-xl p-3.5 flex flex-col gap-2.5"
-                        style={{
-                          background: `${accentColor}08`,
-                          border: `1px solid ${accentColor}20`,
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="text-[10px] uppercase tracking-widest font-semibold"
-                            style={{ color: accentColor }}
-                          >
-                            ◆ {nicheContent[activityDetail.id].nicheLabel}
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          {nicheContent[activityDetail.id].rabbitHoles.map(
-                            (hole, i) => (
-                              <div key={i} className="flex items-start gap-2">
-                                <span
-                                  className="text-xs mt-0.5 flex-shrink-0"
-                                  style={{ color: accentColor }}
-                                >
-                                  →
-                                </span>
-                                <p className="text-xs text-[#5A5855] leading-relaxed">
-                                  {hole}
-                                </p>
-                              </div>
-                            ),
-                          )}
-                        </div>
-                        <div
-                          className="rounded-lg p-2.5 mt-1"
-                          style={{ background: `${accentColor}10` }}
-                        >
-                          <span className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">
-                            Insider term:{" "}
-                          </span>
-                          <span
-                            className="text-xs font-semibold"
-                            style={{ color: accentColor }}
-                          >
-                            {nicheContent[activityDetail.id].insiderTerm}
-                          </span>
-                          <p className="text-[11px] text-[#5A5855] mt-1 leading-relaxed">
-                            {nicheContent[activityDetail.id].insiderDefinition}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {[
-                        diffLabel[activityDetail.tags.difficulty],
-                        envLabel[activityDetail.tags.environment],
-                        costLabel[activityDetail.tags.cost],
-                      ].map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full px-2.5 py-1 text-[11px] font-medium"
-                          style={{
-                            background: `${accentColor}12`,
-                            color: accentColor,
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Why this fits — only shown after Surprise me */}
-                    {randomReason && (
-                      <div
-                        className="rounded-xl p-3.5 flex gap-3"
-                        style={{ background: `${accentColor}0e` }}
-                      >
-                        <span className="text-base flex-shrink-0">✨</span>
+                      {/* Title + save */}
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p
-                            className="text-[10px] uppercase tracking-widest mb-1"
-                            style={{ color: accentColor }}
-                          >
-                            Why this fits
-                          </p>
-                          <p className="text-xs text-[#1A1916] leading-relaxed">
-                            {randomReason}
-                          </p>
+                          <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">Activity</p>
+                          <h3 className="text-2xl font-semibold tracking-tight leading-tight">
+                            {activityDetail!.label}
+                          </h3>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Beginner tip */}
-                    <div
-                      className="rounded-xl p-3.5 flex gap-3"
-                      style={{ background: "#FAF8F2" }}
-                    >
-                      <span className="text-base flex-shrink-0">💡</span>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
-                          First step
-                        </p>
-                        <p className="text-xs text-[#1A1916] leading-relaxed">
-                          {activityDetail.beginnerTip}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Checklist */}
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-2">
-                        Getting started
-                      </p>
-                      <div className="flex flex-col gap-1.5">
-                        {checklist.map((step, i) => (
-                          <div key={i} className="flex items-start gap-2.5">
-                            <div
-                              className="w-4 h-4 rounded-full border-[1.5px] flex-shrink-0 mt-0.5"
-                              style={{ borderColor: `${accentColor}60` }}
+                        <button
+                          onClick={() => handleToggleSave(activityDetail!.id)}
+                          className="mt-1 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
+                          style={{
+                            background: saved ? `${accentColor}18` : "#F0EDE6",
+                            border: saved ? `1.5px solid ${accentColor}40` : "1.5px solid transparent",
+                          }}
+                          title={saved ? "Remove from saved" : "Save activity"}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path
+                              d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
+                              fill={saved ? accentColor : "none"}
+                              stroke={saved ? accentColor : "#9A9690"}
+                              strokeWidth="1.3"
+                              strokeLinejoin="round"
                             />
-                            <p className="text-xs text-[#5A5855] leading-relaxed">
-                              {step}
-                            </p>
-                          </div>
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Description + niche toggle */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-[#5A5855] leading-relaxed flex-1 mr-3">
+                          {activityDetail!.description}
+                        </p>
+                        {nicheContent[activityDetail!.id] && (
+                          <NicheMode
+                            isNiche={isNicheMode}
+                            onToggle={() => setIsNicheMode((n) => !n)}
+                            accentColor={accentColor}
+                          />
+                        )}
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          diffLabel[activityDetail!.tags.difficulty],
+                          envLabel[activityDetail!.tags.environment],
+                          costLabel[activityDetail!.tags.cost],
+                        ].map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full px-2.5 py-1 text-[11px] font-medium"
+                            style={{ background: `${accentColor}12`, color: accentColor }}
+                          >
+                            {tag}
+                          </span>
                         ))}
                       </div>
-                    </div>
 
-                    {/* Similar activities */}
-                    {similarActs.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-2">
-                          You might also like
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {similarActs.map((a) => (
-                            <button
-                              key={a.id}
-                              onClick={() => {
-                                setSelectedId(a.id);
-                                setRandomReason(null);
-                              }}
-                              className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
-                              style={{
-                                background: `${ACTIVITY_COLORS[a.id] ?? "#7F77DD"}14`,
-                                color: ACTIVITY_COLORS[a.id] ?? "#7F77DD",
-                              }}
-                            >
-                              {a.label}
-                            </button>
-                          ))}
+                      {/* Why this fits */}
+                      {randomReason && (
+                        <div className="rounded-xl p-3.5 flex gap-3" style={{ background: `${accentColor}0e` }}>
+                          <span className="text-base flex-shrink-0">✨</span>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: accentColor }}>
+                              Why this fits
+                            </p>
+                            <p className="text-xs text-[#1A1916] leading-relaxed">{randomReason}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Beginner tip */}
+                      <div className="rounded-xl p-3.5 flex gap-3" style={{ background: "#FAF8F2" }}>
+                        <span className="text-base flex-shrink-0">💡</span>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">First step</p>
+                          <p className="text-xs text-[#1A1916] leading-relaxed">{activityDetail!.beginnerTip}</p>
                         </div>
                       </div>
-                    )}
 
-                    {/* Resource links */}
-                    <ResourceLinks
-                      resources={getResources(
-                        activityDetail.id,
-                        activityDetail.label,
+                      {/* Checklist */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Getting started</p>
+                          {allDone ? (
+                            <span className="text-[11px] font-semibold" style={{ color: accentColor }}>All done! ✦</span>
+                          ) : checklist.length > 0 ? (
+                            <span className="text-[11px] text-[#B0ADA8]">{checkedItems.length} of {checklist.length} done</span>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          {checklist.map((step, i) => {
+                            const done = checkedItems.includes(i);
+                            return (
+                              <button key={i} onClick={() => toggleChecked(i)} className="flex items-start gap-2.5 text-left w-full">
+                                <div
+                                  className="w-4 h-4 rounded-full border-[1.5px] flex-shrink-0 mt-0.5 flex items-center justify-center transition-all duration-150"
+                                  style={{
+                                    borderColor: done ? accentColor : `${accentColor}60`,
+                                    background: done ? accentColor : "transparent",
+                                  }}
+                                >
+                                  {done && (
+                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                                      <path d="M1.5 4L3 5.5L6.5 2" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <p
+                                  className="text-xs leading-relaxed transition-all duration-150"
+                                  style={{
+                                    color: done ? `${accentColor}80` : "#5A5855",
+                                    textDecoration: done ? "line-through" : "none",
+                                  }}
+                                >
+                                  {step}
+                                </p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Similar activities */}
+                      {similarActs.length > 0 && (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-2">You might also like</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {similarActs.map((a) => (
+                              <button
+                                key={a.id}
+                                onClick={() => { setSelectedId(a.id); setRandomReason(null); }}
+                                className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
+                                style={{
+                                  background: `${ACTIVITY_COLORS[a.id] ?? "#7F77DD"}14`,
+                                  color: ACTIVITY_COLORS[a.id] ?? "#7F77DD",
+                                }}
+                              >
+                                {a.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                      accentColor={accentColor}
-                    />
 
-                    {/* Find nearby */}
-                    <a
-                      href={`https://www.google.com/maps/search/${encodeURIComponent(activityDetail.label + " near me")}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-2xl py-3 text-sm font-semibold text-white text-center transition-all hover:opacity-90 active:scale-95 mt-auto"
-                      style={{
-                        background: accentColor,
-                        boxShadow: `0 4px 14px ${accentColor}35`,
-                        display: "block",
-                      }}
-                    >
-                      Find nearby →
-                    </a>
+                      {/* Resource links */}
+                      <ResourceLinks
+                        resources={getResources(activityDetail!.id, activityDetail!.label)}
+                        accentColor={accentColor}
+                      />
+
+                      {/* Find nearby */}
+                      <a
+                        href={`https://www.google.com/maps/search/${encodeURIComponent(activityDetail!.label + " near me")}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-2xl py-3 text-sm font-semibold text-white text-center transition-all hover:opacity-90 active:scale-95 mt-auto"
+                        style={{ background: accentColor, boxShadow: `0 4px 14px ${accentColor}35`, display: "block" }}
+                      >
+                        Find nearby →
+                      </a>
+                    </div>
+
+                    {/* Back face — niche mode */}
+                    {nicheContent[activityDetail!.id] && (
+                      <div
+                        className="flip-card__face flip-card__face--back p-5 flex flex-col gap-4 overflow-y-auto"
+                        style={{ background: `${accentColor}08`, border: `1.5px solid ${accentColor}` }}
+                      >
+                        {/* Header gradient band */}
+                        <div
+                          className="rounded-xl px-4 py-3"
+                          style={{ background: `linear-gradient(135deg, ${accentColor}20, ${accentColor}08)` }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: accentColor }}>
+                                ◆ {nicheContent[activityDetail!.id].nicheLabel}
+                              </span>
+                              <h3 className="text-xl font-semibold tracking-tight mt-0.5">{activityDetail!.label}</h3>
+                            </div>
+                            <NicheMode
+                              isNiche={isNicheMode}
+                              onToggle={() => setIsNicheMode((n) => !n)}
+                              accentColor={accentColor}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Niche description */}
+                        <p className="text-sm text-[#5A5855] leading-relaxed">
+                          {nicheContent[activityDetail!.id].description}
+                        </p>
+
+                        {/* Rabbit holes */}
+                        <div className="flex flex-col gap-2">
+                          {nicheContent[activityDetail!.id].rabbitHoles.map((hole, i) => (
+                            <div key={i} className="flex items-start gap-2.5 pl-3 border-l-[3px]" style={{ borderColor: accentColor }}>
+                              <p className="text-xs text-[#5A5855] leading-relaxed">{hole}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Insider term */}
+                        <div className="rounded-lg p-2.5" style={{ background: `${accentColor}10` }}>
+                          <span className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Insider term: </span>
+                          <span className="text-xs font-semibold" style={{ color: accentColor }}>
+                            {nicheContent[activityDetail!.id].insiderTerm}
+                          </span>
+                          <p className="text-[11px] text-[#5A5855] mt-1 leading-relaxed">
+                            {nicheContent[activityDetail!.id].insiderDefinition}
+                          </p>
+                        </div>
+
+                        {/* Find nearby */}
+                        <a
+                          href={`https://www.google.com/maps/search/${encodeURIComponent(activityDetail!.label + " near me")}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-2xl py-3 text-sm font-semibold text-white text-center transition-all hover:opacity-90 active:scale-95 mt-auto"
+                          style={{ background: accentColor, boxShadow: `0 4px 14px ${accentColor}35`, display: "block" }}
+                        >
+                          Find nearby →
+                        </a>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </section>
 
             {/* Rabbit hole panel — activity only */}

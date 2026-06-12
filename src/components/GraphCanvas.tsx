@@ -124,6 +124,16 @@ export default function GraphCanvas({
     [hobbyNodes, interestChildMap],
   );
 
+  const connectedIds = useMemo(() => {
+    if (!selectedId) return null;
+    const s = new Set<string>([selectedId]);
+    for (const e of hobbyEdges) {
+      if (e.source === selectedId) s.add(e.target);
+      if (e.target === selectedId) s.add(e.source);
+    }
+    return s;
+  }, [selectedId, hobbyEdges]);
+
   const flowNodes: Node[] = useMemo(
     () =>
       hobbyNodes.map((n) => {
@@ -131,6 +141,8 @@ export default function GraphCanvas({
         const isInterest = n.type === "interest";
         const color = n.color ?? "#7F77DD";
         const position = posOverrides[n.id] ?? n.position;
+        const dimmed = connectedIds !== null && !connectedIds.has(n.id);
+        const connected = connectedIds !== null && connectedIds.has(n.id) && !isSelected;
 
         if (isInterest) {
           const interest = n.data as { activityIds: string[] };
@@ -143,6 +155,10 @@ export default function GraphCanvas({
             position,
             type: "orbitInterest",
             selected: isSelected,
+            style: {
+              opacity: dimmed ? 0.4 : 1,
+              transition: "opacity 0.2s ease",
+            },
             data: {
               label: n.label,
               color,
@@ -163,7 +179,9 @@ export default function GraphCanvas({
             color: isSelected ? "#FFFFFF" : "#1A1916",
             border: isSelected
               ? `2px solid ${color}`
-              : `1.5px solid ${color}40`,
+              : connected
+                ? `1.5px solid ${color}99`
+                : `1.5px solid ${color}40`,
             borderRadius: 12,
             padding: "7px 14px",
             fontWeight: isSelected ? 500 : 400,
@@ -171,7 +189,8 @@ export default function GraphCanvas({
             boxShadow: isSelected
               ? `0 0 0 4px ${color}28, 0 6px 20px ${color}35`
               : "0 1px 3px rgba(0,0,0,0.05)",
-            transition: "all 0.18s ease",
+            opacity: dimmed ? 0.4 : 1,
+            transition: "all 0.18s ease, opacity 0.2s ease",
             minWidth: 90,
             maxWidth: 130,
             textAlign: "center" as const,
@@ -182,13 +201,18 @@ export default function GraphCanvas({
           },
         };
       }),
-    [hobbyNodes, selectedId, expandedInterests, posOverrides],
+    [hobbyNodes, selectedId, expandedInterests, posOverrides, connectedIds],
   );
 
   const flowEdges: Edge[] = useMemo(
     () =>
       hobbyEdges.map((e) => {
         const src = hobbyNodes.find((n) => n.id === e.source);
+        const isHighlighted =
+          selectedId !== null &&
+          (e.source === selectedId || e.target === selectedId);
+        const isDimmed =
+          selectedId !== null && !isHighlighted;
         return {
           id: e.id,
           source: e.source,
@@ -196,12 +220,13 @@ export default function GraphCanvas({
           animated: false,
           style: {
             stroke: src?.color ?? "#D3D0C8",
-            strokeWidth: 1.5,
-            opacity: 0.35,
+            strokeWidth: isHighlighted ? 2.5 : 1.5,
+            opacity: isHighlighted ? 0.85 : isDimmed ? 0.08 : 0.35,
+            transition: "opacity 0.2s ease",
           },
         };
       }),
-    [hobbyEdges, hobbyNodes],
+    [hobbyEdges, hobbyNodes, selectedId],
   );
 
   const handleNodeClick: NodeMouseHandler = useCallback(
@@ -218,8 +243,8 @@ export default function GraphCanvas({
         onNodeClick={handleNodeClick}
         onNodesChange={handleNodesChange}
         fitView
-        fitViewOptions={{ padding: 0.45 }}
-        minZoom={0.25}
+        fitViewOptions={{ padding: 0.35 }}
+        minZoom={0.2}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
