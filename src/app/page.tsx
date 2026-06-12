@@ -13,6 +13,7 @@ import { nicheContent } from "../data/nicheContent";
 import { getResources } from "../data/resources";
 import type { Activity } from "@/types/graph";
 import QuickFilters, { type ActiveFilters } from "../components/QuickFilters";
+import RabbitHolePanel from "../components/RabbitHolePanel";
 
 import {
   buildInterestNodes,
@@ -769,6 +770,19 @@ export default function Home() {
                 )}
               </div>
             </section>
+
+            {/* Rabbit hole panel — activity only */}
+            {detail?.type === "activity" && activityDetail && (
+              <div className="mt-4">
+                <RabbitHolePanel
+                  key={activityDetail.id}
+                  activityId={activityDetail.id}
+                  activityLabel={activityDetail.label}
+                  accentColor={accentColor}
+                  tags={activityDetail.tags as Record<string, string>}
+                />
+              </div>
+            )}
           </div>
 
           {/* Saved drawer */}
