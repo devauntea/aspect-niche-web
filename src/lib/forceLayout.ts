@@ -51,7 +51,7 @@ export function applyForceLayout(
         d.type === "interest" ? -600 : -300,
       ),
     )
-    .force("collide", forceCollide<SimNode>(80))
+    .force("collide", forceCollide<SimNode>(95))
     .force("center", forceCenter(320, 280))
     .force("x", forceX<SimNode>(320).strength(0.05))
     .force("y", forceY<SimNode>(280).strength(0.05))

@@ -2,7 +2,6 @@
 
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { IconAppMark } from "./icons";
 
 interface OrbitNodeData {
   label: string;
@@ -11,6 +10,20 @@ interface OrbitNodeData {
   childCount: number;
   childColors: string[];
 }
+
+// Handles centered on the pill (center of the 120×120 container = 60, 60)
+const CENTER_HANDLE: React.CSSProperties = {
+  opacity: 0,
+  top: 60,
+  left: 60,
+  transform: "translate(-50%, -50%)",
+  width: 1,
+  height: 1,
+  minWidth: 1,
+  minHeight: 1,
+  border: "none",
+  background: "none",
+};
 
 function OrbitNode({ data, selected }: NodeProps) {
   const d = data as unknown as OrbitNodeData;
@@ -22,8 +35,14 @@ function OrbitNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{ width: 120, height: 120 }}
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 120,
+        height: 120,
+      }}
     >
       {/* Orbiting dots — only when collapsed */}
       {!isExpanded &&
@@ -34,8 +53,8 @@ function OrbitNode({ data, selected }: NodeProps) {
           return (
             <div
               key={i}
-              className="absolute"
               style={{
+                position: "absolute",
                 width: 120,
                 height: 120,
                 top: 0,
@@ -50,56 +69,42 @@ function OrbitNode({ data, selected }: NodeProps) {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   borderRadius: "50%",
                   background: dotColor,
                   transform: "translate(-50%, -50%)",
-                  opacity: 0.75,
+                  opacity: 0.8,
                 }}
               />
             </div>
           );
         })}
 
-      {/* Main interest node */}
+      {/* Solid colored pill */}
       <div
         className={!selected ? "node-breathe" : undefined}
         style={{
-          background: selected ? color : "#FFFFFF",
-          color: selected ? "#FFFFFF" : "#1A1916",
-          border: `2px solid ${color}`,
-          borderRadius: 20,
+          background: color,
+          color: "white",
+          borderRadius: 16,
           padding: "10px 18px",
           fontWeight: 600,
-          fontSize: 13,
+          fontSize: 14,
           letterSpacing: "-0.01em",
           boxShadow: selected
-            ? `0 0 0 4px ${color}28, 0 6px 20px ${color}35`
-            : `0 2px 8px ${color}22`,
-          transition: "box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease",
+            ? `0 0 0 4px ${color}28, 0 4px 16px ${color}55`
+            : `0 4px 16px ${color}55`,
+          transition: "box-shadow 0.2s ease",
           whiteSpace: "nowrap",
           cursor: "pointer",
           position: "relative",
           zIndex: 1,
+          userSelect: "none",
         }}
       >
-        {/* Subtle watermark */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: 0.15,
-            pointerEvents: "none",
-          }}
-        >
-          <IconAppMark size={14} />
-        </div>
         {label}
-        {/* Expand indicator */}
+        {/* Count badge when collapsed */}
         {!isExpanded && dotCount > 0 && (
           <span
             style={{
@@ -109,14 +114,15 @@ function OrbitNode({ data, selected }: NodeProps) {
               width: 16,
               height: 16,
               borderRadius: "50%",
-              background: color,
-              color: "white",
+              background: "white",
+              color,
               fontSize: 9,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontWeight: 700,
-              border: "1.5px solid white",
+              border: `1.5px solid ${color}`,
+              lineHeight: 1,
             }}
           >
             {dotCount}
@@ -124,8 +130,8 @@ function OrbitNode({ data, selected }: NodeProps) {
         )}
       </div>
 
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
-      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} style={CENTER_HANDLE} />
+      <Handle type="target" position={Position.Top} style={CENTER_HANDLE} />
     </div>
   );
 }
