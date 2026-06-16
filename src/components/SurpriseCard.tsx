@@ -167,7 +167,13 @@ export default function SurpriseCard({ activity, reason, onDismiss }: Props) {
                 }}
               />
 
-              <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+              <div
+                className="flex-1 overflow-y-auto p-6 flex flex-col gap-4"
+                style={{
+                  overscrollBehavior: "contain",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div>

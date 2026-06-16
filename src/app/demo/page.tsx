@@ -341,6 +341,15 @@ export default function Home() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectedId, handleSelectNode]);
 
+  // ── Lock background scroll while any full-screen overlay is open ──
+  useEffect(() => {
+    const overlayOpen = !!selectedId || !!surpriseActivity;
+    document.body.style.overflow = overlayOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedId, surpriseActivity]);
+
   // ── Random activity ────────────────────────────────────
   function handleRandom() {
     const { environment, social, difficulty, cost } = activeFilters;
@@ -743,7 +752,12 @@ export default function Home() {
           {/* Scroll stack — card + rabbit hole panel scroll together */}
           <div
             className="w-full max-w-md flex flex-col gap-3 overflow-y-auto"
-            style={{ maxHeight: "85vh", margin: "0 auto" }}
+            style={{
+              maxHeight: "85vh",
+              margin: "0 auto",
+              overscrollBehavior: "contain",
+              WebkitOverflowScrolling: "touch",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
           <div className="w-full bg-white rounded-3xl shadow-2xl flex flex-col surprise-card-enter overflow-hidden">
