@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "aspect·niche",
+  title: "Aspect Niche — Navigate the Hobby Verse",
   description:
-    "Discover hobbies and activities through an interactive graph of interests.",
+    "A graph-based hobby discovery app. Pick your interests, explore connections, and find your next obsession.",
+  openGraph: {
+    title: "Aspect Niche — Navigate the Hobby Verse",
+    description:
+      "A graph-based hobby discovery app. Pick your interests, explore connections, and find your next obsession.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

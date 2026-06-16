@@ -10,14 +10,22 @@ interface IconProps {
 export function IconFitness({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <rect x="8" y="24" width="8" height="8" rx="3" fill="#D4537E"/>
-      <rect x="40" y="24" width="8" height="8" rx="3" fill="#D4537E"/>
-      <rect x="14" y="20" width="5" height="16" rx="2.5" fill="#D4537E"/>
-      <rect x="37" y="20" width="5" height="16" rx="2.5" fill="#D4537E"/>
-      <rect x="19" y="26" width="18" height="4" rx="2" fill="#EF9F27"/>
-      <line x1="4" y1="22" x2="7" y2="22" stroke="#D4537E" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-      <line x1="4" y1="28" x2="7" y2="28" stroke="#D4537E" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-      <line x1="4" y1="34" x2="7" y2="34" stroke="#D4537E" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+      {/* Left weight */}
+      <rect x="7" y="20" width="9" height="16" rx="2.5" stroke="#D4537E" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Right weight */}
+      <rect x="40" y="20" width="9" height="16" rx="2.5" stroke="#D4537E" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Inner collars */}
+      <rect x="16" y="23" width="5" height="10" rx="1.5" stroke="#D4537E" strokeWidth="2"/>
+      <rect x="35" y="23" width="5" height="10" rx="1.5" stroke="#D4537E" strokeWidth="2"/>
+      {/* Bar */}
+      <line x1="21" y1="28" x2="35" y2="28" stroke="#D4537E" strokeWidth="2" strokeLinecap="round"/>
+      {/* Dots at bar endpoints and weight outer corners */}
+      <circle cx="21" cy="28" r="3" fill="#D4537E"/>
+      <circle cx="35" cy="28" r="3" fill="#D4537E"/>
+      <circle cx="7" cy="20" r="3" fill="#D4537E"/>
+      <circle cx="16" cy="20" r="3" fill="#D4537E"/>
+      <circle cx="40" cy="20" r="3" fill="#D4537E"/>
+      <circle cx="49" cy="20" r="3" fill="#D4537E"/>
     </svg>
   );
 }
@@ -25,15 +33,20 @@ export function IconFitness({ size = 24, className }: IconProps) {
 export function IconCreative({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <circle cx="28" cy="30" r="16" fill="#7F77DD" opacity="0.15"/>
-      <circle cx="28" cy="30" r="16" fill="none" stroke="#7F77DD" strokeWidth="2.5"/>
-      <circle cx="22" cy="26" r="3.5" fill="#D4537E"/>
-      <circle cx="32" cy="24" r="3" fill="#EF9F27"/>
-      <circle cx="36" cy="32" r="3" fill="#1D9E75"/>
-      <circle cx="20" cy="34" r="3" fill="#378ADD"/>
-      <ellipse cx="30" cy="36" rx="5" ry="3.5" fill="#FAF8F2"/>
-      <line x1="34" y1="18" x2="42" y2="10" stroke="#7F77DD" strokeWidth="2.5" strokeLinecap="round"/>
-      <rect x="40" y="8" width="6" height="3" rx="1.5" fill="#7F77DD" transform="rotate(-45 40 8)"/>
+      {/* Palette oval */}
+      <path
+        d="M28,8 C42,8 50,17 48,28 C46,37 38,44 30,42 C26,41 24,38 24,35 C24,31 20,28 16,28 C10,28 6,22 10,16 C14,10 20,8 28,8 Z"
+        stroke="#7F77DD" strokeWidth="2" strokeLinejoin="round"
+      />
+      {/* Thumb hole */}
+      <circle cx="20" cy="16" r="4" stroke="#7F77DD" strokeWidth="2"/>
+      {/* Color paint dots */}
+      <circle cx="32" cy="18" r="3" fill="#D4537E"/>
+      <circle cx="40" cy="24" r="3" fill="#EF9F27"/>
+      <circle cx="42" cy="33" r="3" fill="#1D9E75"/>
+      <circle cx="35" cy="38" r="3" fill="#378ADD"/>
+      <circle cx="28" cy="36" r="3" fill="#D85A30"/>
+      <circle cx="22" cy="28" r="3" fill="#9CB85A"/>
     </svg>
   );
 }
@@ -41,15 +54,20 @@ export function IconCreative({ size = 24, className }: IconProps) {
 export function IconOutdoor({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <polygon points="28,10 44,42 12,42" fill="#1D9E75" opacity="0.2"/>
-      <polygon points="28,10 44,42 12,42" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinejoin="round"/>
-      <polygon points="20,42 28,26 36,42" fill="#1D9E75" opacity="0.5"/>
-      <circle cx="42" cy="14" r="5" fill="#EF9F27"/>
-      <line x1="42" y1="6" x2="42" y2="4" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <line x1="48" y1="9" x2="50" y2="8" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <line x1="50" y1="14" x2="52" y2="14" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <line x1="36" y1="9" x2="34" y2="8" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <line x1="8" y1="44" x2="48" y2="44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" opacity="0.3"/>
+      {/* Back mountain */}
+      <polyline points="8,44 22,16 36,44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Front mountain */}
+      <polyline points="20,44 34,22 48,44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Tent */}
+      <polyline points="16,44 28,32 40,44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Ground */}
+      <line x1="6" y1="44" x2="50" y2="44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"/>
+      {/* Dots at peaks and tent corners */}
+      <circle cx="22" cy="16" r="3" fill="#1D9E75"/>
+      <circle cx="34" cy="22" r="3" fill="#1D9E75"/>
+      <circle cx="28" cy="32" r="3" fill="#1D9E75"/>
+      <circle cx="16" cy="44" r="3" fill="#1D9E75"/>
+      <circle cx="40" cy="44" r="3" fill="#1D9E75"/>
     </svg>
   );
 }
@@ -57,27 +75,21 @@ export function IconOutdoor({ size = 24, className }: IconProps) {
 export function IconTech({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <line x1="28" y1="10" x2="28" y2="6" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="28" cy="5" r="2.5" fill="#378ADD"/>
-      <rect x="18" y="10" width="20" height="16" rx="4" fill="#378ADD" opacity="0.2"/>
-      <rect x="18" y="10" width="20" height="16" rx="4" fill="none" stroke="#378ADD" strokeWidth="2"/>
-      <circle cx="24" cy="18" r="3" fill="white" stroke="#378ADD" strokeWidth="1.5"/>
-      <circle cx="32" cy="18" r="3" fill="white" stroke="#378ADD" strokeWidth="1.5"/>
-      <circle cx="24" cy="18" r="1.5" fill="#378ADD"/>
-      <circle cx="32" cy="18" r="1.5" fill="#378ADD"/>
-      <rect x="23" y="23" width="10" height="2" rx="1" fill="#378ADD" opacity="0.6"/>
-      <rect x="25" y="26" width="6" height="3" rx="1" fill="#378ADD" opacity="0.5"/>
-      <rect x="14" y="29" width="28" height="18" rx="4" fill="#378ADD" opacity="0.15"/>
-      <rect x="14" y="29" width="28" height="18" rx="4" fill="none" stroke="#378ADD" strokeWidth="2"/>
-      <rect x="20" y="33" width="16" height="8" rx="2" fill="#7F77DD" opacity="0.3"/>
-      <rect x="20" y="33" width="16" height="8" rx="2" fill="none" stroke="#7F77DD" strokeWidth="1.5"/>
-      <circle cx="24" cy="37" r="2" fill="#EF9F27"/>
-      <circle cx="28" cy="37" r="1.5" fill="#D4537E"/>
-      <circle cx="32" cy="37" r="2" fill="#1D9E75"/>
-      <rect x="6" y="30" width="8" height="14" rx="3" fill="#378ADD" opacity="0.2"/>
-      <rect x="6" y="30" width="8" height="14" rx="3" fill="none" stroke="#378ADD" strokeWidth="2"/>
-      <rect x="42" y="30" width="8" height="14" rx="3" fill="#378ADD" opacity="0.2"/>
-      <rect x="42" y="30" width="8" height="14" rx="3" fill="none" stroke="#378ADD" strokeWidth="2"/>
+      {/* Antenna */}
+      <line x1="28" y1="9" x2="28" y2="16" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="28" cy="8" r="3" fill="#378ADD"/>
+      {/* Head */}
+      <rect x="12" y="16" width="32" height="24" rx="4" stroke="#378ADD" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Eyes */}
+      <circle cx="21" cy="26" r="4" stroke="#378ADD" strokeWidth="2"/>
+      <circle cx="35" cy="26" r="4" stroke="#378ADD" strokeWidth="2"/>
+      <circle cx="21" cy="26" r="2" fill="#378ADD"/>
+      <circle cx="35" cy="26" r="2" fill="#378ADD"/>
+      {/* Mouth */}
+      <rect x="20" y="33" width="16" height="4" rx="2" stroke="#378ADD" strokeWidth="2"/>
+      {/* Corner dots */}
+      <circle cx="12" cy="16" r="3" fill="#378ADD"/>
+      <circle cx="44" cy="16" r="3" fill="#378ADD"/>
     </svg>
   );
 }
@@ -85,24 +97,27 @@ export function IconTech({ size = 24, className }: IconProps) {
 export function IconSocial({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <circle cx="16" cy="16" r="7" fill="#EF9F27"/>
-      <path d="M6 38 Q6 28 16 28 Q22 28 24 32" stroke="#EF9F27" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <circle cx="40" cy="16" r="7" fill="#D4537E"/>
-      <path d="M50 38 Q50 28 40 28 Q34 28 32 32" stroke="#D4537E" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <rect x="20" y="8" width="14" height="10" rx="3" fill="#EF9F27" opacity="0.2"/>
-      <rect x="20" y="8" width="14" height="10" rx="3" fill="none" stroke="#EF9F27" strokeWidth="1.5"/>
-      <path d="M22 18 L20 22 L26 18" fill="#EF9F27" opacity="0.2"/>
-      <path d="M22 18 L20 22 L26 18" fill="none" stroke="#EF9F27" strokeWidth="1.5" strokeLinejoin="round"/>
-      <rect x="22" y="24" width="14" height="10" rx="3" fill="#D4537E" opacity="0.2"/>
-      <rect x="22" y="24" width="14" height="10" rx="3" fill="none" stroke="#D4537E" strokeWidth="1.5"/>
-      <path d="M34 34 L36 38 L30 34" fill="#D4537E" opacity="0.2"/>
-      <path d="M34 34 L36 38 L30 34" fill="none" stroke="#D4537E" strokeWidth="1.5" strokeLinejoin="round"/>
-      <circle cx="26" cy="13" r="1.2" fill="#EF9F27"/>
-      <circle cx="29" cy="13" r="1.2" fill="#EF9F27"/>
-      <circle cx="32" cy="13" r="1.2" fill="#EF9F27"/>
-      <circle cx="28" cy="29" r="1.2" fill="#D4537E"/>
-      <circle cx="31" cy="29" r="1.2" fill="#D4537E"/>
-      <circle cx="34" cy="29" r="1.2" fill="#D4537E"/>
+      {/* X connection lines */}
+      <line x1="15" y1="15" x2="41" y2="41" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="41" y1="15" x2="15" y2="41" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
+      {/* Top-left bubble */}
+      <rect x="4" y="6" width="18" height="13" rx="3" stroke="#EF9F27" strokeWidth="2"/>
+      <path d="M8,19 L7,24 L13,19" stroke="#EF9F27" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Top-right bubble */}
+      <rect x="34" y="6" width="18" height="13" rx="3" stroke="#EF9F27" strokeWidth="2"/>
+      <path d="M48,19 L49,24 L43,19" stroke="#EF9F27" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Bottom-left bubble */}
+      <rect x="4" y="34" width="18" height="13" rx="3" stroke="#EF9F27" strokeWidth="2"/>
+      <path d="M8,34 L7,29 L13,34" stroke="#EF9F27" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Bottom-right bubble */}
+      <rect x="34" y="34" width="18" height="13" rx="3" stroke="#EF9F27" strokeWidth="2"/>
+      <path d="M48,34 L49,29 L43,34" stroke="#EF9F27" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Dots at bubble centers and intersection */}
+      <circle cx="13" cy="13" r="3" fill="#EF9F27"/>
+      <circle cx="43" cy="13" r="3" fill="#EF9F27"/>
+      <circle cx="13" cy="43" r="3" fill="#EF9F27"/>
+      <circle cx="43" cy="43" r="3" fill="#EF9F27"/>
+      <circle cx="28" cy="28" r="3" fill="#EF9F27"/>
     </svg>
   );
 }
@@ -110,17 +125,21 @@ export function IconSocial({ size = 24, className }: IconProps) {
 export function IconCulinary({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <rect x="14" y="36" width="28" height="8" rx="3" fill="#D85A30"/>
-      <rect x="14" y="36" width="28" height="8" rx="3" fill="none" stroke="#D85A30" strokeWidth="2"/>
-      <path d="M20 36 C20 36 16 32 16 24 C16 16 22 10 28 10 C34 10 40 16 40 24 C40 32 36 36 36 36 Z" fill="#FAF8F2"/>
-      <path d="M20 36 C20 36 16 32 16 24 C16 16 22 10 28 10 C34 10 40 16 40 24 C40 32 36 36 36 36 Z" fill="none" stroke="#D85A30" strokeWidth="2.5"/>
-      <path d="M18 22 Q20 18 24 20" stroke="#D85A30" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.5"/>
-      <path d="M38 22 Q36 18 32 20" stroke="#D85A30" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.5"/>
-      <line x1="20" y1="40" x2="36" y2="40" stroke="white" strokeWidth="1" opacity="0.5"/>
-      <line x1="20" y1="46" x2="20" y2="52" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <line x1="36" y1="46" x2="36" y2="52" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="20" cy="53" r="2" fill="#EF9F27"/>
-      <circle cx="36" cy="53" r="2" fill="#EF9F27"/>
+      {/* Flat brim */}
+      <rect x="13" y="36" width="30" height="7" rx="2" stroke="#D85A30" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Puffy dome */}
+      <path
+        d="M19,36 C19,36 13,31 13,23 C13,15 19,9 28,9 C37,9 43,15 43,23 C43,31 37,36 37,36"
+        stroke="#D85A30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      />
+      {/* Crown seam */}
+      <line x1="19" y1="36" x2="37" y2="36" stroke="#D85A30" strokeWidth="2" strokeLinecap="round"/>
+      {/* Dots */}
+      <circle cx="28" cy="9" r="3" fill="#D85A30"/>
+      <circle cx="13" cy="36" r="3" fill="#D85A30"/>
+      <circle cx="43" cy="36" r="3" fill="#D85A30"/>
+      <circle cx="13" cy="43" r="3" fill="#D85A30"/>
+      <circle cx="43" cy="43" r="3" fill="#D85A30"/>
     </svg>
   );
 }
@@ -128,13 +147,20 @@ export function IconCulinary({ size = 24, className }: IconProps) {
 export function IconAdventure({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <path d="M12 12 L28 8 L28 36 Q28 46 20 50 Q12 46 12 36 Z" fill="#D4537E" opacity="0.2"/>
-      <path d="M12 12 L28 8 L28 36 Q28 46 20 50 Q12 46 12 36 Z" fill="none" stroke="#D4537E" strokeWidth="2.5" strokeLinejoin="round"/>
-      <path d="M17 26 L20 22 L23 26 L20 30 Z" fill="#D4537E" opacity="0.7"/>
-      <line x1="32" y1="10" x2="50" y2="46" stroke="#EF9F27" strokeWidth="3" strokeLinecap="round"/>
-      <line x1="38" y1="22" x2="46" y2="14" stroke="#EF9F27" strokeWidth="2.5" strokeLinecap="round"/>
-      <rect x="47" y="43" width="5" height="8" rx="2" fill="#D85A30" transform="rotate(-30 47 43)"/>
-      <line x1="33" y1="12" x2="49" y2="44" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.4"/>
+      {/* Compass circle */}
+      <circle cx="28" cy="28" r="20" stroke="#A33B5E" strokeWidth="2"/>
+      {/* Diamond needle */}
+      <path d="M28,12 L33,28 L28,44 L23,28 Z" stroke="#A33B5E" strokeWidth="2" strokeLinejoin="round"/>
+      {/* Cardinal ticks */}
+      <line x1="28" y1="7" x2="28" y2="12" stroke="#A33B5E" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="28" y1="44" x2="28" y2="49" stroke="#A33B5E" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="7" y1="28" x2="12" y2="28" stroke="#A33B5E" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="44" y1="28" x2="49" y2="28" stroke="#A33B5E" strokeWidth="2" strokeLinecap="round"/>
+      {/* Dots at 4 compass points */}
+      <circle cx="28" cy="7" r="3" fill="#A33B5E"/>
+      <circle cx="28" cy="49" r="3" fill="#A33B5E"/>
+      <circle cx="7" cy="28" r="3" fill="#A33B5E"/>
+      <circle cx="49" cy="28" r="3" fill="#A33B5E"/>
     </svg>
   );
 }
@@ -142,13 +168,23 @@ export function IconAdventure({ size = 24, className }: IconProps) {
 export function IconNature({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <path d="M28 46 Q12 36 12 20 Q20 8 40 10 Q42 30 28 46 Z" fill="#1D9E75" opacity="0.2"/>
-      <path d="M28 46 Q12 36 12 20 Q20 8 40 10 Q42 30 28 46 Z" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinejoin="round"/>
-      <path d="M28 46 Q30 30 38 16" stroke="#1D9E75" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
-      <path d="M25 36 Q30 30 35 26" stroke="#1D9E75" strokeWidth="1.2" strokeLinecap="round" opacity="0.4"/>
-      <path d="M20 28 Q25 24 30 22" stroke="#1D9E75" strokeWidth="1.2" strokeLinecap="round" opacity="0.4"/>
-      <circle cx="42" cy="42" r="5" fill="#639922" opacity="0.7"/>
-      <circle cx="46" cy="38" r="3" fill="#1D9E75" opacity="0.5"/>
+      {/* Leaf outline */}
+      <path
+        d="M28,8 C40,10 48,20 44,32 C40,44 24,50 16,40 C8,30 12,12 28,8 Z"
+        stroke="#1D9E75" strokeWidth="2" strokeLinejoin="round"
+      />
+      {/* Center vein */}
+      <line x1="28" y1="8" x2="22" y2="44" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"/>
+      {/* Side veins */}
+      <line x1="27" y1="18" x2="38" y2="16" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="25" y1="27" x2="39" y2="26" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="23" y1="36" x2="34" y2="36" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round"/>
+      {/* Dots */}
+      <circle cx="28" cy="8" r="3" fill="#1D9E75"/>
+      <circle cx="22" cy="44" r="3" fill="#1D9E75"/>
+      <circle cx="38" cy="16" r="3" fill="#1D9E75"/>
+      <circle cx="39" cy="26" r="3" fill="#1D9E75"/>
+      <circle cx="34" cy="36" r="3" fill="#1D9E75"/>
     </svg>
   );
 }
@@ -156,18 +192,20 @@ export function IconNature({ size = 24, className }: IconProps) {
 export function IconCraft({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <rect x="10" y="40" width="36" height="6" rx="2" fill="#5A5855"/>
-      <rect x="14" y="32" width="28" height="10" rx="2" fill="#5A5855" opacity="0.8"/>
-      <path d="M42 36 Q50 36 50 38 Q50 40 42 40 Z" fill="#5A5855" opacity="0.8"/>
-      <rect x="14" y="30" width="28" height="5" rx="1.5" fill="#888780"/>
-      <line x1="36" y1="16" x2="22" y2="30" stroke="#D85A30" strokeWidth="3" strokeLinecap="round"/>
-      <rect x="32" y="8" width="16" height="10" rx="3" fill="#D85A30" transform="rotate(-45 32 8)"/>
-      <circle cx="28" cy="24" r="2" fill="#EF9F27" opacity="0.9"/>
-      <circle cx="24" cy="20" r="1.5" fill="#EF9F27" opacity="0.7"/>
-      <circle cx="32" cy="20" r="1.2" fill="#EF9F27" opacity="0.6"/>
-      <circle cx="20" cy="26" r="1" fill="#EF9F27" opacity="0.5"/>
-      <circle cx="34" cy="26" r="1" fill="#EF9F27" opacity="0.5"/>
-      <ellipse cx="28" cy="30" rx="6" ry="2" fill="#EF9F27" opacity="0.3"/>
+      {/* Needle body (diagonal) */}
+      <line x1="16" y1="40" x2="44" y2="12" stroke="#D85A30" strokeWidth="2" strokeLinecap="round"/>
+      {/* Needle eye */}
+      <ellipse cx="20" cy="36" rx="3.5" ry="2" transform="rotate(-45 20 36)" stroke="#D85A30" strokeWidth="1.5" fill="#FAF6EC"/>
+      {/* Thread loop */}
+      <path
+        d="M16,40 C8,48 4,44 6,36 C8,28 18,32 20,36"
+        stroke="#D85A30" strokeWidth="2" strokeLinecap="round" fill="none"
+      />
+      {/* Dots */}
+      <circle cx="20" cy="36" r="3" fill="#D85A30"/>
+      <circle cx="30" cy="26" r="3" fill="#D85A30"/>
+      <circle cx="44" cy="12" r="3" fill="#D85A30"/>
+      <circle cx="6" cy="36" r="3" fill="#D85A30"/>
     </svg>
   );
 }
@@ -175,39 +213,58 @@ export function IconCraft({ size = 24, className }: IconProps) {
 export function IconMind({ size = 24, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <ellipse cx="28" cy="18" rx="12" ry="10" fill="#D4537E" opacity="0.15"/>
-      <ellipse cx="28" cy="18" rx="12" ry="10" fill="none" stroke="#D4537E" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.6"/>
-      <path d="M20 16 Q22 12 24 15 Q26 12 28 15 Q30 12 32 15 Q34 12 36 16" stroke="#D4537E" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-      <circle cx="28" cy="26" r="5" fill="#378ADD"/>
-      <path d="M28 31 L28 40" stroke="#378ADD" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 40 Q20 42 16 40" stroke="#378ADD" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      <path d="M28 40 Q36 42 40 40" stroke="#378ADD" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      <path d="M28 34 Q22 36 18 34" stroke="#378ADD" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <path d="M28 34 Q34 36 38 34" stroke="#378ADD" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <circle cx="18" cy="34" r="2" fill="#D4537E"/>
-      <circle cx="38" cy="34" r="2" fill="#D4537E"/>
-      <circle cx="10" cy="20" r="1.5" fill="#EF9F27" opacity="0.7"/>
-      <circle cx="46" cy="20" r="1.5" fill="#EF9F27" opacity="0.7"/>
+      {/* Bulb glass */}
+      <path
+        d="M28,8 C18,8 12,15 12,24 C12,31 16,35 20,38 L36,38 C40,35 44,31 44,24 C44,15 38,8 28,8 Z"
+        stroke="#378ADD" strokeWidth="2" strokeLinejoin="round"
+      />
+      {/* Base collars */}
+      <line x1="20" y1="41" x2="36" y2="41" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="21" y1="45" x2="35" y2="45" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="24" y1="49" x2="32" y2="49" stroke="#378ADD" strokeWidth="2" strokeLinecap="round"/>
+      {/* Filament */}
+      <path d="M22,34 L22,26 L28,20 L34,26 L34,34" stroke="#378ADD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Dots */}
+      <circle cx="28" cy="8" r="3" fill="#378ADD"/>
+      <circle cx="28" cy="20" r="3" fill="#378ADD"/>
+      <circle cx="20" cy="38" r="3" fill="#378ADD"/>
+      <circle cx="36" cy="38" r="3" fill="#378ADD"/>
     </svg>
   );
 }
 
 export function IconCommunity({ size = 24, className }: IconProps) {
+  const cx = 28, cy = 28, r = 18;
+  const pts = Array.from({ length: 5 }, (_, i) => {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  });
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" fill="none" className={className}>
-      <path d="M8 36 Q8 28 14 26 L20 24 Q22 22 24 24 L24 34" stroke="#EF9F27" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M14 26 L14 20 Q14 18 16 18 Q18 18 18 20 L18 24" stroke="#EF9F27" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M18 22 L18 16 Q18 14 20 14 Q22 14 22 16 L22 22" stroke="#EF9F27" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M22 22 L22 17 Q22 15 24 15 Q26 15 26 17 L26 22" stroke="#EF9F27" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M8 36 Q8 42 14 44 L24 44 L24 34" fill="#EF9F27" opacity="0.2"/>
-      <path d="M8 36 Q8 42 14 44 L24 44 L24 34" fill="none" stroke="#EF9F27" strokeWidth="2" strokeLinejoin="round"/>
-      <path d="M48 36 Q48 28 42 26 L36 24 Q34 22 32 24 L32 34" stroke="#7F77DD" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M42 26 L42 20 Q42 18 40 18 Q38 18 38 20 L38 24" stroke="#7F77DD" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M38 22 L38 16 Q38 14 36 14 Q34 14 34 16 L34 22" stroke="#7F77DD" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M34 22 L34 17 Q34 15 32 15 Q30 15 30 17 L30 22" stroke="#7F77DD" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M48 36 Q48 42 42 44 L32 44 L32 34" fill="#7F77DD" opacity="0.2"/>
-      <path d="M48 36 Q48 42 42 44 L32 44 L32 34" fill="none" stroke="#7F77DD" strokeWidth="2" strokeLinejoin="round"/>
-      <ellipse cx="28" cy="34" rx="5" ry="6" fill="#1D9E75" opacity="0.3"/>
+      {pts.map((p, i) => (
+        <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#7F77DD" strokeWidth="2" strokeLinecap="round"/>
+      ))}
+      <circle cx={cx} cy={cy} r="3" fill="#7F77DD"/>
+      {pts.map((p, i) => {
+        const dx = p.x - cx, dy = p.y - cy;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const nx = dx / len, ny = dy / len;
+        const hx = p.x + nx * 5, hy = p.y + ny * 5;
+        const sx1 = hx - ny * 4, sy1 = hy + nx * 4;
+        const sx2 = hx + ny * 4, sy2 = hy - nx * 4;
+        const bx1 = sx1 + nx * 5, by1 = sy1 + ny * 5;
+        const bx2 = sx2 + nx * 5, by2 = sy2 + ny * 5;
+        return (
+          <g key={`p-${i}`}>
+            <circle cx={hx} cy={hy} r="4" stroke="#7F77DD" strokeWidth="2"/>
+            <path
+              d={`M${bx1.toFixed(1)},${by1.toFixed(1)} Q${(hx + nx * 7).toFixed(1)},${(hy + ny * 7).toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}`}
+              stroke="#7F77DD" strokeWidth="2" strokeLinecap="round" fill="none"
+            />
+            <circle cx={hx} cy={hy} r="3" fill="#7F77DD"/>
+          </g>
+        );
+      })}
     </svg>
   );
 }
