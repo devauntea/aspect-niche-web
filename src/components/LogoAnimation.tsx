@@ -1,111 +1,88 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
 interface Props {
   onComplete: () => void;
 }
 
-const PALETTES = [
-  { main: ["#D4537E", "#2b256c", "#EF9F27"], sat: ["#D85A30", "#1D9E75"] },
-  { main: ["#D85A30", "#1D9E75", "#378ADD"], sat: ["#D4537E", "#EF9F27"] },
-  { main: ["#378ADD", "#639922", "#D4537E"], sat: ["#7F77DD", "#D85A30"] },
-];
-const FINAL = PALETTES[0];
+const W = 360;
+const H = 380;
 
-const BASE_FC = [
-  { dx: -38, dy: -20, r: 52 },
-  { dx: 38, dy: -20, r: 52 },
-  { dx: 0, dy: 40, r: 52 },
+const BUBBLES = [
+  { x: 200, y: 145, r: 90,  c: "#5FA8A8", o: 0.52 },
+  { x: 115, y: 205, r: 105, c: "#A33B5E", o: 0.52 },
+  { x: 248, y: 210, r: 88,  c: "#E0A94E", o: 0.50 },
+  { x: 185, y: 268, r: 70,  c: "#6B8FB5", o: 0.48 },
+  { x: 58,  y: 108, r: 24,  c: "#A33B5E", o: 0.70 },
+  { x: 310, y: 165, r: 28,  c: "#E0A94E", o: 0.70 },
+  { x: 205, y: 315, r: 18,  c: "#5FA8A8", o: 0.70 },
 ];
+
+const NODES = [
+  { x: 192, y: 52,  c: "#EF9F27" }, // 0  ear-L tip
+  { x: 228, y: 44,  c: "#EF9F27" }, // 1  ear-R tip
+  { x: 204, y: 76,  c: "#9CB85A" }, // 2  ear-L mid
+  { x: 242, y: 72,  c: "#5FA8A8" }, // 3  ear-R mid
+  { x: 148, y: 84,  c: "#A33B5E" }, // 4  brow
+  { x: 196, y: 98,  c: "#5FA8A8" }, // 5  ear-L base
+  { x: 232, y: 96,  c: "#EF9F27" }, // 6  ear-R base
+  { x: 256, y: 114, c: "#5FA8A8" }, // 7  head top-right
+  { x: 292, y: 135, c: "#9CB85A" }, // 8  cheek
+  { x: 306, y: 158, c: "#6B8FB5" }, // 9  snout
+  { x: 282, y: 170, c: "#A33B5E" }, // 10 jaw
+  { x: 250, y: 148, c: "#EF9F27" }, // 11 throat
+  { x: 222, y: 132, c: "#5FA8A8" }, // 12 upper back
+  { x: 186, y: 138, c: "#EF9F27" }, // 13 mid back
+  { x: 170, y: 162, c: "#A33B5E" }, // 14 hip
+  { x: 124, y: 156, c: "#5FA8A8" }, // 15 haunch top
+  { x: 94,  y: 178, c: "#9CB85A" }, // 16 haunch upper-left
+  { x: 88,  y: 208, c: "#5FA8A8" }, // 17 haunch left
+  { x: 112, y: 228, c: "#6B8FB5" }, // 18 haunch bottom center
+  { x: 148, y: 216, c: "#EF9F27" }, // 19 haunch lower-right
+  { x: 152, y: 186, c: "#A33B5E" }, // 20 haunch center
+  { x: 68,  y: 246, c: "#9CB85A" }, // 21 ankle
+  { x: 80,  y: 280, c: "#EF9F27" }, // 22 foot mid
+  { x: 92,  y: 310, c: "#A33B5E" }, // 23 foot tip
+  { x: 198, y: 200, c: "#6B8FB5" }, // 24 belly
+  { x: 226, y: 214, c: "#A33B5E" }, // 25 front thigh
+  { x: 258, y: 200, c: "#9CB85A" }, // 26 front knee
+  { x: 294, y: 212, c: "#EF9F27" }, // 27 front paw
+];
+
+const EDGES: [number, number][] = [
+  [0,2],[2,5],[1,3],[3,6],[5,6],
+  [0,1],
+  [4,5],[4,12],
+  [5,7],[6,7],[6,11],
+  [7,8],[8,9],[9,10],[10,11],[11,7],
+  [11,12],[7,12],[12,13],[13,14],
+  [14,15],[13,15],[14,20],
+  [15,16],[16,17],[17,18],[18,19],[19,20],[20,15],
+  [16,20],[16,18],[15,18],[17,20],[19,18],
+  [17,21],[21,22],[22,23],[18,21],
+  [14,24],[20,24],[24,25],[25,26],[26,27],
+  [25,10],[11,25],[24,19],
+];
+
+const BIG_NODES = new Set([7, 12, 15, 18]);
 
 function easeInOut(t: number) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
-function hexToRgb(hex: string): [number, number, number] {
-  return [
-    parseInt(hex.slice(1, 3), 16),
-    parseInt(hex.slice(3, 5), 16),
-    parseInt(hex.slice(5, 7), 16),
-  ];
-}
-function lerpColor(a: string, b: string, t: number) {
-  const [ar, ag, ab] = hexToRgb(a);
-  const [br, bg, bb] = hexToRgb(b);
-  return `rgb(${Math.round(lerp(ar, br, t))},${Math.round(lerp(ag, bg, t))},${Math.round(lerp(ab, bb, t))})`;
-}
+
+const ORBIT_ORIGINS = NODES.map((_, i) => {
+  const angle = (i / NODES.length) * Math.PI * 2;
+  const dist = 200 + (i % 3) * 40;
+  return {
+    x: W / 2 + Math.cos(angle) * dist,
+    y: H / 2 + Math.sin(angle) * dist - 30,
+  };
+});
 
 export default function LogoAnimation({ onComplete }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const wmRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({
-    dots: [] as Array<{
-      angle: number;
-      orbR: number;
-      speed: number;
-      size: number;
-      idx: number;
-      satColor?: string;
-    }>,
-    cycle: 0,
-    cycleT: 0,
-    t: 0,
-    currentColors: PALETTES[0].main.slice(),
-    targetColors: PALETTES[0].main.slice(),
-    blendT: 0,
-    isBlending: false,
-    convergeProgress: 0,
-    bloomProgress: 0,
-    done: false,
-    lastTime: 0,
-  });
-
-  const initState = useCallback(() => {
-    const s = stateRef.current;
-    s.dots = [
-      { angle: 0, orbR: 72, speed: 0.9, size: 9, idx: 0 },
-      { angle: (Math.PI * 2) / 3, orbR: 72, speed: 0.9, size: 9, idx: 1 },
-      { angle: (Math.PI * 4) / 3, orbR: 72, speed: 0.9, size: 9, idx: 2 },
-      {
-        angle: Math.PI / 3,
-        orbR: 46,
-        speed: -1.3,
-        size: 4.5,
-        idx: -1,
-        satColor: PALETTES[0].sat[0],
-      },
-      {
-        angle: Math.PI * 1.2,
-        orbR: 54,
-        speed: 1.5,
-        size: 3.5,
-        idx: -1,
-        satColor: PALETTES[0].sat[1],
-      },
-      {
-        angle: Math.PI * 1.8,
-        orbR: 40,
-        speed: -1.1,
-        size: 4,
-        idx: -1,
-        satColor: PALETTES[0].sat[0],
-      },
-    ];
-    s.cycle = 0;
-    s.cycleT = 0;
-    s.t = 0;
-    s.currentColors = PALETTES[0].main.slice();
-    s.targetColors = PALETTES[0].main.slice();
-    s.blendT = 0;
-    s.isBlending = false;
-    s.convergeProgress = 0;
-    s.bloomProgress = 0;
-    s.done = false;
-    s.lastTime = 0;
-  }, []);
+  const wordmarkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -115,225 +92,160 @@ export default function LogoAnimation({ onComplete }: Props) {
     const ctx: CanvasRenderingContext2D = _ctx;
 
     const DPR = window.devicePixelRatio || 1;
-    const SIZE = Math.min(window.innerWidth, 340);
-    canvas.width = SIZE * DPR;
-    canvas.height = SIZE * DPR;
-    canvas.style.width = `${SIZE}px`;
-    canvas.style.height = `${SIZE}px`;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = `${W}px`;
+    canvas.style.height = `${H}px`;
     ctx.scale(DPR, DPR);
 
-    const W = SIZE,
-      H = SIZE,
-      CX = W / 2,
-      CY = H / 2;
-    const ORBIT_DUR = 1.6,
-      BLEND_DUR = 0.35,
-      CONV_DUR = 1.1,
-      BLOOM_DUR = 0.75;
+    const P1_START = 0,   P1_END = 1.4;
+    const P2_START = 1.0, P2_END = 2.2;
+    const P3_START = 2.0, P3_END = 3.5;
+    const P4_START = 3.2, P4_END = 4.5;
 
-    initState();
-    const s = stateRef.current;
-
+    let startTime: number | null = null;
     let animId: number;
+    let completed = false;
 
-    function getMainColor(idx: number) {
-      if (s.cycle >= 3)
-        return lerpColor(
-          s.currentColors[idx],
-          FINAL.main[idx],
-          s.convergeProgress,
-        );
-      if (s.isBlending)
-        return lerpColor(
-          s.currentColors[idx],
-          s.targetColors[idx],
-          easeInOut(s.blendT / BLEND_DUR),
-        );
-      return s.currentColors[idx];
+    function drawDots(c: CanvasRenderingContext2D, alpha: number) {
+      for (let i = 0; i < NODES.length; i++) {
+        const node = NODES[i];
+        const dotR = BIG_NODES.has(i) ? 6 : 5;
+        c.save();
+        c.globalAlpha = alpha;
+        c.beginPath();
+        c.arc(node.x, node.y, dotR + 0.8, 0, Math.PI * 2);
+        c.strokeStyle = "rgba(255,255,255,0.9)";
+        c.lineWidth = 0.8;
+        c.stroke();
+        c.beginPath();
+        c.arc(node.x, node.y, dotR, 0, Math.PI * 2);
+        c.fillStyle = node.c;
+        c.fill();
+        c.restore();
+      }
     }
 
     function frame(ts: number) {
-      if (!s.lastTime) s.lastTime = ts;
-      const dt = Math.min((ts - s.lastTime) / 1000, 0.05);
-      s.lastTime = ts;
-      s.t += dt;
-      s.cycleT += dt;
+      if (!startTime) startTime = ts;
+      const elapsed = (ts - startTime) / 1000;
 
       ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#FAF6EC";
+      ctx.fillRect(0, 0, W, H);
 
-      // ── State machine ──
-      if (s.cycle < 3) {
-        if (s.isBlending) {
-          s.blendT += dt;
-          if (s.blendT >= BLEND_DUR) {
-            s.currentColors = s.targetColors.slice();
-            s.isBlending = false;
-          }
-        }
-        if (s.cycleT >= ORBIT_DUR) {
-          s.cycleT = 0;
-          s.cycle++;
-          if (s.cycle < 3) {
-            s.targetColors = PALETTES[s.cycle].main.slice();
-            s.blendT = 0;
-            s.isBlending = true;
-            let si = 0;
-            for (const d of s.dots) {
-              if (d.idx === -1) {
-                d.satColor = PALETTES[s.cycle].sat[si++ % 2];
-              }
-            }
-          }
-        }
-        for (const d of s.dots) d.angle += d.speed * dt;
-      } else {
-        s.convergeProgress = Math.min(s.cycleT / CONV_DUR, 1);
-        const ep = easeInOut(s.convergeProgress);
-        for (const d of s.dots) d.angle += d.speed * dt * (1 - ep);
-        if (s.cycleT > CONV_DUR) {
-          s.bloomProgress = Math.min((s.cycleT - CONV_DUR) / BLOOM_DUR, 1);
-          if (s.bloomProgress >= 0.35 && wmRef.current) {
-            wmRef.current.style.opacity = "1";
-          }
-        }
-        if (s.cycleT > CONV_DUR + BLOOM_DUR + 0.6) {
-          s.done = true;
-          setTimeout(onComplete, 400);
-        }
-      }
-
-      const ep1 = easeInOut(s.convergeProgress);
-      const ep2 = easeInOut(s.bloomProgress);
-
-      // ── Orbit trail ──
-      if (s.cycle < 3) {
-        ctx.save();
-        ctx.strokeStyle = "rgba(180,175,165,0.13)";
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 6]);
-        ctx.beginPath();
-        ctx.arc(CX, CY, 72, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.restore();
-      }
-
-      // ── Satellite dots ──
-      const satAlpha = s.cycle < 3 ? 0.75 : Math.max(0, 0.75 * (1 - ep1 * 1.8));
-      if (satAlpha > 0) {
-        for (const d of s.dots) {
-          if (d.idx !== -1) continue;
+      // Phase 1 — bubbles
+      const p1e = easeInOut(Math.min(Math.max((elapsed - P1_START) / (P1_END - P1_START), 0), 1));
+      if (p1e > 0) {
+        for (const b of BUBBLES) {
           ctx.save();
-          ctx.globalAlpha = satAlpha;
+          ctx.globalAlpha = p1e * b.o;
           ctx.beginPath();
-          ctx.arc(
-            CX + Math.cos(d.angle) * d.orbR,
-            CY + Math.sin(d.angle) * d.orbR,
-            d.size,
-            0,
-            Math.PI * 2,
-          );
-          ctx.fillStyle = d.satColor!;
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fillStyle = b.c;
           ctx.fill();
           ctx.restore();
         }
       }
 
-      // ── Constellation lines ──
-      if (s.cycle < 3 || ep1 < 0.6) {
-        const la = s.cycle < 3 ? 0.28 : 0.28 * Math.max(0, 1 - ep1 * 2);
-        if (la > 0) {
-          const md = s.dots.filter((d) => d.idx !== -1);
+      // Phase 2 — dots orbit in
+      const p2e = easeInOut(Math.min(Math.max((elapsed - P2_START) / (P2_END - P2_START), 0), 1));
+      if (p2e > 0) {
+        for (let i = 0; i < NODES.length; i++) {
+          const node = NODES[i];
+          const orig = ORBIT_ORIGINS[i];
+          const nx = orig.x + (node.x - orig.x) * p2e;
+          const ny = orig.y + (node.y - orig.y) * p2e;
+          const dotR = BIG_NODES.has(i) ? 6 : 5;
           ctx.save();
-          ctx.strokeStyle = `rgba(180,175,165,${la})`;
-          ctx.lineWidth = 1;
-          for (let i = 0; i < md.length; i++) {
-            for (let j = i + 1; j < md.length; j++) {
-              ctx.beginPath();
-              ctx.moveTo(
-                CX + Math.cos(md[i].angle) * md[i].orbR,
-                CY + Math.sin(md[i].angle) * md[i].orbR,
-              );
-              ctx.lineTo(
-                CX + Math.cos(md[j].angle) * md[j].orbR,
-                CY + Math.sin(md[j].angle) * md[j].orbR,
-              );
-              ctx.stroke();
-            }
-          }
+          ctx.globalAlpha = p2e;
+          ctx.beginPath();
+          ctx.arc(nx, ny, dotR + 0.8, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.9)";
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(nx, ny, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = node.c;
+          ctx.fill();
           ctx.restore();
         }
       }
 
-      // ── Main dots → circles ──
-      for (const d of s.dots) {
-        if (d.idx === -1) continue;
-        const fc = BASE_FC[d.idx];
-        const color = getMainColor(d.idx);
-        const ox = CX + Math.cos(d.angle) * d.orbR;
-        const oy = CY + Math.sin(d.angle) * d.orbR;
-        const x = lerp(ox, CX + fc.dx, ep1);
-        const y = lerp(oy, CY + fc.dy, ep1);
-        const circleR = lerp(0, fc.r, ep2);
+      // Phase 3 — edges draw
+      const p3raw = Math.min(Math.max((elapsed - P3_START) / (P3_END - P3_START), 0), 1);
+      if (p3raw > 0) {
+        const edgesVisible = p3raw * EDGES.length;
+        ctx.strokeStyle = "rgba(255,255,255,0.85)";
+        ctx.lineWidth = 1.8;
+        ctx.lineCap = "round";
 
-        if (ep2 > 0.01) {
+        for (let ei = 0; ei < EDGES.length; ei++) {
+          if (ei >= edgesVisible) break;
+          const [a, b] = EDGES[ei];
+          const na = NODES[a];
+          const nb = NODES[b];
+          const frac = Math.min(edgesVisible - ei, 1);
           ctx.save();
-          ctx.globalAlpha = ep2 * 0.2;
+          ctx.globalAlpha = 0.85;
           ctx.beginPath();
-          ctx.arc(x, y, circleR, 0, Math.PI * 2);
-          ctx.fillStyle = color;
-          ctx.fill();
-          ctx.globalAlpha = ep2 * 0.55;
-          ctx.beginPath();
-          ctx.arc(x, y, circleR, 0, Math.PI * 2);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 1.5;
+          ctx.moveTo(na.x, na.y);
+          ctx.lineTo(na.x + (nb.x - na.x) * frac, na.y + (nb.y - na.y) * frac);
           ctx.stroke();
           ctx.restore();
         }
 
-        const dotR = s.cycle >= 3 ? lerp(d.size, 6, ep2) : d.size;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x, y, dotR, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.restore();
+        // Redraw dots on top of edges
+        drawDots(ctx, p2e);
       }
 
-      // ── Center niche dot ──
-      if (ep2 > 0.35) {
-        const na = Math.min((ep2 - 0.35) / 0.45, 1);
-        const nr = lerp(0, 6.5, na);
-        ctx.save();
-        ctx.globalAlpha = na * 0.95;
-        ctx.beginPath();
-        ctx.arc(CX, CY - 2, nr + 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = "#FAF8F2";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(CX, CY - 2, nr, 0, Math.PI * 2);
-        ctx.fillStyle = "#7F77DD";
-        ctx.fill();
-        ctx.restore();
+      // Phase 4 — wordmark
+      const p4e = easeInOut(Math.min(Math.max((elapsed - P4_START) / (P4_END - P4_START), 0), 1));
+      if (p4e > 0 && wordmarkRef.current) {
+        wordmarkRef.current.style.opacity = String(p4e);
       }
 
-      if (!s.done) animId = requestAnimationFrame(frame);
+      if (elapsed >= P4_END && !completed) {
+        completed = true;
+        setTimeout(onComplete, 300);
+        return;
+      }
+
+      animId = requestAnimationFrame(frame);
     }
 
     animId = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(animId);
-  }, [initState, onComplete]);
+  }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#FAF8F2] z-50">
-      <canvas ref={canvasRef} />
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#FAF6EC] z-50">
+      <canvas ref={canvasRef} style={{ display: "block" }} />
       <div
-        ref={wmRef}
-        style={{ opacity: 0, transition: "opacity 0.9s ease" }}
-        className="mt-4 text-2xl font-medium tracking-tight text-[#1A1916]"
+        ref={wordmarkRef}
+        style={{ opacity: 0, marginTop: 16, textAlign: "center", pointerEvents: "none" }}
       >
-        aspect<span className="text-[#7F77DD]">·niche</span>
+        <div
+          style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: 26,
+            fontWeight: 400,
+            letterSpacing: "0.02em",
+            color: "#3a2e2a",
+          }}
+        >
+          aspect niche
+        </div>
+        <div
+          style={{
+            fontFamily: "system-ui, sans-serif",
+            fontSize: 13,
+            color: "#6a5e58",
+            marginTop: 4,
+          }}
+        >
+          Navigate the Hobby Verse
+        </div>
       </div>
     </div>
   );

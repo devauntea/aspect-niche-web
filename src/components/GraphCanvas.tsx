@@ -17,6 +17,7 @@ import type { HobbyNode, HobbyEdge } from "@/types/graph";
 import OrbitNode from "./OrbitNode";
 import OrbitalActivityNode from "./OrbitalActivityNode";
 import OrbitRingNode from "./OrbitRingNode";
+import GraphBackground from "./GraphBackground";
 
 const nodeTypes = {
   orbitInterest: OrbitNode,
@@ -473,43 +474,49 @@ export default function GraphCanvas({
 
   return (
     <div
-      className="h-[500px] w-full overflow-hidden rounded-2xl border border-[#E8E4DA]"
+      className="relative w-full overflow-hidden rounded-2xl border border-[#E8E4DA]"
       style={{
-        background: focusModeActive ? "#F5F2EA" : "#FDFBF6",
+        height: "calc(100vh - 220px)",
+        minHeight: 600,
+        background: focusModeActive ? "rgba(245,242,234,0.88)" : "rgba(253,251,246,0.85)",
         transition: "background 0.3s ease",
       }}
     >
-      <ReactFlow
-        nodes={flowNodes}
-        edges={flowEdges}
-        nodeTypes={nodeTypes}
-        onNodeClick={handleNodeClick}
-        onNodesChange={handleNodesChange}
-        onPaneClick={() => onSelectNode(null)}
-        fitView
-        fitViewOptions={{ padding: 0.35 }}
-        minZoom={0.2}
-        maxZoom={2}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background color="#E8E4DA" gap={32} size={1} />
-        <Controls
-          showInteractive={false}
-          style={{
-            background: "white",
-            border: "1px solid #E8E4DA",
-            borderRadius: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          }}
-        />
-        <GraphControls
-          selectedId={selectedId}
-          focusMode={focusMode}
-          onToggleFocusMode={() => setFocusMode((f) => !f)}
-          onResetLayout={() => setPosOverrides({})}
-          onCollapseAll={onCollapseAll}
-        />
-      </ReactFlow>
+      <GraphBackground />
+      <div className="absolute inset-0" style={{ zIndex: 1 }}>
+        <ReactFlow
+          nodes={flowNodes}
+          edges={flowEdges}
+          nodeTypes={nodeTypes}
+          onNodeClick={handleNodeClick}
+          onNodesChange={handleNodesChange}
+          onPaneClick={() => onSelectNode(null)}
+          fitView
+          fitViewOptions={{ padding: 0.35 }}
+          minZoom={0.2}
+          maxZoom={2}
+          proOptions={{ hideAttribution: true }}
+          style={{ background: "transparent" }}
+        >
+          <Background color="#D3D0C8" gap={40} size={1} style={{ opacity: 0.25 }} />
+          <Controls
+            showInteractive={false}
+            style={{
+              background: "white",
+              border: "1px solid #E8E4DA",
+              borderRadius: 12,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            }}
+          />
+          <GraphControls
+            selectedId={selectedId}
+            focusMode={focusMode}
+            onToggleFocusMode={() => setFocusMode((f) => !f)}
+            onResetLayout={() => setPosOverrides({})}
+            onCollapseAll={onCollapseAll}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
