@@ -760,7 +760,7 @@ export default function Home() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-          <div className="w-full bg-white rounded-3xl shadow-2xl flex flex-col surprise-card-enter overflow-hidden">
+          <div className="w-full flex-shrink-0 bg-white rounded-3xl shadow-2xl flex flex-col surprise-card-enter overflow-hidden">
             {/* Modal header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-2 flex-shrink-0">
               <h2 className="text-base font-semibold">Details</h2>
@@ -1051,7 +1051,7 @@ export default function Home() {
 
           {/* Rabbit hole — activities only, scrolls with the card above */}
           {detail.type === "activity" && activityDetail && (
-            <div id="rabbit-hole-panel">
+            <div id="rabbit-hole-panel" className="flex-shrink-0">
               <RabbitHolePanel
                 key={activityDetail.id}
                 activityId={activityDetail.id}
