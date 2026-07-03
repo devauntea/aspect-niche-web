@@ -57,14 +57,23 @@ type Props = {
   onClear: () => void;
 };
 
-export default function QuickFilters({ activeFilters, onToggle, onClear }: Props) {
+export default function QuickFilters({
+  activeFilters,
+  onToggle,
+  onClear,
+}: Props) {
   const hasAny = Object.values(activeFilters).some((arr) => arr.length > 0);
 
   return (
     <div className="flex items-center gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {GROUPS.map((group, gi) => (
-        <div key={group.key} className="flex items-center gap-1.5 flex-shrink-0">
-          {gi > 0 && <div className="w-px h-4 bg-[#E8E4DA] mx-1.5 flex-shrink-0" />}
+        <div
+          key={group.key}
+          className="flex items-center gap-1.5 flex-shrink-0"
+        >
+          {gi > 0 && (
+            <div className="w-px h-4 bg-[#E8E4DA] mx-1.5 flex-shrink-0" />
+          )}
           <span className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mr-0.5 flex-shrink-0">
             {group.label}
           </span>
@@ -77,8 +86,16 @@ export default function QuickFilters({ activeFilters, onToggle, onClear }: Props
                 className="rounded-full px-3 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95 flex-shrink-0"
                 style={
                   active
-                    ? { background: "#7F77DD", color: "#FFFFFF", border: "1.5px solid #7F77DD" }
-                    : { background: "#FFFFFF", color: "#5A5855", border: "1.5px solid #E8E4DA" }
+                    ? {
+                        background: "#7F77DD",
+                        color: "#FFFFFF",
+                        border: "1.5px solid #7F77DD",
+                      }
+                    : {
+                        background: "#FFFFFF",
+                        color: "#5A5855",
+                        border: "1.5px solid #E8E4DA",
+                      }
                 }
               >
                 {opt.label}

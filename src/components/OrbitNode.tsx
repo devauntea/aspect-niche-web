@@ -2,6 +2,8 @@
 
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { motionTokens } from "@/lib/theme";
+import type { NodeVisualState } from "@/types/graph";
 
 interface OrbitNodeData {
   label: string;
@@ -9,6 +11,7 @@ interface OrbitNodeData {
   isExpanded: boolean;
   childCount: number;
   childColors: string[];
+  visualState: NodeVisualState;
 }
 
 // Handles centered on the pill (center of the 120×120 container = 60, 60)
@@ -28,10 +31,19 @@ const CENTER_HANDLE: React.CSSProperties = {
 function OrbitNode({ data, selected }: NodeProps) {
   const d = data as unknown as OrbitNodeData;
   const { label, color, isExpanded, childCount, childColors } = d;
+  const visualState = d.visualState ?? "idle";
+  const hovered = visualState === "active" && !selected;
 
   const orbitRadius = 38;
   const dotCount = Math.min(childCount, 6);
   const dotColors = childColors.slice(0, dotCount);
+
+  // Soft glow at rest; halo blooms on hover, unmistakable ring when selected
+  const glow = selected
+    ? `0 0 0 4px ${color}38, 0 0 36px ${color}AA, 0 4px 20px ${color}70`
+    : hovered
+      ? `0 0 30px ${color}99, 0 4px 18px ${color}60`
+      : `0 0 18px ${color}55, 0 4px 14px ${color}40`;
 
   return (
     <div
@@ -73,8 +85,9 @@ function OrbitNode({ data, selected }: NodeProps) {
                   height: 7,
                   borderRadius: "50%",
                   background: dotColor,
+                  boxShadow: `0 0 6px ${dotColor}`,
                   transform: "translate(-50%, -50%)",
-                  opacity: 0.8,
+                  opacity: 0.9,
                 }}
               />
             </div>
@@ -83,7 +96,7 @@ function OrbitNode({ data, selected }: NodeProps) {
 
       {/* Solid colored pill */}
       <div
-        className={!selected ? "node-breathe" : undefined}
+        className={!selected && !hovered ? "node-breathe" : undefined}
         style={{
           background: color,
           color: "white",
@@ -92,10 +105,9 @@ function OrbitNode({ data, selected }: NodeProps) {
           fontWeight: 600,
           fontSize: 14,
           letterSpacing: "-0.01em",
-          boxShadow: selected
-            ? `0 0 0 4px ${color}28, 0 4px 16px ${color}55`
-            : `0 4px 16px ${color}55`,
-          transition: "box-shadow 0.2s ease",
+          boxShadow: glow,
+          transform: hovered ? "scale(1.07)" : "scale(1)",
+          transition: `box-shadow ${motionTokens.hoverMs}ms ease, transform ${motionTokens.hoverMs}ms ease`,
           whiteSpace: "nowrap",
           cursor: "pointer",
           position: "relative",

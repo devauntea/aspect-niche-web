@@ -7,12 +7,15 @@ export type RabbitHoleResult = {
   funFact: string;
 };
 
-export function isValidRabbitHoleResult(data: unknown): data is RabbitHoleResult {
+export function isValidRabbitHoleResult(
+  data: unknown,
+): data is RabbitHoleResult {
   if (!data || typeof data !== "object") return false;
   const d = data as Record<string, unknown>;
   if (!Array.isArray(d.deeperCuts) || d.deeperCuts.length < 1) return false;
   if (!d.deeperCuts.every((s) => typeof s === "string")) return false;
-  if (!Array.isArray(d.ultraNicheHobbies) || d.ultraNicheHobbies.length < 1) return false;
+  if (!Array.isArray(d.ultraNicheHobbies) || d.ultraNicheHobbies.length < 1)
+    return false;
   if (
     !d.ultraNicheHobbies.every(
       (h) =>

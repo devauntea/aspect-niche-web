@@ -10,23 +10,23 @@ const W = 360;
 const H = 380;
 
 const BUBBLES = [
-  { x: 200, y: 145, r: 90,  c: "#5FA8A8", o: 0.52 },
+  { x: 200, y: 145, r: 90, c: "#5FA8A8", o: 0.52 },
   { x: 115, y: 205, r: 105, c: "#A33B5E", o: 0.52 },
-  { x: 248, y: 210, r: 88,  c: "#E0A94E", o: 0.50 },
-  { x: 185, y: 268, r: 70,  c: "#6B8FB5", o: 0.48 },
-  { x: 58,  y: 108, r: 24,  c: "#A33B5E", o: 0.70 },
-  { x: 310, y: 165, r: 28,  c: "#E0A94E", o: 0.70 },
-  { x: 205, y: 315, r: 18,  c: "#5FA8A8", o: 0.70 },
+  { x: 248, y: 210, r: 88, c: "#E0A94E", o: 0.5 },
+  { x: 185, y: 268, r: 70, c: "#6B8FB5", o: 0.48 },
+  { x: 58, y: 108, r: 24, c: "#A33B5E", o: 0.7 },
+  { x: 310, y: 165, r: 28, c: "#E0A94E", o: 0.7 },
+  { x: 205, y: 315, r: 18, c: "#5FA8A8", o: 0.7 },
 ];
 
 const NODES = [
-  { x: 192, y: 52,  c: "#EF9F27" }, // 0  ear-L tip
-  { x: 228, y: 44,  c: "#EF9F27" }, // 1  ear-R tip
-  { x: 204, y: 76,  c: "#9CB85A" }, // 2  ear-L mid
-  { x: 242, y: 72,  c: "#5FA8A8" }, // 3  ear-R mid
-  { x: 148, y: 84,  c: "#A33B5E" }, // 4  brow
-  { x: 196, y: 98,  c: "#5FA8A8" }, // 5  ear-L base
-  { x: 232, y: 96,  c: "#EF9F27" }, // 6  ear-R base
+  { x: 192, y: 52, c: "#EF9F27" }, // 0  ear-L tip
+  { x: 228, y: 44, c: "#EF9F27" }, // 1  ear-R tip
+  { x: 204, y: 76, c: "#9CB85A" }, // 2  ear-L mid
+  { x: 242, y: 72, c: "#5FA8A8" }, // 3  ear-R mid
+  { x: 148, y: 84, c: "#A33B5E" }, // 4  brow
+  { x: 196, y: 98, c: "#5FA8A8" }, // 5  ear-L base
+  { x: 232, y: 96, c: "#EF9F27" }, // 6  ear-R base
   { x: 256, y: 114, c: "#5FA8A8" }, // 7  head top-right
   { x: 292, y: 135, c: "#9CB85A" }, // 8  cheek
   { x: 306, y: 158, c: "#6B8FB5" }, // 9  snout
@@ -36,14 +36,14 @@ const NODES = [
   { x: 186, y: 138, c: "#EF9F27" }, // 13 mid back
   { x: 170, y: 162, c: "#A33B5E" }, // 14 hip
   { x: 124, y: 156, c: "#5FA8A8" }, // 15 haunch top
-  { x: 94,  y: 178, c: "#9CB85A" }, // 16 haunch upper-left
-  { x: 88,  y: 208, c: "#5FA8A8" }, // 17 haunch left
+  { x: 94, y: 178, c: "#9CB85A" }, // 16 haunch upper-left
+  { x: 88, y: 208, c: "#5FA8A8" }, // 17 haunch left
   { x: 112, y: 228, c: "#6B8FB5" }, // 18 haunch bottom center
   { x: 148, y: 216, c: "#EF9F27" }, // 19 haunch lower-right
   { x: 152, y: 186, c: "#A33B5E" }, // 20 haunch center
-  { x: 68,  y: 246, c: "#9CB85A" }, // 21 ankle
-  { x: 80,  y: 280, c: "#EF9F27" }, // 22 foot mid
-  { x: 92,  y: 310, c: "#A33B5E" }, // 23 foot tip
+  { x: 68, y: 246, c: "#9CB85A" }, // 21 ankle
+  { x: 80, y: 280, c: "#EF9F27" }, // 22 foot mid
+  { x: 92, y: 310, c: "#A33B5E" }, // 23 foot tip
   { x: 198, y: 200, c: "#6B8FB5" }, // 24 belly
   { x: 226, y: 214, c: "#A33B5E" }, // 25 front thigh
   { x: 258, y: 200, c: "#9CB85A" }, // 26 front knee
@@ -51,18 +51,52 @@ const NODES = [
 ];
 
 const EDGES: [number, number][] = [
-  [0,2],[2,5],[1,3],[3,6],[5,6],
-  [0,1],
-  [4,5],[4,12],
-  [5,7],[6,7],[6,11],
-  [7,8],[8,9],[9,10],[10,11],[11,7],
-  [11,12],[7,12],[12,13],[13,14],
-  [14,15],[13,15],[14,20],
-  [15,16],[16,17],[17,18],[18,19],[19,20],[20,15],
-  [16,20],[16,18],[15,18],[17,20],[19,18],
-  [17,21],[21,22],[22,23],[18,21],
-  [14,24],[20,24],[24,25],[25,26],[26,27],
-  [25,10],[11,25],[24,19],
+  [0, 2],
+  [2, 5],
+  [1, 3],
+  [3, 6],
+  [5, 6],
+  [0, 1],
+  [4, 5],
+  [4, 12],
+  [5, 7],
+  [6, 7],
+  [6, 11],
+  [7, 8],
+  [8, 9],
+  [9, 10],
+  [10, 11],
+  [11, 7],
+  [11, 12],
+  [7, 12],
+  [12, 13],
+  [13, 14],
+  [14, 15],
+  [13, 15],
+  [14, 20],
+  [15, 16],
+  [16, 17],
+  [17, 18],
+  [18, 19],
+  [19, 20],
+  [20, 15],
+  [16, 20],
+  [16, 18],
+  [15, 18],
+  [17, 20],
+  [19, 18],
+  [17, 21],
+  [21, 22],
+  [22, 23],
+  [18, 21],
+  [14, 24],
+  [20, 24],
+  [24, 25],
+  [25, 26],
+  [26, 27],
+  [25, 10],
+  [11, 25],
+  [24, 19],
 ];
 
 const BIG_NODES = new Set([7, 12, 15, 18]);
@@ -98,10 +132,14 @@ export default function LogoAnimation({ onComplete }: Props) {
     canvas.style.height = `${H}px`;
     ctx.scale(DPR, DPR);
 
-    const P1_START = 0,   P1_END = 1.4;
-    const P2_START = 1.0, P2_END = 2.2;
-    const P3_START = 2.0, P3_END = 3.5;
-    const P4_START = 3.2, P4_END = 4.5;
+    const P1_START = 0,
+      P1_END = 1.4;
+    const P2_START = 1.0,
+      P2_END = 2.2;
+    const P3_START = 2.0,
+      P3_END = 3.5;
+    const P4_START = 3.2,
+      P4_END = 4.5;
 
     let startTime: number | null = null;
     let animId: number;
@@ -135,7 +173,9 @@ export default function LogoAnimation({ onComplete }: Props) {
       ctx.fillRect(0, 0, W, H);
 
       // Phase 1 — bubbles
-      const p1e = easeInOut(Math.min(Math.max((elapsed - P1_START) / (P1_END - P1_START), 0), 1));
+      const p1e = easeInOut(
+        Math.min(Math.max((elapsed - P1_START) / (P1_END - P1_START), 0), 1),
+      );
       if (p1e > 0) {
         for (const b of BUBBLES) {
           ctx.save();
@@ -149,7 +189,9 @@ export default function LogoAnimation({ onComplete }: Props) {
       }
 
       // Phase 2 — dots orbit in
-      const p2e = easeInOut(Math.min(Math.max((elapsed - P2_START) / (P2_END - P2_START), 0), 1));
+      const p2e = easeInOut(
+        Math.min(Math.max((elapsed - P2_START) / (P2_END - P2_START), 0), 1),
+      );
       if (p2e > 0) {
         for (let i = 0; i < NODES.length; i++) {
           const node = NODES[i];
@@ -173,7 +215,10 @@ export default function LogoAnimation({ onComplete }: Props) {
       }
 
       // Phase 3 — edges draw
-      const p3raw = Math.min(Math.max((elapsed - P3_START) / (P3_END - P3_START), 0), 1);
+      const p3raw = Math.min(
+        Math.max((elapsed - P3_START) / (P3_END - P3_START), 0),
+        1,
+      );
       if (p3raw > 0) {
         const edgesVisible = p3raw * EDGES.length;
         ctx.strokeStyle = "rgba(255,255,255,0.85)";
@@ -200,7 +245,9 @@ export default function LogoAnimation({ onComplete }: Props) {
       }
 
       // Phase 4 — wordmark
-      const p4e = easeInOut(Math.min(Math.max((elapsed - P4_START) / (P4_END - P4_START), 0), 1));
+      const p4e = easeInOut(
+        Math.min(Math.max((elapsed - P4_START) / (P4_END - P4_START), 0), 1),
+      );
       if (p4e > 0 && wordmarkRef.current) {
         wordmarkRef.current.style.opacity = String(p4e);
       }
@@ -223,7 +270,12 @@ export default function LogoAnimation({ onComplete }: Props) {
       <canvas ref={canvasRef} style={{ display: "block" }} />
       <div
         ref={wordmarkRef}
-        style={{ opacity: 0, marginTop: 16, textAlign: "center", pointerEvents: "none" }}
+        style={{
+          opacity: 0,
+          marginTop: 16,
+          textAlign: "center",
+          pointerEvents: "none",
+        }}
       >
         <div
           style={{

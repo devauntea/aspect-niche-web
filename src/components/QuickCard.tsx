@@ -1,6 +1,7 @@
 "use client";
 
 import ActivityBanner from "./ActivityBanner";
+import AddToCalendar from "./AddToCalendar";
 import type { Activity } from "@/types/graph";
 import type { Resource } from "@/data/resources";
 
@@ -34,7 +35,11 @@ export default function QuickCard({
 }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <ActivityBanner accentColor={accentColor} label={activity.label} height={110} />
+      <ActivityBanner
+        accentColor={accentColor}
+        label={activity.label}
+        height={110}
+      />
 
       <div
         style={{
@@ -182,6 +187,8 @@ export default function QuickCard({
         >
           Find nearby →
         </button>
+
+        <AddToCalendar activity={activity} accentColor={accentColor} />
 
         {!swipeHintSeen && (
           <p

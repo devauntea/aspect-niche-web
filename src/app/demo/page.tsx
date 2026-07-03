@@ -10,7 +10,9 @@ import { activities, interests } from "../../data/activities";
 import { nicheContent } from "../../data/nicheContent";
 import { getResources } from "../../data/resources";
 import type { Activity, HobbyEdge, HobbyNode } from "@/types/graph";
-import QuickFilters, { type ActiveFilters } from "../../components/QuickFilters";
+import QuickFilters, {
+  type ActiveFilters,
+} from "../../components/QuickFilters";
 import RabbitHolePanel from "../../components/RabbitHolePanel";
 import {
   IconAppMark,
@@ -36,9 +38,18 @@ import {
   buildVisibleEdges,
 } from "@/lib/graphUtils";
 import { getSaved, toggleSaved, isSaved } from "@/lib/storage";
+import { mapsSearchUrl } from "@/lib/maps";
+import {
+  colors,
+  interestColors,
+  accentFor,
+  darkenAccent,
+  motionTokens,
+} from "@/lib/theme";
 import NicheCard from "../../components/NicheCard";
 import QuickCard from "../../components/QuickCard";
 import DeepDiveCard from "../../components/DeepDiveCard";
+import PlanADateMode from "../../components/PlanADate/PlanADateMode";
 import {
   getWhyItFits,
   getBeginnerChecklist,
@@ -47,48 +58,6 @@ import {
 
 type Screen = "splash" | "onboarding" | "app";
 type CardState = "quick" | "deep" | "niche";
-
-const INTEREST_COLORS: Record<string, string> = {
-  fitness: "#D4537E",
-  creative: "#7F77DD",
-  outdoor: "#1D9E75",
-  tech: "#378ADD",
-  social: "#EF9F27",
-  culinary: "#D85A30",
-};
-const ACTIVITY_COLORS: Record<string, string> = {
-  "rock-climbing": "#D4537E",
-  zumba: "#EF9F27",
-  cycling: "#1D9E75",
-  yoga: "#7F77DD",
-  running: "#D85A30",
-  hiking: "#1D9E75",
-  photography: "#7F77DD",
-  drawing: "#D4537E",
-  music: "#EF9F27",
-  pottery: "#D85A30",
-  kayaking: "#378ADD",
-  coding: "#378ADD",
-  "3d-printing": "#639922",
-  electronics: "#EF9F27",
-  "board-games": "#D4537E",
-  improv: "#EF9F27",
-  cooking: "#D85A30",
-  baking: "#EF9F27",
-  coffee: "#D85A30",
-  fermentation: "#1D9E75",
-  "cooking-club": "#D4537E",
-};
-
-const ACCENT_DARK: Record<string, string> = {
-  "#D4537E": "#993556",
-  "#7F77DD": "#534AB7",
-  "#EF9F27": "#854F0B",
-  "#1D9E75": "#0F6E56",
-  "#378ADD": "#185FA5",
-  "#D85A30": "#993C1D",
-  "#639922": "#3B6D11",
-};
 
 const INTEREST_ICONS: Record<string, React.ReactNode> = {
   fitness: <IconFitness size={28} />,
@@ -120,11 +89,17 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>("splash");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [expandedInterests, setExpandedInterests] = useState<Set<string>>(new Set());
+  // Lags selectedId on deselect so the dock can slide out before unmounting
+  const [displayedId, setDisplayedId] = useState<string | null>(null);
+  const [expandedInterests, setExpandedInterests] = useState<Set<string>>(
+    new Set(),
+  );
   const [savedIds, setSavedIds] = useState<string[]>(() => getSaved());
   const [showSaved, setShowSaved] = useState(false);
   const [randomReason, setRandomReason] = useState<string | null>(null);
-  const [surpriseActivity, setSurpriseActivity] = useState<(typeof activities)[0] | null>(null);
+  const [surpriseActivity, setSurpriseActivity] = useState<
+    (typeof activities)[0] | null
+  >(null);
   const [cardState, setCardState] = useState<CardState>("quick");
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     environment: [],
@@ -140,10 +115,14 @@ export default function Home() {
       return false;
     }
   });
-  const [checkedActivityId, setCheckedActivityId] = useState<string | null>(null);
+  const [checkedActivityId, setCheckedActivityId] = useState<string | null>(
+    null,
+  );
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
   const [allDone, setAllDone] = useState(false);
-  const [customNiches, setCustomNiches] = useState<CustomNiche[]>(() => getCustomNiches());
+  const [customNiches, setCustomNiches] = useState<CustomNiche[]>(() =>
+    getCustomNiches(),
+  );
   const [creatingNiche, setCreatingNiche] = useState<string | null>(null);
   const [newNodeId, setNewNodeId] = useState<string | null>(null);
   const [swipeHintSeen, setSwipeHintSeen] = useState(() => {
@@ -155,6 +134,7 @@ export default function Home() {
   });
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [mouseStartX, setMouseStartX] = useState<number | null>(null);
+  const [dateMode, setDateMode] = useState(false);
 
   // ── Onboarding ─────────────────────────────────────────
   function toggleInterest(id: string) {
@@ -232,9 +212,11 @@ export default function Home() {
     if (!hasFilters) return activityNodes;
     return activityNodes.filter((n) => {
       const a = n.data as Activity;
-      if (environment.length > 0 && !environment.includes(a.tags.environment)) return false;
+      if (environment.length > 0 && !environment.includes(a.tags.environment))
+        return false;
       if (social.length > 0 && !social.includes(a.tags.social)) return false;
-      if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty)) return false;
+      if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty))
+        return false;
       if (cost.length > 0 && !cost.includes(a.tags.cost)) return false;
       return true;
     });
@@ -273,7 +255,7 @@ export default function Home() {
             tags: n.tags,
             source: "ai-generated" as const,
           } as Activity,
-          color: "#7F77DD",
+          color: colors.brand,
           position: {
             x: pos.x + Math.cos(angle) * dist,
             y: pos.y + Math.sin(angle) * dist,
@@ -286,7 +268,10 @@ export default function Home() {
     () => [...interestNodes, ...filteredActivityNodes, ...customNodes],
     [interestNodes, filteredActivityNodes, customNodes],
   );
-  const visibleIds = useMemo(() => new Set(allNodes.map((n) => n.id)), [allNodes]);
+  const visibleIds = useMemo(
+    () => new Set(allNodes.map((n) => n.id)),
+    [allNodes],
+  );
   const graphEdges = useMemo((): HobbyEdge[] => {
     const base = buildVisibleEdges(visibleIds, selectedInterests);
     const customEdges: HobbyEdge[] = customNiches
@@ -341,14 +326,28 @@ export default function Home() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectedId, handleSelectNode]);
 
-  // ── Lock background scroll while any full-screen overlay is open ──
+  // ── Lock background scroll while a full-screen overlay is open ──
+  // (Node selection no longer locks scroll — the dock is not an overlay.)
   useEffect(() => {
-    const overlayOpen = !!selectedId || !!surpriseActivity;
-    document.body.style.overflow = overlayOpen ? "hidden" : "";
+    document.body.style.overflow = surpriseActivity ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selectedId, surpriseActivity]);
+  }, [surpriseActivity]);
+
+  // ── Dock open/close choreography ───────────────────────
+  // Open/switch syncs during render; clearing waits for the slide-out.
+  if (selectedId && selectedId !== displayedId) {
+    setDisplayedId(selectedId);
+  }
+  useEffect(() => {
+    if (selectedId) return;
+    const t = setTimeout(
+      () => setDisplayedId(null),
+      motionTokens.cardDurationMs,
+    );
+    return () => clearTimeout(t);
+  }, [selectedId]);
 
   // ── Random activity ────────────────────────────────────
   function handleRandom() {
@@ -365,9 +364,11 @@ export default function Home() {
       );
       if (!inInterests) return false;
       if (hasFilters) {
-        if (environment.length > 0 && !environment.includes(a.tags.environment)) return false;
+        if (environment.length > 0 && !environment.includes(a.tags.environment))
+          return false;
         if (social.length > 0 && !social.includes(a.tags.social)) return false;
-        if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty)) return false;
+        if (difficulty.length > 0 && !difficulty.includes(a.tags.difficulty))
+          return false;
         if (cost.length > 0 && !cost.includes(a.tags.cost)) return false;
       }
       return true;
@@ -380,7 +381,8 @@ export default function Home() {
     setNoMatchHint(false);
     const pick = pool[Math.floor(Math.random() * pool.length)];
     const parent = interests.find(
-      (i) => i.activityIds.includes(pick.id) && selectedInterests.includes(i.id),
+      (i) =>
+        i.activityIds.includes(pick.id) && selectedInterests.includes(i.id),
     );
     if (parent) setExpandedInterests((prev) => new Set([...prev, parent.id]));
     const reason = getWhyItFits(pick, selectedInterests);
@@ -403,7 +405,11 @@ export default function Home() {
       const res = await fetch("/api/create-niche", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoryId, categoryLabel, existingActivities: existing }),
+        body: JSON.stringify({
+          categoryId,
+          categoryLabel,
+          existingActivities: existing,
+        }),
       });
       if (!res.ok) throw new Error("Failed");
       const data = (await res.json()) as {
@@ -449,24 +455,25 @@ export default function Home() {
     }
   }
 
-  // ── Detail data ────────────────────────────────────────
+  // ── Detail data (derives from displayedId so content persists
+  //    through the dock's slide-out) ────────────────────────
   const detail = useMemo(() => {
-    if (!selectedId) return null;
-    const activity = activities.find((a) => a.id === selectedId);
+    if (!displayedId) return null;
+    const activity = activities.find((a) => a.id === displayedId);
     if (activity) return { type: "activity" as const, data: activity };
-    const customNiche = customNiches.find((n) => n.id === selectedId);
+    const customNiche = customNiches.find((n) => n.id === displayedId);
     if (customNiche) return { type: "custom" as const, data: customNiche };
-    const interest = interests.find((i) => i.id === selectedId);
+    const interest = interests.find((i) => i.id === displayedId);
     if (interest) return { type: "interest" as const, data: interest };
     return null;
-  }, [selectedId, customNiches]);
+  }, [displayedId, customNiches]);
 
-  const accentColor = selectedId
-    ? (INTEREST_COLORS[selectedId] ?? ACTIVITY_COLORS[selectedId] ?? "#7F77DD")
-    : "#7F77DD";
-  const accentDark = ACCENT_DARK[accentColor] ?? accentColor;
+  const accentColor = accentFor(displayedId);
+  const accentDark = darkenAccent(accentColor);
 
-  const isExpanded = selectedId ? effectiveExpandedInterests.has(selectedId) : false;
+  const isExpanded = displayedId
+    ? effectiveExpandedInterests.has(displayedId)
+    : false;
   const activityDetail = detail?.type === "activity" ? detail.data : null;
   const customDetail = detail?.type === "custom" ? detail.data : null;
 
@@ -476,7 +483,9 @@ export default function Home() {
   );
   const similarActs = useMemo(
     () =>
-      activityDetail ? getSimilarActivities(activityDetail, selectedInterests) : [],
+      activityDetail
+        ? getSimilarActivities(activityDetail, selectedInterests)
+        : [],
     [activityDetail, selectedInterests],
   );
   const saved = activityDetail ? isSaved(savedIds, activityDetail.id) : false;
@@ -516,7 +525,8 @@ export default function Home() {
 
   const hintText = useMemo(() => {
     if (noMatchHint) return "No activities match — try clearing a filter";
-    if (expandedInterests.size === 0) return "Tap an interest to reveal activities";
+    if (expandedInterests.size === 0)
+      return "Tap an interest to reveal activities";
     if (!selectedId || interests.some((i) => i.id === selectedId))
       return "Tap an activity to explore it";
     return null;
@@ -613,7 +623,7 @@ export default function Home() {
         />
       )}
       {screen === "app" && (
-        <main className="min-h-screen bg-[#FAF8F2] text-[#1A1916]">
+        <main className="min-h-screen bg-background text-foreground">
           <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-7">
             {/* Header */}
             <header className="mb-6 flex items-center justify-between">
@@ -623,12 +633,12 @@ export default function Home() {
               >
                 <IconAppMark size={20} />
                 <span className="text-lg font-semibold tracking-tight">
-                  aspect<span className="text-[#7F77DD]">·niche</span>
+                  aspect<span className="text-brand">·niche</span>
                 </span>
               </button>
               <div className="flex items-center gap-2">
                 {selectedInterests.map((id) => {
-                  const color = INTEREST_COLORS[id] ?? "#7F77DD";
+                  const color = interestColors[id] ?? colors.brand;
                   return (
                     <span
                       key={id}
@@ -639,21 +649,40 @@ export default function Home() {
                     </span>
                   );
                 })}
+                {/* Plan a date — its own warm theme signals the mode switch */}
+                <button
+                  onClick={() => setDateMode(true)}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ml-1 active:scale-95 hover:opacity-90"
+                  style={{
+                    minHeight: 44,
+                    background: "linear-gradient(135deg, #E85D8A, #B03A62)",
+                    color: "white",
+                    boxShadow: "0 2px 12px rgba(232,93,138,0.4)",
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M6 10.5C3.2 8.4 1 6.6 1 4.4 1 2.9 2.2 1.8 3.6 1.8c.9 0 1.8.5 2.4 1.3.6-.8 1.5-1.3 2.4-1.3C9.8 1.8 11 2.9 11 4.4c0 2.2-2.2 4-5 6.1z"
+                      fill="white"
+                    />
+                  </svg>
+                  Plan a date
+                </button>
                 <button
                   onClick={() => setShowSaved(true)}
-                  className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-white border border-[#E8E4DA] hover:border-[#D3D0C8] transition-colors ml-1 active:scale-95"
+                  className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-white border border-border hover:border-border-hover transition-colors ml-1 active:scale-95"
                   style={{ minHeight: 44 }}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path
                       d="M2 1.5h8a.5.5 0 01.5.5v9L6 8.5 1.5 11V2a.5.5 0 01.5-.5z"
-                      stroke="#5A5855"
+                      stroke={colors.textBody}
                       strokeWidth="1.2"
                       strokeLinejoin="round"
-                      fill={savedIds.length > 0 ? "#7F77DD" : "none"}
+                      fill={savedIds.length > 0 ? colors.brand : "none"}
                     />
                   </svg>
-                  <span className="text-[#5A5855]">
+                  <span className="text-body">
                     {savedIds.length > 0 ? `${savedIds.length} saved` : "Saved"}
                   </span>
                 </button>
@@ -664,8 +693,12 @@ export default function Home() {
                       setShowEditHint(false);
                       setScreen("onboarding");
                     }}
-                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-white transition-colors hover:border-[#7F77DD] hover:text-[#7F77DD] active:scale-95"
-                    style={{ borderColor: "#E8E4DA", color: "#5A5855", minHeight: 44 }}
+                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-white transition-colors hover:border-brand hover:text-brand active:scale-95"
+                    style={{
+                      borderColor: colors.border,
+                      color: colors.textBody,
+                      minHeight: 44,
+                    }}
                   >
                     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                       <path
@@ -678,7 +711,7 @@ export default function Home() {
                     Edit interests
                   </button>
                   {showEditHint && (
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium bg-[#1A1916] text-white pointer-events-none z-50">
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium bg-foreground text-white pointer-events-none z-50">
                       ← Change your interests here
                     </div>
                   )}
@@ -695,20 +728,25 @@ export default function Home() {
               />
             </div>
 
-            {/* Graph — full width */}
-            <section className="flex-1">
-              <div className="rounded-3xl border border-[#E8E4DA] bg-white p-5 shadow-sm flex flex-col gap-4">
+            {/* Graph + detail dock — the canvas reflows into the remaining
+                width when the dock opens; the card never overlays the graph */}
+            <section className="flex-1 flex items-stretch min-w-0">
+              <div className="flex-1 min-w-0 rounded-3xl border border-border bg-white p-5 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-semibold">Explore</h2>
                     {hintText && (
-                      <p className="text-xs text-[#B0ADA8] mt-0.5">{hintText}</p>
+                      <p className="text-xs text-muted mt-0.5">{hintText}</p>
                     )}
                   </div>
                   <button
                     onClick={handleRandom}
                     className="rounded-full px-4 py-2 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95"
-                    style={{ background: "#7F77DD", boxShadow: "0 2px 10px #7F77DD35", minHeight: 44 }}
+                    style={{
+                      background: colors.brand,
+                      boxShadow: `0 2px 10px ${colors.brand}35`,
+                      minHeight: 44,
+                    }}
                   >
                     Surprise me
                   </button>
@@ -723,8 +761,447 @@ export default function Home() {
                   onCollapseAll={handleCollapseAll}
                 />
               </div>
-            </section>
 
+              {/* ── Detail dock — docked side panel (bottom sheet on
+                  narrow screens). The graph reacts first, then the card
+                  slides in with the canvas reflowing beside it. ── */}
+              <aside
+                className={`detail-dock ${selectedId && detail ? "is-open" : ""}`}
+                style={
+                  {
+                    "--dock-delay": `${motionTokens.cardDelayMs}ms`,
+                    "--dock-duration": `${motionTokens.cardDurationMs}ms`,
+                    "--dock-ease": motionTokens.springEase,
+                  } as React.CSSProperties
+                }
+                aria-hidden={!(selectedId && detail)}
+              >
+                <div className="detail-dock-inner bg-white md:bg-transparent rounded-t-3xl md:rounded-none">
+                  {detail && (
+                    <div
+                      className="card-face-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 md:p-0"
+                      style={{
+                        overscrollBehavior: "contain",
+                        WebkitOverflowScrolling: "touch",
+                      }}
+                    >
+                      <div className="w-full flex-shrink-0 bg-white md:border md:border-border rounded-3xl md:shadow-sm flex flex-col overflow-hidden">
+                        {/* Modal header */}
+                        <div className="flex items-center justify-between px-5 pt-5 pb-2 flex-shrink-0">
+                          <h2 className="text-base font-semibold">Details</h2>
+                          <div className="flex items-center gap-1.5">
+                            {/* Save button (activities only) */}
+                            {detail.type === "activity" && activityDetail && (
+                              <button
+                                onClick={() =>
+                                  handleToggleSave(activityDetail.id)
+                                }
+                                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
+                                style={{
+                                  background: saved
+                                    ? `${accentColor}18`
+                                    : colors.surfaceSubtle,
+                                  border: saved
+                                    ? `1.5px solid ${accentColor}40`
+                                    : "1.5px solid transparent",
+                                }}
+                                title={
+                                  saved ? "Remove from saved" : "Save activity"
+                                }
+                              >
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="none"
+                                >
+                                  <path
+                                    d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
+                                    fill={saved ? accentColor : "none"}
+                                    stroke={
+                                      saved ? accentColor : colors.textFaint
+                                    }
+                                    strokeWidth="1.3"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                            {/* Close button */}
+                            <button
+                              onClick={() => handleSelectNode(null)}
+                              className="w-9 h-9 rounded-full flex items-center justify-center text-faint hover:bg-surface-subtle transition-colors active:scale-95"
+                              title="Close"
+                            >
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 14 14"
+                                fill="none"
+                              >
+                                <path
+                                  d="M2 2l10 10M12 2L2 12"
+                                  stroke="currentColor"
+                                  strokeWidth="1.8"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* ── Activity detail: tab bar + cards ── */}
+                        {detail.type === "activity" && activityDetail && (
+                          <>
+                            {/* Tab bar */}
+                            <div className="flex gap-1 px-5 pb-2 flex-shrink-0">
+                              {tabConfig.map(({ id, label }) => {
+                                const active = cardState === id;
+                                const disabled = id === "niche" && !hasNiche;
+                                return (
+                                  <button
+                                    key={id}
+                                    onClick={() =>
+                                      !disabled && setCardState(id)
+                                    }
+                                    disabled={disabled}
+                                    className="transition-all rounded-full"
+                                    style={{
+                                      minHeight: 44,
+                                      padding: "8px 14px",
+                                      background: active
+                                        ? accentColor
+                                        : "transparent",
+                                      color: active
+                                        ? "white"
+                                        : disabled
+                                          ? colors.borderHover
+                                          : colors.textFaint,
+                                      fontSize: 13,
+                                      fontWeight: active ? 600 : 400,
+                                      border: "none",
+                                      cursor: disabled
+                                        ? "not-allowed"
+                                        : "pointer",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Card content — rendered directly. Quick/Niche hug their
+                    content height; Deep dive grows and the scroll stack handles
+                    overflow. */}
+                            <div
+                              onTouchStart={handleTouchStart}
+                              onTouchEnd={handleTouchEnd}
+                              onMouseDown={handleMouseDown}
+                              onMouseUp={handleMouseUp}
+                            >
+                              {cardState === "quick" && (
+                                <QuickCard
+                                  activity={activityDetail}
+                                  accentColor={accentColor}
+                                  categoryLabel={
+                                    selectedInterestForNiche?.label
+                                  }
+                                  onFindNearby={() =>
+                                    window.open(
+                                      mapsSearchUrl(activityDetail.label),
+                                      "_blank",
+                                    )
+                                  }
+                                  youtubeResource={youtubeResource}
+                                  swipeHintSeen={swipeHintSeen}
+                                />
+                              )}
+
+                              {cardState === "deep" && (
+                                <DeepDiveCard
+                                  activity={activityDetail}
+                                  accentColor={accentColor}
+                                  checklist={checklist}
+                                  checkedItems={checkedItems}
+                                  onToggleCheck={toggleChecked}
+                                  allDone={allDone}
+                                  resources={activityResources}
+                                  similarActivities={similarActs}
+                                  onSelectActivity={(id) => {
+                                    setSelectedId(id);
+                                    setRandomReason(null);
+                                  }}
+                                  randomReason={randomReason}
+                                  isSaved={saved}
+                                  onToggleSave={() =>
+                                    handleToggleSave(activityDetail.id)
+                                  }
+                                  onFindNearby={() =>
+                                    window.open(
+                                      mapsSearchUrl(activityDetail.label),
+                                      "_blank",
+                                    )
+                                  }
+                                />
+                              )}
+
+                              {cardState === "niche" && (
+                                <div className="p-3">
+                                  {hasNiche ? (
+                                    <NicheCard
+                                      activity={activityDetail}
+                                      accentColor={accentColor}
+                                      accentDark={accentDark}
+                                      nicheContent={
+                                        nicheContent[activityDetail.id]
+                                      }
+                                      onOpenRabbitHole={() =>
+                                        document
+                                          .getElementById("rabbit-hole-panel")
+                                          ?.scrollIntoView({
+                                            behavior: "smooth",
+                                          })
+                                      }
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center gap-3 text-center py-8">
+                                      <p className="text-sm font-medium text-body">
+                                        No niche content yet
+                                      </p>
+                                      <p className="text-xs text-muted leading-relaxed max-w-[200px]">
+                                        Use the AI panel below to explore deeper
+                                        angles for this activity.
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {/* ── Interest detail ── */}
+                        {detail.type === "interest" && (
+                          <div className="px-5 pb-5 flex flex-col gap-4">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                                style={{ background: `${accentColor}12` }}
+                              >
+                                {INTEREST_ICONS[detail.data.id] ?? (
+                                  <div
+                                    className="w-6 h-6 rounded-full"
+                                    style={{ background: accentColor }}
+                                  />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-widest text-muted mb-0.5">
+                                  Interest
+                                </p>
+                                <h3 className="text-xl font-semibold tracking-tight">
+                                  {detail.data.label}
+                                </h3>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-body">
+                              <span
+                                className="font-semibold"
+                                style={{ color: accentColor }}
+                              >
+                                {
+                                  (detail.data as (typeof interests)[0])
+                                    .activityIds.length
+                                }
+                              </span>{" "}
+                              activities in this cluster
+                            </p>
+
+                            {isExpanded && (
+                              <div className="flex flex-wrap gap-1.5">
+                                {(
+                                  detail.data as (typeof interests)[0]
+                                ).activityIds.map((id) => {
+                                  const act = activities.find(
+                                    (a) => a.id === id,
+                                  );
+                                  return act ? (
+                                    <button
+                                      key={id}
+                                      onClick={() => setSelectedId(id)}
+                                      className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
+                                      style={{
+                                        background: `${accentColor}14`,
+                                        color: accentColor,
+                                        minHeight: 36,
+                                      }}
+                                    >
+                                      {act.label}
+                                    </button>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
+
+                            {!isExpanded && (
+                              <p className="text-xs text-muted">
+                                Tap the node in the graph to reveal activities.
+                              </p>
+                            )}
+
+                            <button
+                              onClick={() => handleSelectNode(detail.data.id)}
+                              className="rounded-2xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                              style={{ background: accentColor, minHeight: 44 }}
+                            >
+                              {isExpanded
+                                ? "Collapse activities"
+                                : "Show activities →"}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* ── Custom niche detail ── */}
+                        {detail.type === "custom" && customDetail && (
+                          <div className="px-5 pb-5 flex flex-col gap-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-[10px] uppercase tracking-widest text-muted">
+                                  Activity
+                                </p>
+                                <span
+                                  className="text-[10px] font-semibold rounded-full px-2 py-0.5"
+                                  style={{
+                                    background: `${colors.brand}14`,
+                                    color: colors.brand,
+                                  }}
+                                >
+                                  ✦ AI Created
+                                </span>
+                              </div>
+                              <h3 className="text-2xl font-semibold tracking-tight leading-tight">
+                                {customDetail.label}
+                              </h3>
+                            </div>
+
+                            <p className="text-sm text-body leading-relaxed">
+                              {customDetail.description}
+                            </p>
+
+                            <div
+                              className="rounded-xl p-3.5 flex flex-col gap-1"
+                              style={{
+                                background: `${colors.brand}0e`,
+                                border: `1px solid ${colors.brand}20`,
+                              }}
+                            >
+                              <p
+                                className="text-[10px] uppercase tracking-widest font-semibold"
+                                style={{ color: colors.brand }}
+                              >
+                                Why it&apos;s niche
+                              </p>
+                              <p className="text-xs text-body leading-relaxed">
+                                {customDetail.whyItsNiche}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                diffLabel[customDetail.tags.difficulty],
+                                envLabel[customDetail.tags.environment],
+                                costLabel[customDetail.tags.cost],
+                              ]
+                                .filter(Boolean)
+                                .map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="rounded-full px-2.5 py-1 text-[11px] font-medium"
+                                    style={{
+                                      background: `${colors.brand}12`,
+                                      color: colors.brand,
+                                    }}
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                            </div>
+
+                            <div
+                              className="rounded-xl p-3.5 flex gap-3"
+                              style={{ background: colors.appBg }}
+                            >
+                              <span className="text-base flex-shrink-0">
+                                💡
+                              </span>
+                              <div>
+                                <p className="text-[10px] uppercase tracking-widest text-muted mb-1">
+                                  First step
+                                </p>
+                                <p className="text-xs text-foreground leading-relaxed">
+                                  {customDetail.beginnerTip}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <p className="text-[10px] uppercase tracking-widest text-muted">
+                                Category
+                              </p>
+                              <span
+                                className="text-xs font-medium"
+                                style={{ color: colors.brand }}
+                              >
+                                {customDetail.categoryLabel}
+                              </span>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                removeCustomNiche(customDetail.id);
+                                setCustomNiches(getCustomNiches());
+                                setSelectedId(null);
+                              }}
+                              className="text-xs text-muted hover:text-red-400 transition-colors mt-2 text-center active:scale-95"
+                            >
+                              Remove from graph
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Rabbit hole — activities only, scrolls with the card above */}
+                      {detail.type === "activity" && activityDetail && (
+                        <div id="rabbit-hole-panel" className="flex-shrink-0">
+                          <RabbitHolePanel
+                            key={activityDetail.id}
+                            activityId={activityDetail.id}
+                            activityLabel={activityDetail.label}
+                            accentColor={accentColor}
+                            tags={activityDetail.tags as Record<string, string>}
+                            onCreateNiche={() =>
+                              selectedInterestForNiche
+                                ? handleCreateNiche(
+                                    selectedInterestForNiche.id,
+                                    selectedInterestForNiche.label,
+                                  )
+                                : undefined
+                            }
+                            isCreating={
+                              !!selectedInterestForNiche &&
+                              creatingNiche === selectedInterestForNiche.id
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </aside>
+            </section>
           </div>
 
           {showSaved && (
@@ -741,346 +1218,6 @@ export default function Home() {
         </main>
       )}
 
-      {/* ── Node detail overlay ─────────────────────────── */}
-      {selectedId && detail && screen === "app" && (
-        <div
-          key={selectedId}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center px-5 py-8 surprise-backdrop"
-          style={{ background: "rgba(26,25,22,0.45)", backdropFilter: "blur(6px)" }}
-          onClick={() => handleSelectNode(null)}
-        >
-          {/* Scroll stack — card + rabbit hole panel scroll together */}
-          <div
-            className="w-full max-w-md flex flex-col gap-3 overflow-y-auto"
-            style={{
-              maxHeight: "85vh",
-              margin: "0 auto",
-              overscrollBehavior: "contain",
-              WebkitOverflowScrolling: "touch",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-          <div className="w-full flex-shrink-0 bg-white rounded-3xl shadow-2xl flex flex-col surprise-card-enter overflow-hidden">
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-2 flex-shrink-0">
-              <h2 className="text-base font-semibold">Details</h2>
-              <div className="flex items-center gap-1.5">
-                {/* Save button (activities only) */}
-                {detail.type === "activity" && activityDetail && (
-                  <button
-                    onClick={() => handleToggleSave(activityDetail.id)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
-                    style={{
-                      background: saved ? `${accentColor}18` : "#F0EDE6",
-                      border: saved ? `1.5px solid ${accentColor}40` : "1.5px solid transparent",
-                    }}
-                    title={saved ? "Remove from saved" : "Save activity"}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
-                        fill={saved ? accentColor : "none"}
-                        stroke={saved ? accentColor : "#9A9690"}
-                        strokeWidth="1.3"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                )}
-                {/* Close button */}
-                <button
-                  onClick={() => handleSelectNode(null)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-[#9A9690] hover:bg-[#F0EDE6] transition-colors active:scale-95"
-                  title="Close"
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* ── Activity detail: tab bar + cards ── */}
-            {detail.type === "activity" && activityDetail && (
-              <>
-                {/* Tab bar */}
-                <div className="flex gap-1 px-5 pb-2 flex-shrink-0">
-                  {tabConfig.map(({ id, label }) => {
-                    const active = cardState === id;
-                    const disabled = id === "niche" && !hasNiche;
-                    return (
-                      <button
-                        key={id}
-                        onClick={() => !disabled && setCardState(id)}
-                        disabled={disabled}
-                        className="transition-all rounded-full"
-                        style={{
-                          minHeight: 44,
-                          padding: "8px 14px",
-                          background: active ? accentColor : "transparent",
-                          color: active ? "white" : disabled ? "#D3D0C8" : "#9A9690",
-                          fontSize: 13,
-                          fontWeight: active ? 600 : 400,
-                          border: "none",
-                          cursor: disabled ? "not-allowed" : "pointer",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Card content — rendered directly. Quick/Niche hug their
-                    content height; Deep dive grows and the scroll stack handles
-                    overflow. */}
-                <div
-                  onTouchStart={handleTouchStart}
-                  onTouchEnd={handleTouchEnd}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={handleMouseUp}
-                >
-                  {cardState === "quick" && (
-                    <QuickCard
-                      activity={activityDetail}
-                      accentColor={accentColor}
-                      categoryLabel={selectedInterestForNiche?.label}
-                      onFindNearby={() =>
-                        window.open(
-                          `https://www.google.com/maps/search/${encodeURIComponent(activityDetail.label + " near me")}`,
-                          "_blank",
-                        )
-                      }
-                      youtubeResource={youtubeResource}
-                      swipeHintSeen={swipeHintSeen}
-                    />
-                  )}
-
-                  {cardState === "deep" && (
-                    <DeepDiveCard
-                      activity={activityDetail}
-                      accentColor={accentColor}
-                      checklist={checklist}
-                      checkedItems={checkedItems}
-                      onToggleCheck={toggleChecked}
-                      allDone={allDone}
-                      resources={activityResources}
-                      similarActivities={similarActs}
-                      onSelectActivity={(id) => {
-                        setSelectedId(id);
-                        setRandomReason(null);
-                      }}
-                      randomReason={randomReason}
-                      isSaved={saved}
-                      onToggleSave={() => handleToggleSave(activityDetail.id)}
-                      onFindNearby={() =>
-                        window.open(
-                          `https://www.google.com/maps/search/${encodeURIComponent(activityDetail.label + " near me")}`,
-                          "_blank",
-                        )
-                      }
-                    />
-                  )}
-
-                  {cardState === "niche" && (
-                    <div className="p-3">
-                      {hasNiche ? (
-                        <NicheCard
-                          activity={activityDetail}
-                          accentColor={accentColor}
-                          accentDark={accentDark}
-                          nicheContent={nicheContent[activityDetail.id]}
-                          onOpenRabbitHole={() =>
-                            document
-                              .getElementById("rabbit-hole-panel")
-                              ?.scrollIntoView({ behavior: "smooth" })
-                          }
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center gap-3 text-center py-8">
-                          <p className="text-sm font-medium text-[#5A5855]">
-                            No niche content yet
-                          </p>
-                          <p className="text-xs text-[#B0ADA8] leading-relaxed max-w-[200px]">
-                            Use the AI panel below to explore deeper angles for this activity.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* ── Interest detail ── */}
-            {detail.type === "interest" && (
-              <div className="px-5 pb-5 flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${accentColor}12` }}
-                  >
-                    {INTEREST_ICONS[detail.data.id] ?? (
-                      <div className="w-6 h-6 rounded-full" style={{ background: accentColor }} />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-0.5">Interest</p>
-                    <h3 className="text-xl font-semibold tracking-tight">{detail.data.label}</h3>
-                  </div>
-                </div>
-
-                <p className="text-sm text-[#5A5855]">
-                  <span className="font-semibold" style={{ color: accentColor }}>
-                    {(detail.data as (typeof interests)[0]).activityIds.length}
-                  </span>{" "}
-                  activities in this cluster
-                </p>
-
-                {isExpanded && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {(detail.data as (typeof interests)[0]).activityIds.map((id) => {
-                      const act = activities.find((a) => a.id === id);
-                      return act ? (
-                        <button
-                          key={id}
-                          onClick={() => setSelectedId(id)}
-                          className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
-                          style={{ background: `${accentColor}14`, color: accentColor, minHeight: 36 }}
-                        >
-                          {act.label}
-                        </button>
-                      ) : null;
-                    })}
-                  </div>
-                )}
-
-                {!isExpanded && (
-                  <p className="text-xs text-[#B0ADA8]">
-                    Tap the node in the graph to reveal activities.
-                  </p>
-                )}
-
-                <button
-                  onClick={() => handleSelectNode(detail.data.id)}
-                  className="rounded-2xl py-3 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-                  style={{ background: accentColor, minHeight: 44 }}
-                >
-                  {isExpanded ? "Collapse activities" : "Show activities →"}
-                </button>
-              </div>
-            )}
-
-            {/* ── Custom niche detail ── */}
-            {detail.type === "custom" && customDetail && (
-              <div className="px-5 pb-5 flex flex-col gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Activity</p>
-                    <span
-                      className="text-[10px] font-semibold rounded-full px-2 py-0.5"
-                      style={{ background: "#7F77DD14", color: "#7F77DD" }}
-                    >
-                      ✦ AI Created
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-semibold tracking-tight leading-tight">
-                    {customDetail.label}
-                  </h3>
-                </div>
-
-                <p className="text-sm text-[#5A5855] leading-relaxed">{customDetail.description}</p>
-
-                <div
-                  className="rounded-xl p-3.5 flex flex-col gap-1"
-                  style={{ background: "#7F77DD0e", border: "1px solid #7F77DD20" }}
-                >
-                  <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "#7F77DD" }}>
-                    Why it&apos;s niche
-                  </p>
-                  <p className="text-xs text-[#5A5855] leading-relaxed">{customDetail.whyItsNiche}</p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    diffLabel[customDetail.tags.difficulty],
-                    envLabel[customDetail.tags.environment],
-                    costLabel[customDetail.tags.cost],
-                  ]
-                    .filter(Boolean)
-                    .map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full px-2.5 py-1 text-[11px] font-medium"
-                        style={{ background: "#7F77DD12", color: "#7F77DD" }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-
-                <div className="rounded-xl p-3.5 flex gap-3" style={{ background: "#FAF8F2" }}>
-                  <span className="text-base flex-shrink-0">💡</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">First step</p>
-                    <p className="text-xs text-[#1A1916] leading-relaxed">{customDetail.beginnerTip}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">Category</p>
-                  <span className="text-xs font-medium" style={{ color: "#7F77DD" }}>
-                    {customDetail.categoryLabel}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => {
-                    removeCustomNiche(customDetail.id);
-                    setCustomNiches(getCustomNiches());
-                    setSelectedId(null);
-                  }}
-                  className="text-xs text-[#B0ADA8] hover:text-red-400 transition-colors mt-2 text-center active:scale-95"
-                >
-                  Remove from graph
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Rabbit hole — activities only, scrolls with the card above */}
-          {detail.type === "activity" && activityDetail && (
-            <div id="rabbit-hole-panel" className="flex-shrink-0">
-              <RabbitHolePanel
-                key={activityDetail.id}
-                activityId={activityDetail.id}
-                activityLabel={activityDetail.label}
-                accentColor={accentColor}
-                tags={activityDetail.tags as Record<string, string>}
-                onCreateNiche={() =>
-                  selectedInterestForNiche
-                    ? handleCreateNiche(
-                        selectedInterestForNiche.id,
-                        selectedInterestForNiche.label,
-                      )
-                    : undefined
-                }
-                isCreating={
-                  !!selectedInterestForNiche &&
-                  creatingNiche === selectedInterestForNiche.id
-                }
-              />
-            </div>
-          )}
-          </div>
-
-          <p className="text-center text-xs text-white/50 mt-3 flex-shrink-0">
-            tap outside or press Esc to dismiss
-          </p>
-        </div>
-      )}
-
       {surpriseActivity && randomReason && (
         <SurpriseCard
           activity={surpriseActivity}
@@ -1089,6 +1226,8 @@ export default function Home() {
           onDismiss={() => setSurpriseActivity(null)}
         />
       )}
+
+      {dateMode && <PlanADateMode onExit={() => setDateMode(false)} />}
     </>
   );
 }

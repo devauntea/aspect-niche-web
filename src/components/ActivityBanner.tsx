@@ -25,19 +25,31 @@ export function getComplementaryColors(accentColor: string): [string, string] {
 }
 
 const STARS = [
-  { x: 30,  y: 28  },
-  { x: 82,  y: 52  },
-  { x: 148, y: 18  },
-  { x: 196, y: 44  },
-  { x: 162, y: 88  },
-  { x: 96,  y: 98  },
+  { x: 30, y: 28 },
+  { x: 82, y: 52 },
+  { x: 148, y: 18 },
+  { x: 196, y: 44 },
+  { x: 162, y: 88 },
+  { x: 96, y: 98 },
 ] as const;
 
 const STAR_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 1],
+  [0, 1],
+  [1, 2],
+  [2, 3],
+  [3, 4],
+  [4, 5],
+  [5, 1],
 ];
 
-const DOT_COLORS = ["white", "#F0B432", "white", "#A78BF6", "#6EE7B7", "#93C5FD"] as const;
+const DOT_COLORS = [
+  "white",
+  "#F0B432",
+  "white",
+  "#A78BF6",
+  "#6EE7B7",
+  "#93C5FD",
+] as const;
 
 interface Props {
   accentColor: string;
@@ -45,7 +57,11 @@ interface Props {
   height?: number;
 }
 
-export default function ActivityBanner({ accentColor, label, height = 140 }: Props) {
+export default function ActivityBanner({
+  accentColor,
+  label,
+  height = 140,
+}: Props) {
   const [color1, color2] = getComplementaryColors(accentColor);
 
   return (
@@ -90,8 +106,20 @@ export default function ActivityBanner({ accentColor, label, height = 140 }: Pro
           const r = isPrimary ? 4 : 2.5;
           return (
             <g key={i}>
-              <circle cx={s.x} cy={s.y} r={r + 3} fill={DOT_COLORS[i]} opacity={0.15} />
-              <circle cx={s.x} cy={s.y} r={r} fill={DOT_COLORS[i]} opacity={0.9} />
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={r + 3}
+                fill={DOT_COLORS[i]}
+                opacity={0.15}
+              />
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={r}
+                fill={DOT_COLORS[i]}
+                opacity={0.9}
+              />
             </g>
           );
         })}

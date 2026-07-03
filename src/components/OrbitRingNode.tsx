@@ -36,7 +36,7 @@ function OrbitRingNode({ data }: NodeProps) {
           stroke={color}
           strokeWidth="1"
           strokeDasharray="2 6"
-          opacity="0.3"
+          opacity="0.45"
         />
         <circle
           cx="130"
@@ -45,7 +45,7 @@ function OrbitRingNode({ data }: NodeProps) {
           stroke={color}
           strokeWidth="1"
           strokeDasharray="2 6"
-          opacity="0.15"
+          opacity="0.22"
         />
       </svg>
     </div>

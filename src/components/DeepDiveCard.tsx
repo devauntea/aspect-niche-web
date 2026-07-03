@@ -67,7 +67,11 @@ export default function DeepDiveCard({
 }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <ActivityBanner accentColor={accentColor} label={activity.label} height={140} />
+      <ActivityBanner
+        accentColor={accentColor}
+        label={activity.label}
+        height={140}
+      />
 
       <div
         style={{
@@ -137,7 +141,14 @@ export default function DeepDiveCard({
               >
                 Why this fits
               </p>
-              <p style={{ fontSize: 12, color: "#1A1916", lineHeight: 1.5, margin: 0 }}>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "#1A1916",
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
                 {randomReason}
               </p>
             </div>
@@ -157,7 +168,13 @@ export default function DeepDiveCard({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 13 13"
+                fill="none"
+                aria-hidden="true"
+              >
                 <rect
                   x="1"
                   y="1"
@@ -188,7 +205,9 @@ export default function DeepDiveCard({
               </p>
             </div>
             {allDone ? (
-              <span style={{ fontSize: 11, fontWeight: 600, color: accentColor }}>
+              <span
+                style={{ fontSize: 11, fontWeight: 600, color: accentColor }}
+              >
                 All done! ✦
               </span>
             ) : checklist.length > 0 ? (
@@ -218,8 +237,12 @@ export default function DeepDiveCard({
                     minHeight: 36,
                     transition: "transform 0.1s",
                   }}
-                  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
-                  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  onMouseDown={(e) =>
+                    (e.currentTarget.style.transform = "scale(0.98)")
+                  }
+                  onMouseUp={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
                 >
                   <div
                     style={{
@@ -295,7 +318,14 @@ export default function DeepDiveCard({
               >
                 First step
               </p>
-              <p style={{ fontSize: 12, color: "#1A1916", lineHeight: 1.5, margin: 0 }}>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "#1A1916",
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
                 {activity.beginnerTip}
               </p>
             </div>
@@ -335,8 +365,12 @@ export default function DeepDiveCard({
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
                   onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-                  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.96)")}
-                  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  onMouseDown={(e) =>
+                    (e.currentTarget.style.transform = "scale(0.96)")
+                  }
+                  onMouseUp={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
                 >
                   {a.label}
                 </button>
@@ -356,7 +390,9 @@ export default function DeepDiveCard({
               minWidth: 44,
               minHeight: 44,
               borderRadius: 999,
-              border: isSaved ? `1.5px solid ${accentColor}40` : "1.5px solid #E8E4DA",
+              border: isSaved
+                ? `1.5px solid ${accentColor}40`
+                : "1.5px solid #E8E4DA",
               background: isSaved ? `${accentColor}18` : "#F0EDE6",
               display: "flex",
               alignItems: "center",
@@ -365,7 +401,9 @@ export default function DeepDiveCard({
               flexShrink: 0,
               transition: "all 0.15s",
             }}
-            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.93)")}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.93)")
+            }
             onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -397,7 +435,9 @@ export default function DeepDiveCard({
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.97)")
+            }
             onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             Find nearby →
