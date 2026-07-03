@@ -13,17 +13,23 @@ interface Props {
 
 // Fixed constellation layout — 7 stars, deterministic positions
 const STARS = [
-  { x: 44,  y: 34  },
-  { x: 96,  y: 64  },
-  { x: 148, y: 22  },
-  { x: 206, y: 50  },
+  { x: 44, y: 34 },
+  { x: 96, y: 64 },
+  { x: 148, y: 22 },
+  { x: 206, y: 50 },
   { x: 164, y: 106 },
-  { x: 98,  y: 124 },
+  { x: 98, y: 124 },
   { x: 228, y: 116 },
 ] as const;
 
 const STAR_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 1], [3, 6],
+  [0, 1],
+  [1, 2],
+  [2, 3],
+  [3, 4],
+  [4, 5],
+  [5, 1],
+  [3, 6],
 ];
 
 // Colors for the dots — alternate white with muted palette shades
@@ -38,7 +44,15 @@ const DOT_COLORS = [
 ] as const;
 
 // Twinkle delays per star so they don't all pulse together
-const TWINKLE_DELAYS = ["0s", "0.8s", "1.4s", "0.3s", "1.8s", "0.6s", "1.1s"] as const;
+const TWINKLE_DELAYS = [
+  "0s",
+  "0.8s",
+  "1.4s",
+  "0.3s",
+  "1.8s",
+  "0.6s",
+  "1.1s",
+] as const;
 
 export default function NicheCard({
   activity,
@@ -112,7 +126,9 @@ export default function NicheCard({
             overflow: "hidden",
           }}
         >
-          <span style={{ color: accentDark, fontSize: 11, flexShrink: 0 }}>◆</span>
+          <span style={{ color: accentDark, fontSize: 11, flexShrink: 0 }}>
+            ◆
+          </span>
           <span
             style={{
               color: accentDark,
@@ -139,7 +155,9 @@ export default function NicheCard({
             flexShrink: 0,
           }}
         >
-          <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 11 }}>✦</span>
+          <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 11 }}>
+            ✦
+          </span>
           <span
             style={{
               color: "white",
@@ -262,7 +280,12 @@ export default function NicheCard({
           {nicheContent.rabbitHoles.map((hole, i) => (
             <p
               key={i}
-              style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: 0 }}
+              style={{
+                fontSize: 12,
+                color: "rgba(255,255,255,0.85)",
+                lineHeight: 1.5,
+                margin: 0,
+              }}
             >
               <span style={{ color: "#F0997B", marginRight: 6 }}>→</span>
               {hole}
@@ -338,7 +361,13 @@ export default function NicheCard({
           onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
           onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M7 1v12M7 13L3.5 9.5M7 13l3.5-3.5"
               stroke={accentDark}

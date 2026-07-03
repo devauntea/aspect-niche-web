@@ -83,7 +83,9 @@ export default function RabbitHolePanel({
       >
         <div className="flex items-center gap-2.5 flex-wrap">
           <div className="w-2 h-2 rounded-full bg-[#7F77DD] flex-shrink-0" />
-          <span className="text-sm font-semibold text-[#1A1916]">Rabbit hole</span>
+          <span className="text-sm font-semibold text-[#1A1916]">
+            Rabbit hole
+          </span>
           <span
             className="rounded-full px-2.5 py-0.5 text-xs font-medium flex-shrink-0"
             style={{ background: `${accentColor}18`, color: accentColor }}
@@ -146,10 +148,15 @@ export default function RabbitHolePanel({
                   <div className="flex flex-col gap-2.5">
                     {data.deeperCuts.map((cut, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: "#7F77DD" }}>
+                        <span
+                          className="text-xs flex-shrink-0 mt-0.5"
+                          style={{ color: "#7F77DD" }}
+                        >
                           →
                         </span>
-                        <p className="text-xs text-[#5A5855] leading-relaxed">{cut}</p>
+                        <p className="text-xs text-[#5A5855] leading-relaxed">
+                          {cut}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -166,8 +173,12 @@ export default function RabbitHolePanel({
                         key={i}
                         className="rounded-xl p-3 bg-white border border-[#E8E4DA]"
                       >
-                        <p className="text-xs font-semibold text-[#1A1916] mb-1">{h.name}</p>
-                        <p className="text-xs text-[#5A5855] leading-relaxed">{h.description}</p>
+                        <p className="text-xs font-semibold text-[#1A1916] mb-1">
+                          {h.name}
+                        </p>
+                        <p className="text-xs text-[#5A5855] leading-relaxed">
+                          {h.description}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -184,7 +195,10 @@ export default function RabbitHolePanel({
                         <span
                           key={i}
                           className="rounded-full px-2.5 py-1 text-xs font-medium"
-                          style={{ background: `${accentColor}14`, color: accentColor }}
+                          style={{
+                            background: `${accentColor}14`,
+                            color: accentColor,
+                          }}
                         >
                           {act}
                         </span>
@@ -215,7 +229,9 @@ export default function RabbitHolePanel({
                     <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
                       Fun fact
                     </p>
-                    <p className="text-xs text-[#5A5855] leading-relaxed">{data.funFact}</p>
+                    <p className="text-xs text-[#5A5855] leading-relaxed">
+                      {data.funFact}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -238,10 +254,14 @@ export default function RabbitHolePanel({
                       transform: isCreating ? "none" : undefined,
                     }}
                     onMouseEnter={(e) => {
-                      if (!isCreating) (e.currentTarget as HTMLButtonElement).style.background = "#7F77DD18";
+                      if (!isCreating)
+                        (
+                          e.currentTarget as HTMLButtonElement
+                        ).style.background = "#7F77DD18";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = "#7F77DD0e";
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "#7F77DD0e";
                     }}
                   >
                     {isCreating ? (

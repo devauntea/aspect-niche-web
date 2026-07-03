@@ -4,8 +4,17 @@ import React from "react";
 import { interests } from "../data/activities";
 import {
   IconAppMark,
-  IconFitness, IconCreative, IconOutdoor, IconTech, IconSocial, IconCulinary,
-  IconAdventure, IconNature, IconCraft, IconMind, IconCommunity,
+  IconFitness,
+  IconCreative,
+  IconOutdoor,
+  IconTech,
+  IconSocial,
+  IconCulinary,
+  IconAdventure,
+  IconNature,
+  IconCraft,
+  IconMind,
+  IconCommunity,
 } from "./icons";
 
 interface Props {
@@ -28,7 +37,10 @@ const INTEREST_COLORS: Record<string, string> = {
   community: "#EF9F27",
 };
 
-type IconComponent = (props: { size?: number; className?: string }) => React.ReactElement;
+type IconComponent = (props: {
+  size?: number;
+  className?: string;
+}) => React.ReactElement;
 
 const INTEREST_ICON: Record<string, IconComponent> = {
   fitness: IconFitness,
@@ -44,7 +56,17 @@ const INTEREST_ICON: Record<string, IconComponent> = {
   community: IconCommunity,
 };
 
-const GRID_IDS = ["fitness", "creative", "outdoor", "tech", "social", "culinary", "adventure", "nature", "craft"];
+const GRID_IDS = [
+  "fitness",
+  "creative",
+  "outdoor",
+  "tech",
+  "social",
+  "culinary",
+  "adventure",
+  "nature",
+  "craft",
+];
 const LAST_ROW_IDS = ["mind", "community"];
 
 function InterestTile({
@@ -68,7 +90,9 @@ function InterestTile({
       style={{
         background: "#FFFFFF",
         border: isSelected ? `2px solid ${color}` : "1px solid #E8E4DA",
-        boxShadow: isSelected ? `0 4px 14px ${color}20` : "0 1px 3px rgba(0,0,0,0.04)",
+        boxShadow: isSelected
+          ? `0 4px 14px ${color}20`
+          : "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
       {isSelected && (
@@ -77,40 +101,72 @@ function InterestTile({
           style={{ background: color }}
         >
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 5l2 2 4-3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M2 5l2 2 4-3.5"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       )}
-      <div className="mb-2">
-        {Icon ? <Icon size={52} /> : null}
-      </div>
-      <span style={{ fontSize: 14, fontWeight: 500, color: "#1A1916", lineHeight: 1.2, textAlign: "center" }}>
+      <div className="mb-2">{Icon ? <Icon size={52} /> : null}</div>
+      <span
+        style={{
+          fontSize: 14,
+          fontWeight: 500,
+          color: "#1A1916",
+          lineHeight: 1.2,
+          textAlign: "center",
+        }}
+      >
         {label}
       </span>
     </button>
   );
 }
 
-export default function InterestOnboarding({ selected, onToggle, onConfirm }: Props) {
+export default function InterestOnboarding({
+  selected,
+  onToggle,
+  onConfirm,
+}: Props) {
   const canContinue = selected.length > 0;
   const interestMap = Object.fromEntries(interests.map((i) => [i.id, i]));
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center bg-[#FAF8F2] overflow-y-auto">
       <div className="w-full max-w-md px-5 py-6 flex flex-col">
-
         {/* Logo mark row */}
         <div className="flex items-center gap-2 mb-8">
-          <IconAppMark size={20}/>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#1A1916", letterSpacing: "-0.01em" }}>
+          <IconAppMark size={20} />
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#1A1916",
+              letterSpacing: "-0.01em",
+            }}
+          >
             Aspect Niche
           </span>
         </div>
 
         {/* Heading */}
         <div className="mb-7">
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: "#1A1916", lineHeight: 1.15, marginBottom: 8 }}>
-            What pulls your<br />attention?
+          <h1
+            style={{
+              fontSize: 32,
+              fontWeight: 800,
+              color: "#1A1916",
+              lineHeight: 1.15,
+              marginBottom: 8,
+            }}
+          >
+            What pulls your
+            <br />
+            attention?
           </h1>
           <p style={{ fontSize: 15, color: "#9A9690", lineHeight: 1.5 }}>
             Pick one or more. Your hobby graph builds from here.
@@ -118,7 +174,14 @@ export default function InterestOnboarding({ selected, onToggle, onConfirm }: Pr
         </div>
 
         {/* 3-col grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 12 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 12,
+            marginBottom: 12,
+          }}
+        >
           {GRID_IDS.map((id) => {
             const interest = interestMap[id];
             if (!interest) return null;
@@ -136,7 +199,14 @@ export default function InterestOnboarding({ selected, onToggle, onConfirm }: Pr
         </div>
 
         {/* Centered 2-tile last row */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 28 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 12,
+            marginBottom: 28,
+          }}
+        >
           {LAST_ROW_IDS.map((id) => {
             const interest = interestMap[id];
             if (!interest) return null;
@@ -178,7 +248,14 @@ export default function InterestOnboarding({ selected, onToggle, onConfirm }: Pr
         </button>
 
         {canContinue && (
-          <p style={{ textAlign: "center", marginTop: 12, fontSize: 12, color: "#B0ADA8" }}>
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: 12,
+              fontSize: 12,
+              color: "#B0ADA8",
+            }}
+          >
             You can change this anytime
           </p>
         )}

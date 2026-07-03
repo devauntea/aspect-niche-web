@@ -2,25 +2,21 @@
 
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-
-const ACCENT_DARK: Record<string, string> = {
-  "#D4537E": "#993556",
-  "#7F77DD": "#534AB7",
-  "#EF9F27": "#854F0B",
-  "#1D9E75": "#0F6E56",
-  "#378ADD": "#185FA5",
-  "#D85A30": "#993C1D",
-  "#639922": "#3B6D11",
-};
+import { constellation, motionTokens } from "@/lib/theme";
+import type { NodeVisualState } from "@/types/graph";
 
 interface OrbitalActivityData {
   label: string;
   color: string;
+  visualState: NodeVisualState;
 }
 
 function OrbitalActivityNode({ data, selected }: NodeProps) {
-  const { label, color } = data as unknown as OrbitalActivityData;
-  const darkColor = ACCENT_DARK[color] ?? color;
+  const d = data as unknown as OrbitalActivityData;
+  const { label, color } = d;
+  const visualState = d.visualState ?? "idle";
+  const hovered = visualState === "active" && !selected;
+  const lit = hovered || selected || visualState === "neighbor";
 
   const ringSize = selected ? 34 : 24;
   const ringRadius = ringSize / 2;
@@ -39,49 +35,74 @@ function OrbitalActivityNode({ data, selected }: NodeProps) {
     background: "none",
   };
 
+  const glow = selected
+    ? `0 0 0 5px ${color}30, 0 0 26px ${color}, 0 0 50px ${color}70`
+    : hovered
+      ? `0 0 20px ${color}CC, 0 0 40px ${color}55`
+      : lit
+        ? `0 0 14px ${color}99`
+        : `0 0 10px ${color}66`;
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 4,
+        gap: 5,
         cursor: "pointer",
+        transform: hovered ? "scale(1.18)" : "scale(1)",
+        transformOrigin: "center top",
+        transition: `transform ${motionTokens.hoverMs}ms ease`,
       }}
     >
       {/* Handles centered on ring */}
       <Handle type="source" position={Position.Top} style={handleStyle} />
       <Handle type="target" position={Position.Top} style={handleStyle} />
 
-      {/* Ring */}
+      {/* Glowing orb: colored ring, tinted core, solid when selected */}
       <div
         style={{
           width: ringSize,
           height: ringSize,
           borderRadius: "50%",
           flexShrink: 0,
-          background: selected ? color : "white",
-          border: `3px solid ${color}`,
-          boxShadow: selected
-            ? `0 0 0 5px ${color}28, 0 4px 14px ${color}55`
-            : `0 2px 8px ${color}40`,
-          transition: "all 0.18s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: selected ? color : `${color}26`,
+          border: `2.5px solid ${color}`,
+          boxShadow: glow,
+          transition: `all ${motionTokens.hoverMs}ms ease`,
         }}
-      />
+      >
+        <div
+          style={{
+            width: selected ? 8 : 6,
+            height: selected ? 8 : 6,
+            borderRadius: "50%",
+            background: selected ? "white" : color,
+            boxShadow: selected ? "0 0 6px white" : `0 0 6px ${color}`,
+            transition: `all ${motionTokens.hoverMs}ms ease`,
+          }}
+        />
+      </div>
 
-      {/* Label chip */}
+      {/* Label chip — dark glass so it reads on the night canvas */}
       <div
         style={{
-          fontSize: selected ? 12 : 11,
-          fontWeight: selected ? 700 : 500,
-          color: darkColor,
-          background: "rgba(253,251,246,0.9)",
-          padding: "1px 6px",
-          borderRadius: 6,
+          fontSize: selected || hovered ? 12 : 11,
+          fontWeight: selected || hovered ? 700 : 500,
+          color: lit ? constellation.labelText : `${constellation.labelText}B8`,
+          background: constellation.chipBg,
+          border: `1px solid ${lit ? `${color}66` : "rgba(255,255,255,0.07)"}`,
+          padding: "2px 8px",
+          borderRadius: 999,
           whiteSpace: "nowrap",
           lineHeight: 1.5,
-          transition: "all 0.18s ease",
-          letterSpacing: "-0.01em",
+          transition: `all ${motionTokens.hoverMs}ms ease`,
+          letterSpacing: "0.01em",
+          textShadow: lit ? `0 0 12px ${color}80` : "none",
         }}
       >
         {label}

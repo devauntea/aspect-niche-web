@@ -41,3 +41,11 @@ export type GraphState = {
   edges: HobbyEdge[];
   selectedNodeId: string | null;
 };
+
+/**
+ * How a node/edge should render relative to the active neighborhood:
+ * "active" = the hovered/selected node itself, "neighbor" = directly
+ * connected, "dim" = unrelated while a neighborhood is active, "idle" =
+ * nothing is active.
+ */
+export type NodeVisualState = "active" | "neighbor" | "dim" | "idle";

@@ -3,24 +3,23 @@
 :root {
   --background: #faf8f2;
   --foreground: #1a1916;
-  --color-pink: #d4537e;
-  --color-violet: #7f77dd;
-  --color-amber: #ef9f27;
-  --color-coral: #d85a30;
-  --color-green: #1d9e75;
-  --color-sky: #378add;
-  --color-lime: #639922;
-  --color-surface: #ffffff;
-  --color-border: #e8e4da;
-  --color-muted: #9a9690;
-  --color-subtle: #f0ede6;
 }
 
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--background); /* #faf8f2 — app surface */
+  --color-foreground: var(--foreground); /* #1a1916 — primary text */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Aspect Niche palette. Keep hex in sync with src/lib/theme.ts (the JS-side
+     source of truth used for inline styles, node colors, and keyed maps). */
+  --color-brand: #7f77dd;
+  --color-surface-subtle: #f0ede6;
+  --color-border: #e8e4da;
+  --color-border-hover: #d3d0c8;
+  --color-body: #5a5855;
+  --color-muted: #b0ada8;
+  --color-faint: #9a9690;
 }
 
 body {
@@ -81,8 +80,13 @@ body {
 
 /* ── Node breathe ────────────────────────────────── */
 @keyframes nodePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
 }
 .node-breathe {
   animation: nodePulse 3s ease-in-out infinite;
@@ -90,9 +94,18 @@ body {
 
 /* ── New node entrance ───────────────────────────── */
 @keyframes nodeEntrance {
-  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
-  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 .node-new {
   animation: nodeEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -100,30 +113,45 @@ body {
 
 /* ── NicheCard animations ────────────────────────── */
 @keyframes holoShimmer {
-  0%   { background-position: 0px 0px; }
-  100% { background-position: 30px 0px; }
+  0% {
+    background-position: 0px 0px;
+  }
+  100% {
+    background-position: 30px 0px;
+  }
 }
 .niche-holo-shimmer {
   animation: holoShimmer 8s linear infinite;
 }
 
 @keyframes nicheCardIn {
-  0%   { transform: scale(0.96); opacity: 0; }
-  100% { transform: scale(1);    opacity: 1; }
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .niche-card-enter {
   animation: nicheCardIn 0.4s ease forwards;
 }
 
 @keyframes starTwinkle {
-  0%, 100% { opacity: 0.95; }
-  50%       { opacity: 0.4;  }
+  0%,
+  100% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ── Card face scrollbar ─────────────────────────── */
 .card-face-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #D3D0C8 transparent;
+  scrollbar-color: #d3d0c8 transparent;
 }
 .card-face-scroll::-webkit-scrollbar {
   width: 3px;
@@ -132,7 +160,7 @@ body {
   background: transparent;
 }
 .card-face-scroll::-webkit-scrollbar-thumb {
-  background: #D3D0C8;
+  background: #d3d0c8;
   border-radius: 2px;
 }
 
@@ -160,4 +188,142 @@ body {
 }
 .surprise-card-enter {
   animation: slideUpCard 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Detail dock (node → card) ────────────────────── */
+/* Desktop: docked side panel; the canvas reflows into the remaining width and
+   stays live — the card never overlays the graph. Mobile: bottom sheet over
+   the lower portion only. Timing vars (--dock-*) are set inline from
+   src/lib/theme.ts motionTokens; the open transition is delayed so the
+   camera/graph reaction reads first. */
+.detail-dock {
+  display: flex;
+  overflow: hidden;
+  pointer-events: none;
+}
+.detail-dock.is-open {
+  pointer-events: auto;
+}
+.detail-dock-inner {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  opacity: 0;
+  transition:
+    transform var(--dock-duration) var(--dock-ease),
+    opacity var(--dock-duration) var(--dock-ease);
+}
+.detail-dock.is-open .detail-dock-inner {
+  opacity: 1;
+  transition-delay: var(--dock-delay);
+}
+
+@media (min-width: 768px) {
+  .detail-dock {
+    width: 0;
+    transition: width var(--dock-duration) var(--dock-ease);
+  }
+  .detail-dock.is-open {
+    width: 404px; /* 400px card + 4px breathing gap */
+    transition-delay: var(--dock-delay);
+  }
+  .detail-dock-inner {
+    width: 400px;
+    margin-left: 4px;
+    transform: translateX(32px);
+  }
+  .detail-dock.is-open .detail-dock-inner {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .detail-dock {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 50;
+  }
+  .detail-dock-inner {
+    width: 100%;
+    max-height: 55vh;
+    transform: translateY(100%);
+    box-shadow: 0 -8px 32px rgba(26, 25, 22, 0.14);
+  }
+  .detail-dock.is-open .detail-dock-inner {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-dock,
+  .detail-dock-inner {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* ── Constellation canvas (dark graph panel) ─────────── */
+/* Values mirror src/lib/theme.ts `constellation` — keep in sync. */
+
+/* Nodes glide to new layout positions instead of snapping, and recede
+   smoothly when a neighborhood is active. The dragged node itself stays
+   instant; its cluster follows with the ease. (Opacity easing must live here,
+   not inline — an inline transition would override the transform one.) */
+.constellation .react-flow__node {
+  transition:
+    transform 0.55s cubic-bezier(0.32, 0.72, 0.28, 1),
+    opacity 0.25s ease;
+}
+.constellation .react-flow__node.dragging {
+  transition: opacity 0.25s ease;
+}
+
+/* Edge flow — a dash layer drifting along the edge path */
+@keyframes edgeFlow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+.edge-flow {
+  stroke-dasharray: 5 15;
+  stroke-linecap: round;
+  animation: edgeFlow var(--edge-flow-duration, 1.6s) linear infinite;
+}
+
+/* React Flow zoom controls → dark glass */
+.constellation .react-flow__controls {
+  background: rgba(19, 17, 36, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.constellation .react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  width: 28px;
+  height: 28px;
+}
+.constellation .react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.constellation .react-flow__controls-button svg {
+  fill: #b9b4e8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .constellation .react-flow__node {
+    transition: none;
+  }
+  .edge-flow {
+    animation: none;
+    stroke-dasharray: none;
+  }
+  .orbiting-dot,
+  .orbiting-dot-reverse,
+  .node-breathe {
+    animation: none;
+  }
 }

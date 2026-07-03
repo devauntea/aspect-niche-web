@@ -24,11 +24,17 @@ function isValidResponse(data: unknown): data is CreateNicheResponse {
   if (typeof d.label !== "string" || !d.label) return false;
   if (typeof d.description !== "string" || !d.description) return false;
   if (typeof d.beginnerTip !== "string" || !d.beginnerTip) return false;
-  if (!["beginner", "intermediate", "advanced"].includes(d.difficulty as string)) return false;
-  if (!["indoors", "outdoors", "both"].includes(d.environment as string)) return false;
+  if (
+    !["beginner", "intermediate", "advanced"].includes(d.difficulty as string)
+  )
+    return false;
+  if (!["indoors", "outdoors", "both"].includes(d.environment as string))
+    return false;
   if (!["solo", "social", "either"].includes(d.social as string)) return false;
-  if (!["free", "low", "medium", "high"].includes(d.cost as string)) return false;
-  if (!["quick", "moderate", "deep"].includes(d.timeCommitment as string)) return false;
+  if (!["free", "low", "medium", "high"].includes(d.cost as string))
+    return false;
+  if (!["quick", "moderate", "deep"].includes(d.timeCommitment as string))
+    return false;
   if (typeof d.whyItsNiche !== "string" || !d.whyItsNiche) return false;
   return true;
 }
@@ -103,7 +109,9 @@ export async function POST(request: Request) {
     }
 
     if (!isValidResponse(parsed)) {
-      throw new Error("Response missing required fields or invalid enum values");
+      throw new Error(
+        "Response missing required fields or invalid enum values",
+      );
     }
 
     creationCount.set(categoryId, count + 1);
