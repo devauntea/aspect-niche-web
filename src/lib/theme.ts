@@ -117,6 +117,41 @@ export const transitions = {
 } as const;
 
 /**
+ * Night-sky field guide tokens (UX overhaul work order). Single source of
+ * truth for the brand palette; Tailwind utilities mirror these in
+ * globals.css `@theme` (--color-space-950 etc.) — keep the two in sync.
+ * alpha-star is reserved: at most ONE alpha-star element per screen.
+ */
+export const nightSky = {
+  space950: "var(--color-bg)", // app background
+  space900: "var(--color-surface)", // raised surfaces
+  space800: "var(--color-surface-raised)", // borders-as-surfaces, hover fills
+  starlight: "var(--color-text)", // primary text
+  dust: "var(--color-text-dim)", // secondary text, captions
+  violetGlow: "var(--color-glow)", // graph energy: glows, highlights, focus
+  alphaStar: "var(--color-alpha)", // reserved accent — one per screen
+  success: "var(--color-success-t)",
+  warning: "var(--color-warning-t)",
+  danger: "var(--color-danger-t)",
+  /** Depth comes from glow, not shadow. */
+  raisedGlow: "0 0 24px color-mix(in srgb, var(--color-glow) 10%, transparent)",
+} as const;
+
+/** Motion durations (ms): micro / standard / scene, per the overhaul spec. */
+export const durations = {
+  micro: 120,
+  standard: 240,
+  scene: 420,
+} as const;
+
+/** Radius family (px): one scale, no mixing — controls / cards / sheets. */
+export const radiiScale = {
+  control: "var(--radius-control)",
+  card: "var(--radius-card)",
+  sheet: "var(--radius-sheet)",
+} as const;
+
+/**
  * Motion tokens for the node → detail-card choreography.
  * The graph reacts first (camera ease), then the card slides in — selection
  * must never feel like an instant modal. CSS reads these via vars set on the
@@ -129,8 +164,8 @@ export const motionTokens = {
   cardDelayMs: 180,
   /** Docked card slide/fade duration. */
   cardDurationMs: 450,
-  /** Spring-like ease shared by the dock slide and related transitions. */
-  springEase: "cubic-bezier(0.32, 0.72, 0.28, 1)",
+  /** Spring ease — themed via --ease-spring (calm / bouncy / none). */
+  springEase: "var(--ease-spring, cubic-bezier(0.32, 0.72, 0.28, 1))",
   /** Node hover scale/glow response. */
   hoverMs: 180,
   /** Nodes glide (never snap) to new layout positions. */
@@ -138,42 +173,68 @@ export const motionTokens = {
 } as const;
 
 /**
- * Dark constellation canvas — the graph panel is a night sky inside the
- * light app chrome (the blueprint's "dark canvas, soft node glow" language).
- * Node accents stay the shared palette above; these are canvas-only values.
+ * Night-sky graph canvas — the identity surface. Everything derives from the
+ * nightSky tokens: violet is the graph's energy; categories read as subtle
+ * hue shifts of the glow (starHues), never loud fills.
  * Keep any hex mirrored into globals.css `.constellation` rules in sync.
  */
 export const constellation = {
-  /** Deep indigo night-sky panel, with faint nebula tints in the corners. */
+  /** Theme-lifted field center, darkened at the edges. */
   canvasBg:
-    "radial-gradient(ellipse 80% 60% at 20% 0%, #241F4D33 0%, transparent 50%)," +
-    "radial-gradient(ellipse 70% 50% at 90% 90%, #6E1F4222 0%, transparent 55%)," +
-    "radial-gradient(ellipse at 50% 30%, #17152B 0%, #100E1F 55%, #0B0A16 100%)",
+    "radial-gradient(ellipse at 50% 40%, var(--canvas-lift) 0%, var(--color-bg) 72%)",
   /** Slightly lifted variant while focus mode isolates a neighborhood. */
   canvasBgFocus:
-    "radial-gradient(ellipse at 50% 30%, #1C1A33 0%, #131126 55%, #0D0C1A 100%)",
-  panelBorder: "rgba(127,119,221,0.28)",
-  /** Dark glass chrome for controls floating on the canvas. */
-  glassBg: "rgba(19,17,36,0.82)",
-  glassBorder: "rgba(255,255,255,0.10)",
-  glassIcon: "#B9B4E8",
-  glassHover: "rgba(255,255,255,0.08)",
-  /** Node label chips + text on the dark canvas. */
-  chipBg: "rgba(11,10,22,0.72)",
-  labelText: "#E9E6FF",
-  /** Starfield palette (brighter pastels of the interest accents). */
-  stars: ["#8FD8D8", "#E48FB0", "#F2C879", "#A79FF0", "#7FB8F0"],
-  /** Edge treatment: faint at rest, alive when a neighborhood is active. */
+    "radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--canvas-lift) 80%, var(--color-glow)) 0%, var(--color-bg) 72%)",
+  panelBorder: "color-mix(in srgb, var(--color-glow) 24%, transparent)",
+  /** Glass chrome for controls floating on the canvas. */
+  glassBg: "color-mix(in srgb, var(--color-surface) 82%, transparent)",
+  glassBorder: "color-mix(in srgb, var(--color-text) 10%, transparent)",
+  glassIcon: "var(--color-text-dim)",
+  glassHover: "color-mix(in srgb, var(--color-text) 8%, transparent)",
+  /** Node label text on the canvas (halo comes from CSS text-shadow). */
+  labelText: "var(--color-text)",
+  labelDim: "var(--color-text-dim)",
+  /** Starfield palette vars — resolved at runtime by GraphBackground
+      (canvas 2D can't read var()). Density/opacity live in CSS vars too. */
+  stars: [
+    "var(--color-text)",
+    "var(--color-text-dim)",
+    "var(--color-glow)",
+    "var(--color-text)",
+    "var(--color-alpha)",
+  ],
+  /** Edges are hairline violet; the comet pulse only runs on live edges. */
   edge: {
-    idleOpacity: 0.38,
-    highlightOpacity: 0.95,
-    dimOpacity: 0.07,
-    idleWidth: 1.4,
-    highlightWidth: 2.4,
-    flowMs: 1600,
+    idleOpacity: 0.35,
+    highlightOpacity: 0.9,
+    dimOpacity: 0.06,
+    idleWidth: 1.25,
+    highlightWidth: 1.6,
+    pulseMs: 2400,
   },
   /** How far non-neighbors recede when a node is hovered/selected. */
-  dimmedNodeOpacity: 0.22,
+  dimmedNodeOpacity: 0.2,
+  /** Activity labels fade out below this zoom (see --graph-zoom CSS var). */
+  labelFadeZoom: 0.55,
+} as const;
+
+/**
+ * Category → star-glow hue. All are hue rotations of violet-glow at the same
+ * saturation/lightness, so the canvas stays one family — category is a tint
+ * of the energy, not a different color system. Fallback: violet-glow.
+ */
+export const starHues: Record<string, string> = {
+  creative: "var(--hue-creative)",
+  mind: "var(--hue-mind)",
+  tech: "var(--hue-tech)",
+  outdoor: "var(--hue-outdoor)",
+  nature: "var(--hue-nature)",
+  craft: "var(--hue-craft)",
+  fitness: "var(--hue-fitness)",
+  social: "var(--hue-social)",
+  community: "var(--hue-community)",
+  culinary: "var(--hue-culinary)",
+  adventure: "var(--hue-adventure)",
 } as const;
 
 /**

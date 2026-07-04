@@ -69,7 +69,7 @@ export default function NicheCard({
         overflow: "hidden",
         position: "relative",
         border: `2px solid ${accentColor}`,
-        boxShadow: `0 0 0 1px ${accentColor}22, 0 8px 32px ${accentColor}33`,
+        boxShadow: `0 0 0 1px color-mix(in srgb, ${accentColor} 13%, transparent), 0 8px 32px color-mix(in srgb, ${accentColor} 20%, transparent)`,
       }}
     >
       {/* ── Art background ── */}
@@ -80,7 +80,7 @@ export default function NicheCard({
           inset: 0,
           background: `
             radial-gradient(circle at 20% 15%, #EF9F27 0%, transparent 40%),
-            radial-gradient(circle at 80% 25%, #7F77DD 0%, transparent 45%),
+            radial-gradient(circle at 80% 25%, var(--color-glow) 0%, transparent 45%),
             radial-gradient(circle at 50% 60%, ${accentColor} 0%, transparent 55%),
             radial-gradient(circle at 15% 85%, #1D9E75 0%, transparent 40%),
             linear-gradient(160deg, ${accentColor} 0%, ${accentDark} 100%)
@@ -339,7 +339,7 @@ export default function NicheCard({
         <button
           onClick={onOpenRabbitHole}
           style={{
-            background: "white",
+            background: "var(--color-surface)",
             color: accentDark,
             border: "none",
             borderRadius: 999,

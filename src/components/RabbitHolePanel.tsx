@@ -75,25 +75,28 @@ export default function RabbitHolePanel({
   }
 
   return (
-    <div className="rounded-3xl border border-[#E8E4DA] bg-[#FAF8F2] overflow-hidden">
+    <div className="rounded-3xl border border-space-800 bg-space-950 overflow-hidden">
       {/* Header */}
       <button
         onClick={handleToggle}
         className="w-full flex items-center justify-between px-5 py-4 text-left"
       >
         <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="w-2 h-2 rounded-full bg-[#7F77DD] flex-shrink-0" />
-          <span className="text-sm font-semibold text-[#1A1916]">
+          <div className="w-2 h-2 rounded-full bg-violet-glow flex-shrink-0" />
+          <span className="text-sm font-semibold text-starlight">
             Rabbit hole
           </span>
           <span
             className="rounded-full px-2.5 py-0.5 text-xs font-medium flex-shrink-0"
-            style={{ background: `${accentColor}18`, color: accentColor }}
+            style={{
+              background: `color-mix(in srgb, ${accentColor} 9%, transparent)`,
+              color: accentColor,
+            }}
           >
             {activityLabel}
           </span>
           {!isOpen && (
-            <span className="text-xs text-[#B0ADA8]">AI-powered discovery</span>
+            <span className="text-xs text-dust">AI-powered discovery</span>
           )}
         </div>
         <svg
@@ -105,7 +108,7 @@ export default function RabbitHolePanel({
         >
           <path
             d="M4 6l4 4 4-4"
-            stroke="#B0ADA8"
+            stroke="var(--color-text-dim)"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -117,20 +120,20 @@ export default function RabbitHolePanel({
       {isOpen && (
         <div className="px-5 pb-5">
           {status === "loading" && (
-            <div className="flex items-center justify-center gap-3 py-8 text-[#B0ADA8]">
-              <div className="w-4 h-4 rounded-full border-2 border-[#7F77DD] border-t-transparent animate-spin" />
+            <div className="flex items-center justify-center gap-3 py-8 text-dust">
+              <div className="w-4 h-4 rounded-full border-2 border-[var(--color-glow)] border-t-transparent animate-spin" />
               <span className="text-sm">Going down the rabbit hole...</span>
             </div>
           )}
 
           {status === "error" && (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <p className="text-sm text-[#5A5855]">
+              <p className="text-sm text-dust">
                 Couldn&apos;t load right now — try again later
               </p>
               <button
                 onClick={() => fetchData()}
-                className="rounded-full px-4 py-1.5 text-xs font-medium bg-white border border-[#E8E4DA] text-[#5A5855] hover:border-[#D3D0C8] transition-colors"
+                className="rounded-full px-4 py-1.5 text-xs font-medium bg-space-900 border border-space-800 text-dust hover:border-space-800 transition-colors"
               >
                 Retry
               </button>
@@ -142,7 +145,7 @@ export default function RabbitHolePanel({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                 {/* Col 1: Deeper cuts */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-3">
+                  <p className="text-[10px] uppercase tracking-widest text-dust mb-3">
                     Deeper cuts
                   </p>
                   <div className="flex flex-col gap-2.5">
@@ -150,11 +153,11 @@ export default function RabbitHolePanel({
                       <div key={i} className="flex items-start gap-2">
                         <span
                           className="text-xs flex-shrink-0 mt-0.5"
-                          style={{ color: "#7F77DD" }}
+                          style={{ color: "var(--color-glow)" }}
                         >
                           →
                         </span>
-                        <p className="text-xs text-[#5A5855] leading-relaxed">
+                        <p className="text-xs text-dust leading-relaxed">
                           {cut}
                         </p>
                       </div>
@@ -164,19 +167,19 @@ export default function RabbitHolePanel({
 
                 {/* Col 2: Ultra-niche hobbies */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-3">
+                  <p className="text-[10px] uppercase tracking-widest text-dust mb-3">
                     You might not know about
                   </p>
                   <div className="flex flex-col gap-3">
                     {data.ultraNicheHobbies.map((h, i) => (
                       <div
                         key={i}
-                        className="rounded-xl p-3 bg-white border border-[#E8E4DA]"
+                        className="rounded-xl p-3 bg-space-900 border border-space-800"
                       >
-                        <p className="text-xs font-semibold text-[#1A1916] mb-1">
+                        <p className="text-xs font-semibold text-starlight mb-1">
                           {h.name}
                         </p>
-                        <p className="text-xs text-[#5A5855] leading-relaxed">
+                        <p className="text-xs text-dust leading-relaxed">
                           {h.description}
                         </p>
                       </div>
@@ -187,7 +190,7 @@ export default function RabbitHolePanel({
                 {/* Col 3: Related + insider term + fun fact */}
                 <div className="flex flex-col gap-3">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-3">
+                    <p className="text-[10px] uppercase tracking-widest text-dust mb-3">
                       Related you&apos;d like
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -196,7 +199,7 @@ export default function RabbitHolePanel({
                           key={i}
                           className="rounded-full px-2.5 py-1 text-xs font-medium"
                           style={{
-                            background: `${accentColor}14`,
+                            background: `color-mix(in srgb, ${accentColor} 8%, transparent)`,
                             color: accentColor,
                           }}
                         >
@@ -208,8 +211,8 @@ export default function RabbitHolePanel({
                   <div
                     className="rounded-xl p-3"
                     style={{
-                      background: `${accentColor}08`,
-                      border: `1px solid ${accentColor}20`,
+                      background: `color-mix(in srgb, ${accentColor} 3%, transparent)`,
+                      border: `1px solid color-mix(in srgb, ${accentColor} 13%, transparent)`,
                     }}
                   >
                     <p
@@ -218,18 +221,18 @@ export default function RabbitHolePanel({
                     >
                       Insider term
                     </p>
-                    <p className="text-xs font-semibold text-[#1A1916] mb-1">
+                    <p className="text-xs font-semibold text-starlight mb-1">
                       {data.insiderTerm}
                     </p>
-                    <p className="text-xs text-[#5A5855] leading-relaxed">
+                    <p className="text-xs text-dust leading-relaxed">
                       {data.insiderDefinition}
                     </p>
                   </div>
-                  <div className="rounded-xl p-3 bg-white border border-[#E8E4DA]">
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
+                  <div className="rounded-xl p-3 bg-space-900 border border-space-800">
+                    <p className="text-[10px] uppercase tracking-widest text-dust mb-1">
                       Fun fact
                     </p>
-                    <p className="text-xs text-[#5A5855] leading-relaxed">
+                    <p className="text-xs text-dust leading-relaxed">
                       {data.funFact}
                     </p>
                   </div>
@@ -237,9 +240,9 @@ export default function RabbitHolePanel({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#E8E4DA]">
+              <div className="flex items-center justify-between pt-3 border-t border-space-800">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] text-[#B0ADA8]">
+                  <span className="text-[10px] text-dust">
                     Powered by Groq · Llama 3
                   </span>
                   <button
@@ -247,9 +250,9 @@ export default function RabbitHolePanel({
                     disabled={isCreating}
                     className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all"
                     style={{
-                      border: "1.5px solid #7F77DD40",
-                      background: "#7F77DD0e",
-                      color: "#7F77DD",
+                      border: "1.5px solid var(--color-glow)40",
+                      background: "var(--color-glow)0e",
+                      color: "var(--color-glow)",
                       opacity: isCreating ? 0.7 : 1,
                       transform: isCreating ? "none" : undefined,
                     }}
@@ -257,16 +260,16 @@ export default function RabbitHolePanel({
                       if (!isCreating)
                         (
                           e.currentTarget as HTMLButtonElement
-                        ).style.background = "#7F77DD18";
+                        ).style.background = "var(--color-glow)18";
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        "#7F77DD0e";
+                        "var(--color-glow)0e";
                     }}
                   >
                     {isCreating ? (
                       <>
-                        <span className="inline-block w-2 h-2 rounded-full border border-[#7F77DD] border-t-transparent animate-spin flex-shrink-0" />
+                        <span className="inline-block w-2 h-2 rounded-full border border-[var(--color-glow)] border-t-transparent animate-spin flex-shrink-0" />
                         Creating...
                       </>
                     ) : (
@@ -277,7 +280,7 @@ export default function RabbitHolePanel({
                 <button
                   onClick={handleRefresh}
                   className="text-[10px] font-medium hover:underline"
-                  style={{ color: "#7F77DD" }}
+                  style={{ color: "var(--color-glow)" }}
                 >
                   Refresh
                 </button>

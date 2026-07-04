@@ -1,78 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// Random Activity result — a "discovered star": the card ignites in with the
+// activity's star, the why-it-fits line, and one clear next step (the detail
+// panel is already open on the map behind this overlay).
+
+import { interests } from "../data/activities";
 import type { Activity } from "../types/graph";
-
-const ACTIVITY_COLORS: Record<string, string> = {
-  "rock-climbing": "#D4537E",
-  zumba: "#EF9F27",
-  cycling: "#1D9E75",
-  yoga: "#7F77DD",
-  running: "#D85A30",
-  hiking: "#1D9E75",
-  photography: "#7F77DD",
-  drawing: "#D4537E",
-  music: "#EF9F27",
-  pottery: "#D85A30",
-  kayaking: "#378ADD",
-  coding: "#378ADD",
-  "3d-printing": "#639922",
-  electronics: "#EF9F27",
-  "board-games": "#D4537E",
-  improv: "#EF9F27",
-  cooking: "#D85A30",
-  baking: "#EF9F27",
-  coffee: "#D85A30",
-  fermentation: "#1D9E75",
-  "cooking-club": "#D4537E",
-  surfing: "#378ADD",
-  skateboarding: "#D85A30",
-  archery: "#639922",
-  fencing: "#7F77DD",
-  parkour: "#D4537E",
-  climbing: "#D4537E",
-  astronomy: "#7F77DD",
-  geology: "#D85A30",
-  mycology: "#639922",
-  foraging: "#1D9E75",
-  birdwatching: "#378ADD",
-  "marine-biology": "#378ADD",
-  calligraphy: "#7F77DD",
-  bookbinding: "#D85A30",
-  glassblowing: "#EF9F27",
-  leatherwork: "#D85A30",
-  blacksmithing: "#D85A30",
-  weaving: "#D4537E",
-  "language-learning": "#378ADD",
-  philosophy: "#7F77DD",
-  chess: "#1A1916",
-  investing: "#639922",
-  journaling: "#D4537E",
-  meditation: "#7F77DD",
-  volunteering: "#1D9E75",
-  genealogy: "#EF9F27",
-  "urban-exploration": "#D85A30",
-};
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  fitness: "🏃",
-  creative: "🎨",
-  outdoor: "🌿",
-  tech: "💻",
-  social: "🎲",
-  culinary: "🍳",
-  adventure: "⚡",
-  nature: "🔭",
-  craft: "🪡",
-  mind: "🧠",
-  community: "🤝",
-};
+import { nightSky, radiiScale, starHues } from "@/lib/theme";
+import { Button, Eyebrow, Chip } from "./ui";
 
 interface Props {
   activity: Activity;
   interestIds: string[];
   reason: string;
   onDismiss: () => void;
+  onAgain?: () => void;
 }
 
 const diffLabel: Record<string, string> = {
@@ -87,199 +29,186 @@ const costLabel: Record<string, string> = {
   high: "Investment",
 };
 
-export default function SurpriseCard({ activity, reason, onDismiss }: Props) {
-  const [flipped, setFlipped] = useState(false);
-  const color = ACTIVITY_COLORS[activity.id] ?? "#7F77DD";
-
-  // Auto-flip after a short delay for the magical reveal
-  useEffect(() => {
-    const t = setTimeout(() => setFlipped(true), 320);
-    return () => clearTimeout(t);
-  }, []);
+export default function SurpriseCard({
+  activity,
+  reason,
+  onDismiss,
+  onAgain,
+}: Props) {
+  const parent = interests.find((i) => i.activityIds.includes(activity.id));
+  const hue = parent
+    ? (starHues[parent.id] ?? nightSky.violetGlow)
+    : nightSky.violetGlow;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-5 surprise-backdrop"
-      style={{ background: "rgba(26,25,22,0.55)", backdropFilter: "blur(6px)" }}
+      style={{
+        background: "color-mix(in srgb, var(--color-bg) 72%, transparent)",
+        backdropFilter: "blur(6px)",
+      }}
       onClick={onDismiss}
     >
-      {/* Card wrapper — stop propagation so clicking card doesn't dismiss */}
       <div
         className="w-full max-w-sm surprise-card-enter"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          background: nightSky.space900,
+          border: `1px solid ${nightSky.space800}`,
+          borderRadius: radiiScale.sheet,
+          boxShadow: `${nightSky.raisedGlow}, 0 0 60px color-mix(in srgb, ${hue} 13%, transparent)`,
+          overflow: "hidden",
+        }}
       >
-        <div className="flip-scene w-full" style={{ height: 460 }}>
+        <div
+          style={{
+            padding: "26px 24px 22px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+        >
+          {/* The discovered star ignites */}
           <div
-            className={`flip-card w-full h-full ${flipped ? "is-flipped" : ""}`}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              paddingBottom: 4,
+            }}
           >
-            {/* ── Front face — question mark / mystery ── */}
             <div
-              className="flip-card__face flex flex-col items-center justify-center gap-5"
+              className="node-ignite"
+              aria-hidden
               style={{
-                background: `linear-gradient(135deg, ${color}22 0%, ${color}08 100%)`,
-                border: `2px solid ${color}40`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
               }}
             >
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
+                className="star-core"
                 style={{
-                  background: `${color}18`,
-                  border: `2px solid ${color}30`,
-                }}
-              >
-                🎲
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-[#5A5855]">
-                  Your next adventure is...
-                </p>
-                <p className="text-xs text-[#B0ADA8] mt-1">flipping now</p>
-              </div>
-              {/* Animated dots */}
-              <div className="flex gap-2">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full"
-                    style={{
-                      background: color,
-                      opacity: 0.6,
-                      animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* ── Back face — the reveal ── */}
-            <div
-              className="flip-card__face flip-card__face--back flex flex-col overflow-hidden"
-              style={{
-                background: "#FFFFFF",
-                border: `2px solid ${color}30`,
-              }}
-            >
-              {/* Color band */}
-              <div
-                className="h-2 w-full flex-shrink-0"
-                style={{
-                  background: `linear-gradient(90deg, ${color}, ${color}88)`,
+                  width: 26,
+                  height: 26,
+                  borderRadius: "50%",
+                  background: `radial-gradient(circle at 40% 35%, ${nightSky.starlight}, ${hue} 70%)`,
+                  boxShadow: `0 0 14px ${hue}, 0 0 36px color-mix(in srgb, ${hue} 53%, transparent), 0 0 64px color-mix(in srgb, ${hue} 27%, transparent)`,
                 }}
               />
-
-              <div
-                className="flex-1 overflow-y-auto p-6 flex flex-col gap-4"
-                style={{
-                  overscrollBehavior: "contain",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
-                      Your surprise
-                    </p>
-                    <h2 className="text-2xl font-semibold tracking-tight leading-tight text-[#1A1916]">
-                      {activity.label}
-                    </h2>
-                  </div>
-                  <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ background: `${color}14` }}
-                  >
-                    {CATEGORY_EMOJI[
-                      activity.tags.environment === "outdoors"
-                        ? "outdoor"
-                        : "fitness"
-                    ] ?? "✨"}
-                  </div>
-                </div>
-
-                <p className="text-sm text-[#5A5855] leading-relaxed">
-                  {activity.description}
-                </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    diffLabel[activity.tags.difficulty],
-                    costLabel[activity.tags.cost],
-                    activity.tags.environment,
-                  ].map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full px-2.5 py-1 text-[11px] font-medium capitalize"
-                      style={{ background: `${color}12`, color }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Why it fits */}
-                <div
-                  className="rounded-xl p-3.5 flex gap-3"
-                  style={{ background: `${color}0e` }}
-                >
-                  <span className="text-base flex-shrink-0">✨</span>
-                  <div>
-                    <p
-                      className="text-[10px] uppercase tracking-widest mb-1"
-                      style={{ color }}
-                    >
-                      Why this fits
-                    </p>
-                    <p className="text-xs text-[#1A1916] leading-relaxed">
-                      {reason}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Beginner tip */}
-                <div
-                  className="rounded-xl p-3.5 flex gap-3"
-                  style={{ background: "#FAF8F2" }}
-                >
-                  <span className="text-base flex-shrink-0">💡</span>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mb-1">
-                      First step
-                    </p>
-                    <p className="text-xs text-[#1A1916] leading-relaxed">
-                      {activity.beginnerTip}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="p-4 pt-0 flex gap-2 flex-shrink-0">
-                <a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(activity.label + " near me")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 rounded-2xl py-3 text-sm font-semibold text-white text-center transition-all hover:opacity-90"
-                  style={{ background: color }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Find nearby →
-                </a>
-                <button
-                  onClick={onDismiss}
-                  className="rounded-2xl px-4 py-3 text-sm font-medium text-[#5A5855] bg-[#F0EDE6] hover:bg-[#E8E4DA] transition-colors"
-                >
-                  Back
-                </button>
-              </div>
+              {/* pulled out of the rabbit hole — the brand motif, sparingly */}
+              <svg width="56" height="12" viewBox="0 0 56 12">
+                <ellipse
+                  cx="28"
+                  cy="6"
+                  rx="26"
+                  ry="5"
+                  fill="color-mix(in srgb, var(--color-bg) 30%, #000)"
+                  stroke={hue}
+                  strokeOpacity="0.6"
+                  strokeWidth="1"
+                />
+              </svg>
             </div>
           </div>
-        </div>
 
-        {/* Dismiss hint */}
-        <p className="text-center text-xs text-white/50 mt-3">
-          tap outside to dismiss
-        </p>
+          <div style={{ textAlign: "center" }}>
+            <Eyebrow color={hue}>A star you hadn&apos;t met</Eyebrow>
+            <h2
+              style={{
+                fontFamily: "var(--font-grotesk), sans-serif",
+                fontWeight: 600,
+                fontSize: 28,
+                lineHeight: 1.15,
+                color: nightSky.starlight,
+                margin: "6px 0 0",
+              }}
+            >
+              {activity.label}
+            </h2>
+          </div>
+
+          <p
+            style={{
+              fontSize: 14,
+              color: nightSky.dust,
+              lineHeight: 1.5,
+              margin: 0,
+              textAlign: "center",
+            }}
+          >
+            {activity.description}
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Chip
+              label={diffLabel[activity.tags.difficulty]}
+              accent={hue}
+              active
+            />
+            <Chip label={costLabel[activity.tags.cost]} />
+          </div>
+
+          {/* Why it fits */}
+          <div
+            style={{
+              borderRadius: radiiScale.card,
+              padding: 14,
+              background: nightSky.space950,
+              border: `1px solid color-mix(in srgb, ${hue} 20%, transparent)`,
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <Eyebrow color={hue}>Why this fits you</Eyebrow>
+            <p
+              style={{
+                fontSize: 13,
+                color: nightSky.starlight,
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              {reason}
+            </p>
+          </div>
+
+          {activity.beginnerTip && (
+            <p
+              style={{
+                fontSize: 12,
+                color: nightSky.dust,
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              <span style={{ color: nightSky.starlight, fontWeight: 600 }}>
+                First step:
+              </span>{" "}
+              {activity.beginnerTip}
+            </p>
+          )}
+
+          {/* One clear next step */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Button variant="alpha" onClick={onDismiss}>
+              See it on your map →
+            </Button>
+            {onAgain && (
+              <Button variant="ghost" onClick={onAgain}>
+                Spin again
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

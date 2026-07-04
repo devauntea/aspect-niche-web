@@ -1,28 +1,10 @@
 "use client";
 
-const PALETTE = [
-  "#D4537E",
-  "#7F77DD",
-  "#EF9F27",
-  "#1D9E75",
-  "#378ADD",
-  "#D85A30",
-  "#639922",
-];
+// Detail-card banner: a slice of night sky tinted by the activity's star hue,
+// with a small constellation drawn in starlight. Quiet, on-system — the loud
+// color-blocked version is gone.
 
-const COMPLEMENT_MAP: Record<string, [string, string]> = {
-  "#D4537E": ["#7F77DD", "#EF9F27"],
-  "#7F77DD": ["#1D9E75", "#EF9F27"],
-  "#EF9F27": ["#D4537E", "#7F77DD"],
-  "#1D9E75": ["#378ADD", "#EF9F27"],
-  "#378ADD": ["#7F77DD", "#1D9E75"],
-  "#D85A30": ["#EF9F27", "#1D9E75"],
-  "#639922": ["#1D9E75", "#378ADD"],
-};
-
-export function getComplementaryColors(accentColor: string): [string, string] {
-  return COMPLEMENT_MAP[accentColor] ?? [PALETTE[1], PALETTE[2]];
-}
+import { nightSky } from "@/lib/theme";
 
 const STARS = [
   { x: 30, y: 28 },
@@ -42,15 +24,6 @@ const STAR_EDGES: [number, number][] = [
   [5, 1],
 ];
 
-const DOT_COLORS = [
-  "white",
-  "#F0B432",
-  "white",
-  "#A78BF6",
-  "#6EE7B7",
-  "#93C5FD",
-] as const;
-
 interface Props {
   accentColor: string;
   label: string;
@@ -62,20 +35,18 @@ export default function ActivityBanner({
   label,
   height = 140,
 }: Props) {
-  const [color1, color2] = getComplementaryColors(accentColor);
-
   return (
     <div style={{ position: "relative", height, overflow: "hidden" }}>
-      {/* Color-blocked geometric background */}
+      {/* Night gradient tinted by the activity's star hue */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
-          background: `linear-gradient(135deg,
-            ${color1} 0%, ${color1} 34%,
-            ${accentColor} 34%, ${accentColor} 66%,
-            ${color2} 66%, ${color2} 100%)`,
+          background:
+            `radial-gradient(ellipse 70% 90% at 18% 20%, color-mix(in srgb, ${accentColor} 32%, transparent), transparent 65%),` +
+            `radial-gradient(ellipse 60% 80% at 88% 85%, color-mix(in srgb, ${accentColor} 18%, transparent), transparent 60%),` +
+            nightSky.space950,
         }}
       />
 
@@ -87,7 +58,7 @@ export default function ActivityBanner({
         preserveAspectRatio="xMidYMid slice"
         fill="none"
         aria-hidden="true"
-        style={{ position: "absolute", inset: 0, opacity: 0.55 }}
+        style={{ position: "absolute", inset: 0 }}
       >
         {STAR_EDGES.map(([a, b], i) => (
           <line
@@ -96,28 +67,28 @@ export default function ActivityBanner({
             y1={STARS[a].y}
             x2={STARS[b].x}
             y2={STARS[b].y}
-            stroke="white"
+            stroke={accentColor}
             strokeWidth={1}
-            strokeOpacity={0.45}
+            strokeOpacity={0.5}
           />
         ))}
         {STARS.map((s, i) => {
           const isPrimary = i === 0 || i === 3;
-          const r = isPrimary ? 4 : 2.5;
+          const r = isPrimary ? 3.5 : 2.2;
           return (
             <g key={i}>
               <circle
                 cx={s.x}
                 cy={s.y}
                 r={r + 3}
-                fill={DOT_COLORS[i]}
-                opacity={0.15}
+                fill={isPrimary ? accentColor : nightSky.starlight}
+                opacity={0.18}
               />
               <circle
                 cx={s.x}
                 cy={s.y}
                 r={r}
-                fill={DOT_COLORS[i]}
+                fill={nightSky.starlight}
                 opacity={0.9}
               />
             </g>
@@ -125,23 +96,25 @@ export default function ActivityBanner({
         })}
       </svg>
 
-      {/* Activity label */}
+      {/* Activity label — display voice */}
       <div
         style={{
           position: "absolute",
-          bottom: 14,
+          bottom: 12,
           left: 16,
           right: 16,
         }}
       >
         <p
           style={{
-            color: "white",
-            fontWeight: 800,
-            fontSize: height < 130 ? 16 : 21,
-            letterSpacing: "-0.01em",
-            lineHeight: 1.2,
-            textShadow: "0 1px 8px rgba(0,0,0,0.3)",
+            fontFamily: "var(--font-grotesk), sans-serif",
+            color: nightSky.starlight,
+            fontWeight: 600,
+            fontSize: height < 130 ? 16 : 20,
+            letterSpacing: "0.01em",
+            lineHeight: 1.15,
+            textShadow:
+              "0 1px 10px color-mix(in srgb, var(--color-bg) 80%, transparent)",
             margin: 0,
           }}
         >

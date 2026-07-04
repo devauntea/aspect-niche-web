@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="150 210 340 180" fill="none" aria-label="Aspect Niche running-hare constellation (Lepus style)">
+  <path class="rh-shadow" d="M 467 318 C 466 305 458 305 445 290 C 432 275 403 238 389 229 C 375 221 380 231 363 237 C 346 243 309 260 288 267 C 267 275 252 275 237 281 C 222 286 207 286 198 299 C 189 312 165 354 181 360 C 197 366 255 341 294 337 C 332 333 385 331 412 336 C 438 341 442 370 452 367 C 461 364 468 330 467 318 Z" fill="#F0EEFF" opacity="0.13"/>
+  <line class="rh-edge rh-e0" x1="452" y1="316" x2="430" y2="292" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e1" x1="430" y1="292" x2="406" y2="278" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e2" x1="406" y1="278" x2="378" y2="246" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e3" x1="406" y1="278" x2="356" y2="256" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e4" x1="430" y1="292" x2="388" y2="292" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e5" x1="388" y1="292" x2="348" y2="288" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e6" x1="348" y1="288" x2="300" y2="276" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e7" x1="300" y1="276" x2="252" y2="284" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e8" x1="252" y1="284" x2="224" y2="300" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e9" x1="224" y1="300" x2="248" y2="320" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e10" x1="248" y1="320" x2="198" y2="354" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e11" x1="248" y1="320" x2="306" y2="328" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e12" x1="306" y1="328" x2="360" y2="320" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e13" x1="360" y1="320" x2="388" y2="292" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e14" x1="360" y1="320" x2="398" y2="330" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <line class="rh-edge rh-e15" x1="398" y1="330" x2="436" y2="358" stroke="#8B7CF6" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  <circle class="rh-star rh-s0" cx="452" cy="316" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s1" cx="430" cy="292" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s2" cx="406" cy="278" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s3" cx="378" cy="246" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s4" cx="356" cy="256" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s5" cx="388" cy="292" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s6" cx="348" cy="288" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s7" cx="300" cy="276" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s8" cx="252" cy="284" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s10" cx="248" cy="320" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s11" cx="198" cy="354" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s12" cx="306" cy="328" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s13" cx="360" cy="320" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s14" cx="398" cy="330" r="4" fill="#F0EEFF"/>
+  <circle class="rh-star rh-s15" cx="436" cy="358" r="4" fill="#F0EEFF"/>
+  <g class="rh-alpha"><circle cx="224" cy="300" r="10" fill="#FFF7D6" opacity="0.25"/><circle cx="224" cy="300" r="5.5" fill="#FFF7D6"/><path d="M 212 300 H 236 M 224 288 V 312" stroke="#FFF7D6" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/></g>
+</svg>

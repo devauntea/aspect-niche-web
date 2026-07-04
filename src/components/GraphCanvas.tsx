@@ -19,7 +19,13 @@ import OrbitalActivityNode from "./OrbitalActivityNode";
 import OrbitRingNode from "./OrbitRingNode";
 import FlowEdge from "./FlowEdge";
 import GraphBackground from "./GraphBackground";
-import { motionTokens, constellation } from "@/lib/theme";
+import {
+  motionTokens,
+  constellation,
+  starHues,
+  nightSky,
+  durations,
+} from "@/lib/theme";
 
 const nodeTypes = {
   orbitInterest: OrbitNode,
@@ -39,56 +45,6 @@ type Props = {
   onSelectNode: (id: string | null) => void;
   newNodeId?: string | null;
   onCollapseAll: () => void;
-};
-
-const ACTIVITY_COLORS: Record<string, string> = {
-  "rock-climbing": "#D4537E",
-  zumba: "#EF9F27",
-  cycling: "#1D9E75",
-  yoga: "#7F77DD",
-  running: "#D85A30",
-  hiking: "#1D9E75",
-  photography: "#7F77DD",
-  drawing: "#D4537E",
-  music: "#EF9F27",
-  pottery: "#D85A30",
-  kayaking: "#378ADD",
-  coding: "#378ADD",
-  "3d-printing": "#639922",
-  electronics: "#EF9F27",
-  "board-games": "#D4537E",
-  improv: "#EF9F27",
-  cooking: "#D85A30",
-  baking: "#EF9F27",
-  coffee: "#D85A30",
-  fermentation: "#1D9E75",
-  "cooking-club": "#D4537E",
-  surfing: "#378ADD",
-  skateboarding: "#D85A30",
-  archery: "#639922",
-  fencing: "#7F77DD",
-  parkour: "#D4537E",
-  astronomy: "#7F77DD",
-  geology: "#D85A30",
-  mycology: "#639922",
-  foraging: "#1D9E75",
-  birdwatching: "#378ADD",
-  "marine-biology": "#378ADD",
-  calligraphy: "#7F77DD",
-  bookbinding: "#D85A30",
-  glassblowing: "#EF9F27",
-  leatherwork: "#D85A30",
-  blacksmithing: "#D85A30",
-  weaving: "#D4537E",
-  "language-learning": "#378ADD",
-  philosophy: "#7F77DD",
-  chess: "#1A1916",
-  investing: "#639922",
-  journaling: "#D4537E",
-  meditation: "#7F77DD",
-  volunteering: "#1D9E75",
-  genealogy: "#EF9F27",
-  "urban-exploration": "#D85A30",
 };
 
 // Must be inside ReactFlow context to use useReactFlow.
@@ -303,19 +259,20 @@ function GraphControls({
             title="Focus on selected node"
             style={{
               ...baseBtn,
-              background: focusMode && selectedId ? "#7F77DD30" : "transparent",
+              background:
+                focusMode && selectedId ? "var(--color-glow)30" : "transparent",
               opacity: selectedId ? 1 : 0.38,
               cursor: selectedId ? "pointer" : "default",
             }}
             onMouseEnter={(e) => {
               if (!selectedId) return;
               e.currentTarget.style.background = focusMode
-                ? "#7F77DD40"
+                ? "var(--color-glow)40"
                 : "rgba(255,255,255,0.08)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background =
-                focusMode && selectedId ? "#7F77DD30" : "transparent";
+                focusMode && selectedId ? "var(--color-glow)30" : "transparent";
             }}
             onMouseDown={(e) => {
               if (selectedId) e.currentTarget.style.transform = "scale(0.95)";
@@ -470,13 +427,26 @@ export default function GraphCanvas({
 
   const focusModeActive = focusMode && selectedId !== null;
 
+  // Category → star-glow hue: interests own a hue, their activities inherit it
+  const hueFor = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const n of hobbyNodes) {
+      if (n.type === "interest")
+        map[n.id] = starHues[n.id] ?? nightSky.violetGlow;
+    }
+    for (const e of hobbyEdges) {
+      if (map[e.source] && !map[e.target]) map[e.target] = map[e.source];
+    }
+    return map;
+  }, [hobbyNodes, hobbyEdges]);
+
   const flowNodes: Node[] = useMemo(() => {
     const result: Node[] = [];
 
     for (const n of hobbyNodes) {
       const isSelected = n.id === selectedId;
       const isInterest = n.type === "interest";
-      const color = n.color ?? "#7F77DD";
+      const color = hueFor[n.id] ?? nightSky.violetGlow;
       const position = posOverrides[n.id] ?? n.position;
       const visualState = visualStateFor(n.id);
       const dimmed = visualState === "dim";
@@ -485,9 +455,6 @@ export default function GraphCanvas({
 
       if (isInterest) {
         const interest = n.data as { activityIds: string[] };
-        const childColors = (interest.activityIds ?? [])
-          .slice(0, 6)
-          .map((id: string) => ACTIVITY_COLORS[id] ?? color);
 
         result.push({
           id: n.id,
@@ -496,7 +463,13 @@ export default function GraphCanvas({
           selected: isSelected,
           hidden: isHiddenByFocus,
           zIndex: visualState === "active" ? 30 : 10,
-          className: n.id === newNodeId ? "node-new" : undefined,
+          className:
+            [
+              n.id === newNodeId ? "node-new" : "",
+              isSelected ? "node-ignite" : "",
+            ]
+              .join(" ")
+              .trim() || undefined,
           style: {
             opacity: dimmed ? constellation.dimmedNodeOpacity : 1,
           },
@@ -505,7 +478,6 @@ export default function GraphCanvas({
             color,
             isExpanded: expandedInterests.has(n.id),
             childCount: (interest.activityIds ?? []).length,
-            childColors,
             visualState,
           },
         });
@@ -538,7 +510,13 @@ export default function GraphCanvas({
           selected: isSelected,
           hidden: isHiddenByFocus,
           zIndex: visualState === "active" ? 30 : isSelected ? 20 : 5,
-          className: n.id === newNodeId ? "node-new" : undefined,
+          className:
+            [
+              n.id === newNodeId ? "node-new" : "",
+              isSelected ? "node-ignite" : "",
+            ]
+              .join(" ")
+              .trim() || undefined,
           style: {
             opacity: dimmed ? constellation.dimmedNodeOpacity : 1,
           },
@@ -561,13 +539,12 @@ export default function GraphCanvas({
     focusIds,
     newNodeId,
     focusModeActive,
+    hueFor,
   ]);
 
   const flowEdges: Edge[] = useMemo(
     () =>
       hobbyEdges.map((e) => {
-        const src = hobbyNodes.find((n) => n.id === e.source);
-        const edgeColor = src?.color ?? "#7F77DD";
         const touchesActive =
           activeId !== null && (e.source === activeId || e.target === activeId);
         const touchesSelected =
@@ -585,10 +562,14 @@ export default function GraphCanvas({
           target: e.target,
           type: "flow",
           hidden: isHiddenByFocus,
-          data: { color: edgeColor, visualState },
+          data: {
+            visualState,
+            // Themes can tint edges toward the cluster hue (--edge-hue-mix)
+            hue: hueFor[e.target] ?? hueFor[e.source] ?? null,
+          },
         };
       }),
-    [hobbyEdges, hobbyNodes, activeId, selectedId, focusModeActive],
+    [hobbyEdges, activeId, selectedId, focusModeActive, hueFor],
   );
 
   const handleNodeClick: NodeMouseHandler = useCallback(
@@ -609,8 +590,11 @@ export default function GraphCanvas({
     setHoveredId(null);
   }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
+      ref={containerRef}
       className="constellation relative w-full overflow-hidden rounded-2xl"
       style={{
         height: "calc(100vh - 220px)",
@@ -619,13 +603,53 @@ export default function GraphCanvas({
           ? constellation.canvasBgFocus
           : constellation.canvasBg,
         border: `1px solid ${constellation.panelBorder}`,
-        boxShadow:
-          "inset 0 0 60px rgba(127,119,221,0.06), 0 4px 24px rgba(16,14,31,0.18)",
+        boxShadow: `inset 0 0 60px rgba(139,124,246,0.05), ${nightSky.raisedGlow}`,
         transition: "background 0.3s ease",
       }}
     >
+      {/* Nebula — outer layer eases toward the selected cluster; the inner
+          layer carries the theme's own drift animation (e.g. aurora), so the
+          two transforms never fight. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: "-40%",
+          pointerEvents: "none",
+          transform: selectedId
+            ? "translate(0%, 2%) scale(1.06)"
+            : "translate(-10%, -9%) scale(1)",
+          transition: `transform ${durations.scene}ms ease-out`,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "var(--graph-nebula-layer, radial-gradient(ellipse 42% 38% at 50% 46%, var(--graph-nebula), transparent 68%))",
+            animation: "var(--nebula-anim, none)",
+          }}
+        />
+      </div>
       <GraphBackground />
-      <div className="absolute inset-0" style={{ zIndex: 1 }}>
+      <div
+        className="absolute inset-0"
+        style={{ zIndex: 1 }}
+        onKeyDown={(e) => {
+          // React Flow makes nodes focusable but doesn't fire click on Enter —
+          // complete the keyboard path: Enter/Space selects the focused node
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const node = (e.target as HTMLElement).closest?.(
+            ".react-flow__node",
+          ) as HTMLElement | null;
+          const id = node?.getAttribute("data-id");
+          if (id && !id.startsWith("ring-")) {
+            e.preventDefault();
+            onSelectNode(id);
+          }
+        }}
+      >
         <ReactFlow
           nodes={flowNodes}
           edges={flowEdges}
@@ -636,6 +660,12 @@ export default function GraphCanvas({
           onNodeMouseEnter={handleNodeMouseEnter}
           onNodeMouseLeave={handleNodeMouseLeave}
           onPaneClick={() => onSelectNode(null)}
+          onMove={(_, viewport) =>
+            containerRef.current?.style.setProperty(
+              "--graph-zoom",
+              String(viewport.zoom),
+            )
+          }
           fitView
           fitViewOptions={{ padding: 0.35 }}
           minZoom={0.2}

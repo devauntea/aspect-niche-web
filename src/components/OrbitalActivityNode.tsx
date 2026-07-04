@@ -1,8 +1,12 @@
 "use client";
 
+// Activity node: a small glowing star-core with a haloed label beneath it.
+// Category shows as the hue of the glow (data.color = starHue), never a loud
+// fill. Selected nodes ignite (CSS .node-ignite) and gain a fine orbital ring.
+
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { constellation, motionTokens } from "@/lib/theme";
+import { constellation, motionTokens, nightSky } from "@/lib/theme";
 import type { NodeVisualState } from "@/types/graph";
 
 interface OrbitalActivityData {
@@ -11,6 +15,10 @@ interface OrbitalActivityData {
   visualState: NodeVisualState;
 }
 
+const CORE = 12;
+const CORE_SELECTED = 16;
+const RING = 34;
+
 function OrbitalActivityNode({ data, selected }: NodeProps) {
   const d = data as unknown as OrbitalActivityData;
   const { label, color } = d;
@@ -18,13 +26,12 @@ function OrbitalActivityNode({ data, selected }: NodeProps) {
   const hovered = visualState === "active" && !selected;
   const lit = hovered || selected || visualState === "neighbor";
 
-  const ringSize = selected ? 34 : 24;
-  const ringRadius = ringSize / 2;
+  const core = selected ? CORE_SELECTED : CORE;
 
-  // Handle style centers on the ring regardless of ring size
+  // Handles sit at the star-core center
   const handleStyle: React.CSSProperties = {
     opacity: 0,
-    top: ringRadius,
+    top: RING / 2,
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 1,
@@ -36,12 +43,12 @@ function OrbitalActivityNode({ data, selected }: NodeProps) {
   };
 
   const glow = selected
-    ? `0 0 0 5px ${color}30, 0 0 26px ${color}, 0 0 50px ${color}70`
+    ? `0 0 10px ${color}, 0 0 26px color-mix(in srgb, ${color} 67%, transparent), 0 0 48px color-mix(in srgb, ${color} 33%, transparent)`
     : hovered
-      ? `0 0 20px ${color}CC, 0 0 40px ${color}55`
+      ? `0 0 8px color-mix(in srgb, ${color} 93%, transparent), 0 0 22px color-mix(in srgb, ${color} 53%, transparent)`
       : lit
-        ? `0 0 14px ${color}99`
-        : `0 0 10px ${color}66`;
+        ? `0 0 7px color-mix(in srgb, ${color} 80%, transparent), 0 0 16px color-mix(in srgb, ${color} 33%, transparent)`
+        : `0 0 6px color-mix(in srgb, ${color} 60%, transparent), 0 0 12px color-mix(in srgb, ${color} 20%, transparent)`;
 
   return (
     <div
@@ -49,60 +56,79 @@ function OrbitalActivityNode({ data, selected }: NodeProps) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 5,
+        gap: 6,
         cursor: "pointer",
-        transform: hovered ? "scale(1.18)" : "scale(1)",
+        transform: hovered
+          ? "scale(var(--hover-scale-minor, 1.15))"
+          : "scale(1)",
         transformOrigin: "center top",
         transition: `transform ${motionTokens.hoverMs}ms ease`,
       }}
     >
-      {/* Handles centered on ring */}
       <Handle type="source" position={Position.Top} style={handleStyle} />
       <Handle type="target" position={Position.Top} style={handleStyle} />
 
-      {/* Glowing orb: colored ring, tinted core, solid when selected */}
+      {/* Ring slot keeps the label from shifting when the core resizes */}
       <div
         style={{
-          width: ringSize,
-          height: ringSize,
-          borderRadius: "50%",
-          flexShrink: 0,
+          width: RING,
+          height: RING,
+          position: "relative",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: selected ? color : `${color}26`,
-          border: `2.5px solid ${color}`,
-          boxShadow: glow,
-          transition: `all ${motionTokens.hoverMs}ms ease`,
+          flexShrink: 0,
         }}
       >
+        {/* Fine orbital ring — selected only */}
+        {selected && (
+          <svg
+            width={RING}
+            height={RING}
+            viewBox={`0 0 ${RING} ${RING}`}
+            className="orbital-ring"
+            style={{ position: "absolute", inset: 0 }}
+            aria-hidden
+          >
+            <circle
+              cx={RING / 2}
+              cy={RING / 2}
+              r={RING / 2 - 1}
+              fill="none"
+              stroke={color}
+              strokeWidth={1}
+              strokeDasharray="3 5"
+              opacity={0.85}
+            />
+          </svg>
+        )}
         <div
+          className="star-core"
           style={{
-            width: selected ? 8 : 6,
-            height: selected ? 8 : 6,
+            width: core,
+            height: core,
             borderRadius: "50%",
-            background: selected ? "white" : color,
-            boxShadow: selected ? "0 0 6px white" : `0 0 6px ${color}`,
-            transition: `all ${motionTokens.hoverMs}ms ease`,
+            background: `radial-gradient(circle at 40% 35%, ${nightSky.starlight}, ${color} 70%)`,
+            boxShadow: glow,
+            transition: `box-shadow ${motionTokens.hoverMs}ms ease, width ${motionTokens.hoverMs}ms ease, height ${motionTokens.hoverMs}ms ease`,
           }}
         />
       </div>
 
-      {/* Label chip — dark glass so it reads on the night canvas */}
+      {/* Label — Inter with a soft dark halo; minor labels fade at low zoom */}
       <div
+        className="star-label-minor"
         style={{
-          fontSize: selected || hovered ? 12 : 11,
-          fontWeight: selected || hovered ? 700 : 500,
-          color: lit ? constellation.labelText : `${constellation.labelText}B8`,
-          background: constellation.chipBg,
-          border: `1px solid ${lit ? `${color}66` : "rgba(255,255,255,0.07)"}`,
-          padding: "2px 8px",
-          borderRadius: 999,
+          fontSize: lit ? 12.5 : 12,
+          fontWeight: lit ? 600 : 400,
+          color: lit ? constellation.labelText : constellation.labelDim,
           whiteSpace: "nowrap",
-          lineHeight: 1.5,
-          transition: `all ${motionTokens.hoverMs}ms ease`,
+          lineHeight: 1.4,
           letterSpacing: "0.01em",
-          textShadow: lit ? `0 0 12px ${color}80` : "none",
+          textShadow:
+            "0 0 6px var(--color-bg), 0 0 12px var(--color-bg), 0 1px 3px color-mix(in srgb, var(--color-bg) 90%, transparent)",
+          transition: `color ${motionTokens.hoverMs}ms ease`,
+          ...(lit ? { opacity: 1 } : null),
         }}
       >
         {label}

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import RabbitLogoMark from "../components/website/RabbitLogoMark";
-import { IconAppMark } from "../components/icons";
+import BrandMark from "../components/BrandMark";
+import RabbitHoleMark from "../components/RabbitHoleMark";
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,10 +28,10 @@ function Nav() {
       }}
     >
       <div className="flex items-center gap-2">
-        <IconAppMark size={24} />
+        <BrandMark size={24} variant="mono" className="text-[#2C2420]" />
         <span
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-grotesk), sans-serif",
             fontSize: 16,
             color: "#2C2420",
             letterSpacing: "0.01em",
@@ -43,7 +43,7 @@ function Nav() {
       <Link
         href="/demo"
         className="rounded-full font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-        style={{ background: "#7F77DD", fontSize: 13, padding: "8px 16px" }}
+        style={{ background: "#584CC4", fontSize: 13, padding: "8px 16px" }}
       >
         Try demo →
       </Link>
@@ -99,7 +99,7 @@ function FeatureBlock({
       </span>
       <h3
         style={{
-          fontFamily: "Georgia, serif",
+          fontFamily: "var(--font-grotesk), sans-serif",
           fontSize: 22,
           color: "#2C2420",
           lineHeight: 1.3,
@@ -153,319 +153,323 @@ export default function HomePage() {
 
       <Nav />
 
-      {/* ── Section 1: Hero ── */}
-      <section
-        className="relative flex flex-col items-center justify-center text-center px-6"
-        style={{ minHeight: "100vh", background: "#FAF6EC", paddingTop: 56 }}
-      >
-        <RabbitLogoMark width={200} />
-
-        <h1
-          style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: 56,
-            fontWeight: 400,
-            color: "#2C2420",
-            letterSpacing: "0.01em",
-            marginTop: 24,
-            lineHeight: 1.1,
-          }}
+      <main>
+        {/* ── Section 1: Hero ── */}
+        <section
+          className="relative flex flex-col items-center justify-center text-center px-6"
+          style={{ minHeight: "100vh", background: "#FAF6EC", paddingTop: 56 }}
         >
-          aspect niche
-        </h1>
+          <RabbitHoleMark width={340} className="text-[#2C2420]" />
 
-        <p
-          style={{
-            fontFamily: "var(--font-geist-sans)",
-            fontSize: 18,
-            color: "#6a5e58",
-            marginTop: 8,
-          }}
-        >
-          Navigate the Hobby Verse
-        </p>
-
-        <div
-          className="flex items-center gap-4 flex-wrap justify-center"
-          style={{ marginTop: 40 }}
-        >
-          <Link
-            href="/demo"
-            className="rounded-full font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+          <h1
             style={{
-              background: "#7F77DD",
-              fontSize: 16,
-              padding: "14px 32px",
-              boxShadow: "0 4px 20px #7F77DD45",
+              fontFamily: "var(--font-grotesk), sans-serif",
+              fontSize: 56,
+              fontWeight: 400,
+              color: "#2C2420",
+              letterSpacing: "0.01em",
+              marginTop: 24,
+              lineHeight: 1.1,
             }}
           >
-            Try the demo →
-          </Link>
-          <button
-            onClick={scrollToSection2}
-            className="rounded-full transition-all hover:bg-[#F0EDE6] active:scale-95"
-            style={{
-              fontSize: 16,
-              padding: "14px 32px",
-              border: "1.5px solid #C4BFB4",
-              background: "transparent",
-              color: "#3a2e2a",
-            }}
-          >
-            Learn more ↓
-          </button>
-        </div>
+            aspect niche
+          </h1>
 
-        <ScrollChevron />
-      </section>
-
-      {/* ── Section 2: The Problem ── */}
-      <section
-        ref={section2Ref}
-        style={{ background: "white", padding: "80px 24px" }}
-      >
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <p
             style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#7F77DD",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase" as const,
-              marginBottom: 20,
+              fontFamily: "var(--font-inter)",
+              fontSize: 18,
+              color: "#6a5e58",
+              marginTop: 8,
             }}
           >
-            WHY WE BUILT THIS
+            Navigate the Hobby Verse
           </p>
-          <h2
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: 40,
-              color: "#2C2420",
-              lineHeight: 1.2,
-              marginBottom: 32,
-            }}
-          >
-            Hobbies don&apos;t come with a map.
-          </h2>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column" as const,
-              gap: 20,
-            }}
-          >
-            {[
-              "Most people discover new hobbies the same way — a random recommendation, a friend's suggestion, or a late-night YouTube spiral. It works occasionally. But it's not a system.",
-              "The real problem is that hobbies connect to each other in surprising ways. Rock climbing leads to bouldering leads to fingerboard training leads to biomechanics. Cooking leads to fermentation leads to mycology leads to foraging. The path is always there — it’s just invisible.",
-              "Aspect Niche makes the path visible.",
-            ].map((para, i) => (
-              <p
-                key={i}
-                style={{ fontSize: 16, color: "#5A5855", lineHeight: 1.8 }}
-              >
-                {para}
-              </p>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 3: How It Works ── */}
-      <section style={{ background: "#FAF6EC", padding: "80px 24px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <p
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#7F77DD",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase" as const,
-              marginBottom: 20,
-            }}
-          >
-            THE PRODUCT
-          </p>
-          <h2
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: 40,
-              color: "#2C2420",
-              lineHeight: 1.2,
-              marginBottom: 48,
-            }}
-          >
-            A graph of everything you could become.
-          </h2>
 
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 40,
-              marginBottom: 52,
-            }}
+            className="flex items-center gap-4 flex-wrap justify-center"
+            style={{ marginTop: 40 }}
           >
-            <FeatureBlock
-              num="01"
-              title="Pick your world"
-              desc="Choose the interest categories that pull at you — fitness, creative, tech, nature, and more. Your graph builds from your choices."
-            />
-            <FeatureBlock
-              num="02"
-              title="Follow the connections"
-              desc="Tap any node to expand it into a cluster of specific activities. Tap an activity to learn more, find nearby places, or go deeper into the niche layer of that hobby."
-            />
-            <FeatureBlock
-              num="03"
-              title="Let AI go further"
-              desc="The Rabbit Hole panel uses Groq AI to surface ultra-niche hobbies you've never heard of, find deeper cuts on any activity, and even generate brand new hobby nodes on demand."
-            />
-          </div>
-
-          <div className="flex justify-center">
             <Link
               href="/demo"
               className="rounded-full font-semibold text-white transition-all hover:opacity-90 active:scale-95"
               style={{
-                background: "#7F77DD",
-                fontSize: 15,
-                padding: "14px 36px",
-                boxShadow: "0 4px 20px #7F77DD40",
+                background: "#584CC4",
+                fontSize: 16,
+                padding: "14px 32px",
+                boxShadow: "0 4px 20px #584CC445",
               }}
             >
-              Try it now →
+              Try the demo →
             </Link>
+            <button
+              onClick={scrollToSection2}
+              className="rounded-full transition-all hover:bg-[#F0EDE6] active:scale-95"
+              style={{
+                fontSize: 16,
+                padding: "14px 32px",
+                border: "1.5px solid #C4BFB4",
+                background: "transparent",
+                color: "#3a2e2a",
+              }}
+            >
+              Learn more ↓
+            </button>
           </div>
-        </div>
-      </section>
 
-      {/* ── Section 4: Inspiration ── */}
-      <section style={{ background: "white", padding: "80px 24px" }}>
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <ScrollChevron />
+        </section>
+
+        {/* ── Section 2: The Problem ── */}
+        <section
+          ref={section2Ref}
+          style={{ background: "white", padding: "80px 24px" }}
+        >
+          <div style={{ maxWidth: 680, margin: "0 auto" }}>
+            <p
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#584CC4",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
+                marginBottom: 20,
+              }}
+            >
+              WHY WE BUILT THIS
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-grotesk), sans-serif",
+                fontSize: 40,
+                color: "#2C2420",
+                lineHeight: 1.2,
+                marginBottom: 32,
+              }}
+            >
+              Hobbies don&apos;t come with a map.
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column" as const,
+                gap: 20,
+              }}
+            >
+              {[
+                "Most people discover new hobbies the same way — a random recommendation, a friend's suggestion, or a late-night YouTube spiral. It works occasionally. But it's not a system.",
+                "The real problem is that hobbies connect to each other in surprising ways. Rock climbing leads to bouldering leads to fingerboard training leads to biomechanics. Cooking leads to fermentation leads to mycology leads to foraging. The path is always there — it’s just invisible.",
+                "Aspect Niche makes the path visible.",
+              ].map((para, i) => (
+                <p
+                  key={i}
+                  style={{ fontSize: 16, color: "#5A5855", lineHeight: 1.8 }}
+                >
+                  {para}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 3: How It Works ── */}
+        <section style={{ background: "#FAF6EC", padding: "80px 24px" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
+            <p
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#584CC4",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
+                marginBottom: 20,
+              }}
+            >
+              THE PRODUCT
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-grotesk), sans-serif",
+                fontSize: 40,
+                color: "#2C2420",
+                lineHeight: 1.2,
+                marginBottom: 48,
+              }}
+            >
+              A graph of everything you could become.
+            </h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 40,
+                marginBottom: 52,
+              }}
+            >
+              <FeatureBlock
+                num="01"
+                title="Pick your world"
+                desc="Choose the interest categories that pull at you — fitness, creative, tech, nature, and more. Your graph builds from your choices."
+              />
+              <FeatureBlock
+                num="02"
+                title="Follow the connections"
+                desc="Tap any node to expand it into a cluster of specific activities. Tap an activity to learn more, find nearby places, or go deeper into the niche layer of that hobby."
+              />
+              <FeatureBlock
+                num="03"
+                title="Let AI go further"
+                desc="The Rabbit Hole panel uses Groq AI to surface ultra-niche hobbies you've never heard of, find deeper cuts on any activity, and even generate brand new hobby nodes on demand."
+              />
+            </div>
+
+            <div className="flex justify-center">
+              <Link
+                href="/demo"
+                className="rounded-full font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                style={{
+                  background: "#584CC4",
+                  fontSize: 15,
+                  padding: "14px 36px",
+                  boxShadow: "0 4px 20px #584CC440",
+                }}
+              >
+                Try it now →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 4: Inspiration ── */}
+        <section style={{ background: "white", padding: "80px 24px" }}>
+          <div style={{ maxWidth: 760, margin: "0 auto" }}>
+            <p
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#584CC4",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
+                marginBottom: 20,
+              }}
+            >
+              WHAT INSPIRED US
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-grotesk), sans-serif",
+                fontSize: 40,
+                color: "#2C2420",
+                lineHeight: 1.2,
+                marginBottom: 40,
+              }}
+            >
+              Built on curiosity, not algorithms.
+            </h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: 20,
+              }}
+            >
+              {INSPIRE_CARDS.map((card, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "white",
+                    border: "1px solid #E8E4DA",
+                    borderRadius: 16,
+                    padding: 24,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: card.dot,
+                      marginBottom: 14,
+                    }}
+                  />
+                  <h3
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: "#1A1916",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {card.title}
+                  </h3>
+                  <p
+                    style={{ fontSize: 14, color: "#5A5855", lineHeight: 1.6 }}
+                  >
+                    {card.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 5: Demo Preview ── */}
+        <section
+          style={{
+            background:
+              "linear-gradient(160deg, #5FA8A8 0%, #A33B5E 50%, #E0A94E 100%)",
+            padding: "80px 24px",
+            textAlign: "center" as const,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "var(--font-grotesk), sans-serif",
+              fontSize: 48,
+              fontWeight: 400,
+              color: "white",
+              marginBottom: 16,
+              lineHeight: 1.15,
+            }}
+          >
+            See it for yourself.
+          </h2>
+          <p
+            style={{
+              fontSize: 14,
+              color: "rgba(255,255,255,0.8)",
+              marginBottom: 32,
+            }}
+          >
+            The full demo is live — pick your interests, explore the graph, go
+            down a rabbit hole.
+          </p>
+          <Link
+            href="/demo"
+            className="inline-block rounded-full font-semibold transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: "white",
+              color: "#A33B5E",
+              fontSize: 16,
+              padding: "16px 40px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+            }}
+          >
+            Open the demo →
+          </Link>
           <p
             style={{
               fontSize: 12,
-              fontWeight: 700,
-              color: "#7F77DD",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase" as const,
-              marginBottom: 20,
+              color: "rgba(255,255,255,0.6)",
+              marginTop: 16,
             }}
           >
-            WHAT INSPIRED US
+            No account needed · Runs in your browser
           </p>
-          <h2
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: 40,
-              color: "#2C2420",
-              lineHeight: 1.2,
-              marginBottom: 40,
-            }}
-          >
-            Built on curiosity, not algorithms.
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 20,
-            }}
-          >
-            {INSPIRE_CARDS.map((card, i) => (
-              <div
-                key={i}
-                style={{
-                  background: "white",
-                  border: "1px solid #E8E4DA",
-                  borderRadius: 16,
-                  padding: 24,
-                }}
-              >
-                <div
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    background: card.dot,
-                    marginBottom: 14,
-                  }}
-                />
-                <h3
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "#1A1916",
-                    marginBottom: 8,
-                  }}
-                >
-                  {card.title}
-                </h3>
-                <p style={{ fontSize: 14, color: "#5A5855", lineHeight: 1.6 }}>
-                  {card.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 5: Demo Preview ── */}
-      <section
-        style={{
-          background:
-            "linear-gradient(160deg, #5FA8A8 0%, #A33B5E 50%, #E0A94E 100%)",
-          padding: "80px 24px",
-          textAlign: "center" as const,
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "Georgia, serif",
-            fontSize: 48,
-            fontWeight: 400,
-            color: "white",
-            marginBottom: 16,
-            lineHeight: 1.15,
-          }}
-        >
-          See it for yourself.
-        </h2>
-        <p
-          style={{
-            fontSize: 14,
-            color: "rgba(255,255,255,0.8)",
-            marginBottom: 32,
-          }}
-        >
-          The full demo is live — pick your interests, explore the graph, go
-          down a rabbit hole.
-        </p>
-        <Link
-          href="/demo"
-          className="inline-block rounded-full font-semibold transition-all hover:scale-105 active:scale-95"
-          style={{
-            background: "white",
-            color: "#A33B5E",
-            fontSize: 16,
-            padding: "16px 40px",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
-          }}
-        >
-          Open the demo →
-        </Link>
-        <p
-          style={{
-            fontSize: 12,
-            color: "rgba(255,255,255,0.6)",
-            marginTop: 16,
-          }}
-        >
-          No account needed · Runs in your browser
-        </p>
-      </section>
+        </section>
+      </main>
 
       {/* ── Section 6: Footer ── */}
       <footer style={{ background: "#2C2420", padding: "40px 24px" }}>
@@ -483,7 +487,7 @@ export default function HomePage() {
           <div>
             <div
               style={{
-                fontFamily: "Georgia, serif",
+                fontFamily: "var(--font-grotesk), sans-serif",
                 fontSize: 20,
                 color: "#FAF6EC",
               }}
@@ -493,7 +497,7 @@ export default function HomePage() {
             <div
               style={{
                 fontSize: 12,
-                color: "rgba(250,246,236,0.5)",
+                color: "rgba(250,246,236,0.68)",
                 marginTop: 4,
               }}
             >
@@ -527,7 +531,7 @@ export default function HomePage() {
             <p
               style={{
                 fontSize: 12,
-                color: "rgba(250,246,236,0.4)",
+                color: "rgba(250,246,236,0.62)",
                 textAlign: "right" as const,
               }}
             >
@@ -542,7 +546,7 @@ export default function HomePage() {
             paddingTop: 20,
             borderTop: "1px solid rgba(250,246,236,0.1)",
             fontSize: 11,
-            color: "rgba(250,246,236,0.4)",
+            color: "rgba(250,246,236,0.62)",
           }}
         >
           © 2026 Aspect Niche. Built by Devauntae Norman.

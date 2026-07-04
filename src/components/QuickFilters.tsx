@@ -72,9 +72,9 @@ export default function QuickFilters({
           className="flex items-center gap-1.5 flex-shrink-0"
         >
           {gi > 0 && (
-            <div className="w-px h-4 bg-[#E8E4DA] mx-1.5 flex-shrink-0" />
+            <div className="w-px h-4 bg-space-800 mx-1.5 flex-shrink-0" />
           )}
-          <span className="text-[10px] uppercase tracking-widest text-[#B0ADA8] mr-0.5 flex-shrink-0">
+          <span className="text-[10px] uppercase tracking-widest text-dust mr-0.5 flex-shrink-0">
             {group.label}
           </span>
           {group.options.map((opt) => {
@@ -87,14 +87,14 @@ export default function QuickFilters({
                 style={
                   active
                     ? {
-                        background: "#7F77DD",
+                        background: "var(--color-glow)",
                         color: "#FFFFFF",
-                        border: "1.5px solid #7F77DD",
+                        border: "1.5px solid var(--color-glow)",
                       }
                     : {
-                        background: "#FFFFFF",
-                        color: "#5A5855",
-                        border: "1.5px solid #E8E4DA",
+                        background: "var(--color-surface)",
+                        color: "var(--color-text-dim)",
+                        border: "1.5px solid var(--color-surface-raised)",
                       }
                 }
               >
@@ -107,14 +107,14 @@ export default function QuickFilters({
 
       {hasAny && (
         <>
-          <div className="w-px h-4 bg-[#E8E4DA] mx-1.5 flex-shrink-0" />
+          <div className="w-px h-4 bg-space-800 mx-1.5 flex-shrink-0" />
           <button
             onClick={onClear}
             className="flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
             style={{
-              color: "#7F77DD",
-              border: "1.5px solid #7F77DD40",
-              background: "#7F77DD0e",
+              color: "var(--color-glow)",
+              border: "1.5px solid var(--color-glow)40",
+              background: "var(--color-glow)0e",
             }}
           >
             Clear all

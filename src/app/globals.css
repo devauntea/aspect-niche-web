@@ -5,28 +5,116 @@
   --foreground: #1a1916;
 }
 
-@theme {
-  --color-background: var(--background); /* #faf8f2 — app surface */
-  --color-foreground: var(--foreground); /* #1a1916 — primary text */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Theme variables (multi-theme system) ─────────────────────────────
+   A theme is a block of these variables switched by data-theme on <html>.
+   Components read them via src/lib/theme.ts (var() references) or Tailwind
+   utilities — never raw values. Midnight is the :root default so the app
+   renders correctly before any attribute is set. */
+:root,
+[data-theme="midnight"] {
+  /* core */
+  --color-bg: #0a0c18;
+  --color-surface: #131629;
+  --color-surface-raised: #1b1e36;
+  --color-border-t: #1b1e36;
+  --color-text: #f0eeff;
+  --color-text-dim: #8b93c9;
+  --color-glow: #8b7cf6;
+  --color-alpha: #fff7d6;
+  --color-success-t: #7ce8b5;
+  --color-warning-t: #ffd27c;
+  --color-danger-t: #ff8b9e;
+  /* shape */
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-sheet: 24px;
+  /* motion */
+  --dur-micro: 120ms;
+  --dur-standard: 240ms;
+  --dur-scene: 420ms;
+  --ease-spring: cubic-bezier(0.32, 0.72, 0.28, 1);
+  /* graph */
+  --canvas-lift: #10132a; /* center of the canvas radial */
+  --graph-nebula: color-mix(in srgb, var(--color-glow) 13%, transparent);
+  --graph-edge: #8b7cf6;
+  --graph-edge-active: #f0eeff;
+  --graph-node-glow: #8b7cf6;
+  --spring: calm;
+  --edge-hue-mix: 0%;
+  --nebula-anim: none;
+  --hover-scale-minor: 1.15;
+  --hover-scale-major: 1.06;
+  --starfield-density: 40;
+  --starfield-opacity: 0.35;
+  /* category hues — subtle rotations of the glow */
+  --hue-creative: #8b7cf6;
+  --hue-mind: #7c85f6;
+  --hue-tech: #7ca6f6;
+  --hue-outdoor: #7ccff6;
+  --hue-nature: #7ceff6;
+  --hue-craft: #bc7cf6;
+  --hue-fitness: #e07cf6;
+  --hue-social: #f67cdb;
+  --hue-community: #f67cbe;
+  --hue-culinary: #f67c9e;
+  --hue-adventure: #f67c7d;
+}
 
-  /* Aspect Niche palette. Keep hex in sync with src/lib/theme.ts (the JS-side
-     source of truth used for inline styles, node colors, and keyed maps). */
-  --color-brand: #7f77dd;
-  --color-surface-subtle: #f0ede6;
-  --color-border: #e8e4da;
-  --color-border-hover: #d3d0c8;
-  --color-body: #5a5855;
-  --color-muted: #b0ada8;
-  --color-faint: #9a9690;
+@theme {
+  --color-background: var(--background); /* #faf8f2 — landing surface */
+  --color-foreground: var(--foreground); /* #1a1916 — landing text */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-grotesk);
+
+  /* Utility names map to theme variables — classNames stay stable while
+     data-theme swaps the underlying values. */
+  --color-space-950: var(--color-bg);
+  --color-space-900: var(--color-surface);
+  --color-space-800: var(--color-surface-raised);
+  --color-starlight: var(--color-text);
+  --color-dust: var(--color-text-dim);
+  /* text/border usages get the readable glow variant when a theme sets it */
+  --color-violet-glow: var(--color-glow-text, var(--color-glow));
+  --color-alpha-star: var(--color-alpha);
+  --color-success: var(--color-success-t);
+  --color-warning: var(--color-warning-t);
+  --color-danger: var(--color-danger-t);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Theme crossfade: a brief blanket transition while variables flip.
+   Added/removed by useTheme(); reduced-motion switches are instant. */
+html.theme-xfade,
+html.theme-xfade *,
+html.theme-xfade *::before,
+html.theme-xfade *::after {
+  transition:
+    background-color var(--dur-standard) ease,
+    background var(--dur-standard) ease,
+    color var(--dur-standard) ease,
+    border-color var(--dur-standard) ease,
+    box-shadow var(--dur-standard) ease,
+    fill var(--dur-standard) ease,
+    stroke var(--dur-standard) ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.theme-xfade,
+  html.theme-xfade * {
+    transition: none !important;
+  }
+}
+
+/* Accessibility: keyboard focus is always visible, in the graph's energy */
+:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-glow));
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ── 3D flip card ─────────────────────────────────── */
@@ -151,7 +239,7 @@ body {
 /* ── Card face scrollbar ─────────────────────────── */
 .card-face-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #d3d0c8 transparent;
+  scrollbar-color: var(--color-surface-raised) transparent;
 }
 .card-face-scroll::-webkit-scrollbar {
   width: 3px;
@@ -160,8 +248,140 @@ body {
   background: transparent;
 }
 .card-face-scroll::-webkit-scrollbar-thumb {
-  background: #d3d0c8;
+  background: var(--color-surface-raised);
   border-radius: 2px;
+}
+
+/* ── Brand mark ignition (splash / loading) ───────── */
+@keyframes markStarPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: var(--star-opacity, 0.85);
+    transform: scale(1);
+  }
+}
+@keyframes markEdgeIn {
+  to {
+    opacity: 0.45;
+  }
+}
+@keyframes markFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes markAlphaBloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* Reduced motion: the finished mark, instantly (overrides inline animation) */
+@media (prefers-reduced-motion: reduce) {
+  .mark-ignite circle,
+  .mark-ignite g,
+  .mark-ignite div {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .mark-ignite line {
+    animation: none !important;
+    opacity: 0.45 !important;
+  }
+}
+
+/* ── Sky ignition (onboarding moment) ─────────────── */
+/* Mark dissolves, seed stars ignite in its place, caption fades up. */
+@keyframes skyMarkDissolve {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+.sky-ignition-mark {
+  animation: skyMarkDissolve 0.9s ease-out 0.5s forwards;
+}
+@keyframes seedIgnite {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+.sky-ignition-seed {
+  opacity: 0;
+  animation: seedIgnite 0.42s cubic-bezier(0.32, 0.72, 0.28, 1)
+    var(--seed-delay, 0.8s) forwards;
+}
+.sky-ignition-caption {
+  opacity: 0;
+  animation: markFadeIn 0.42s ease-out var(--seed-delay, 1s) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky-ignition-mark {
+    animation: none;
+    opacity: 0.25;
+  }
+  .sky-ignition-seed,
+  .sky-ignition-caption {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Overlap constellation: shared stars ignite on reveal (date mode) */
+@keyframes overlapIgnite {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.overlap-ignite {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: overlapIgnite 0.42s cubic-bezier(0.32, 0.72, 0.28, 1)
+    var(--ignite-delay, 0.2s) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlap-ignite {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* ── Surprise Me backdrop ─────────────────────────── */
@@ -188,6 +408,64 @@ body {
 }
 .surprise-card-enter {
   animation: slideUpCard 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Theme flourishes ─────────────────────────────── */
+/* Aurora: slow-drifting northern-lights layer (transform-only, GPU-cheap) */
+@keyframes auroraDrift {
+  0% {
+    transform: translate3d(-6%, -3%, 0) rotate(-2deg) scale(1.15);
+  }
+  100% {
+    transform: translate3d(6%, 3%, 0) rotate(2deg) scale(1.25);
+  }
+}
+
+/* Playground: star ignition throws 2–3 tiny confetti sparks */
+@keyframes confettiSpark {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--spark-x, 14px), var(--spark-y, -16px)) scale(0.3);
+  }
+}
+[data-theme="playground"] .node-ignite .star-core::before,
+[data-theme="playground"] .node-ignite .star-core::after {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 40%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+[data-theme="playground"] .node-ignite .star-core::before {
+  background: var(--color-alpha);
+  --spark-x: 16px;
+  --spark-y: -18px;
+  animation: confettiSpark 0.42s ease-out forwards;
+}
+[data-theme="playground"] .node-ignite .star-core::after {
+  background: var(--hue-tech, #4dd6ff);
+  --spark-x: -15px;
+  --spark-y: -12px;
+  animation: confettiSpark 0.46s ease-out 0.04s forwards;
+}
+[data-theme="playground"] .node-ignite .star-core {
+  position: relative;
+}
+
+/* Personality never overrides reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="playground"] .node-ignite .star-core::before,
+  [data-theme="playground"] .node-ignite .star-core::after {
+    animation: none;
+    content: none;
+  }
 }
 
 /* ── Detail dock (node → card) ────────────────────── */
@@ -273,54 +551,98 @@ body {
    not inline — an inline transition would override the transform one.) */
 .constellation .react-flow__node {
   transition:
-    transform 0.55s cubic-bezier(0.32, 0.72, 0.28, 1),
+    transform 0.55s var(--ease-spring, cubic-bezier(0.32, 0.72, 0.28, 1)),
     opacity 0.25s ease;
 }
 .constellation .react-flow__node.dragging {
   transition: opacity 0.25s ease;
 }
 
-/* Edge flow — a dash layer drifting along the edge path */
-@keyframes edgeFlow {
+/* Edge comet — a slow light-pulse traveling along live edges */
+@keyframes edgeComet {
   to {
-    stroke-dashoffset: -40;
+    stroke-dashoffset: -234; /* dasharray period: 14 + 220 */
   }
 }
-.edge-flow {
-  stroke-dasharray: 5 15;
-  stroke-linecap: round;
-  animation: edgeFlow var(--edge-flow-duration, 1.6s) linear infinite;
+.edge-comet {
+  animation: edgeComet var(--edge-pulse-duration, 2.4s) linear infinite;
+}
+
+/* Star ignition — the alpha-star motif in motion: bright core, glow bloom,
+   settle. Plays once when a node is selected (.node-ignite). */
+@keyframes starIgnition {
+  0% {
+    filter: brightness(1);
+  }
+  35% {
+    filter: brightness(2.4) saturate(1.3);
+    transform: scale(1.5);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+.node-ignite .star-core {
+  animation: starIgnition 0.24s ease-out;
+}
+
+/* Fine orbital ring around the selected star — slow spin */
+@keyframes orbitalSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orbital-ring {
+  animation: orbitalSpin 14s linear infinite;
+}
+
+/* De-clutter: activity labels fade out at low zoom (interest labels stay).
+   --graph-zoom is set from React Flow's onMove — no re-renders involved.
+   Lit (hovered/selected/neighbor) labels override with inline opacity. */
+.constellation {
+  --graph-zoom: 1;
+}
+.constellation .star-label-minor {
+  opacity: clamp(0, calc((var(--graph-zoom) - 0.55) * 3.3), 1);
+  transition: opacity 0.24s ease;
 }
 
 /* React Flow zoom controls → dark glass */
 .constellation .react-flow__controls {
-  background: rgba(19, 17, 36, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
 .constellation .react-flow__controls-button {
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);
   width: 28px;
   height: 28px;
 }
 .constellation .react-flow__controls-button:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
 .constellation .react-flow__controls-button svg {
-  fill: #b9b4e8;
+  fill: var(--color-text-dim);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .constellation .react-flow__node {
     transition: none;
   }
-  .edge-flow {
-    animation: none;
-    stroke-dasharray: none;
+  .constellation [style*="--nebula-anim"],
+  .constellation div[aria-hidden] div {
+    animation: none !important;
   }
+  .edge-comet {
+    animation: none;
+    opacity: 0; /* no pulse — the brightened base line carries the state */
+  }
+  .node-ignite .star-core,
+  .orbital-ring,
   .orbiting-dot,
   .orbiting-dot-reverse,
   .node-breathe {

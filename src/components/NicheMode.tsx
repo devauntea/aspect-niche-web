@@ -51,11 +51,13 @@ export default function NicheMode({ isNiche, onToggle, accentColor }: Props) {
         className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
         style={{
           background: isNiche
-            ? `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`
-            : `${accentColor}12`,
+            ? `linear-gradient(135deg, ${accentColor}, color-mix(in srgb, ${accentColor} 80%, transparent))`
+            : `color-mix(in srgb, ${accentColor} 7%, transparent)`,
           color: isNiche ? "white" : accentColor,
           border: `1.5px solid ${isNiche ? accentColor : accentColor + "30"}`,
-          boxShadow: isNiche ? `0 2px 12px ${accentColor}45` : "none",
+          boxShadow: isNiche
+            ? `0 2px 12px color-mix(in srgb, ${accentColor} 27%, transparent)`
+            : "none",
         }}
         title={isNiche ? "Switch to standard view" : "Go deeper — niche mode"}
       >
