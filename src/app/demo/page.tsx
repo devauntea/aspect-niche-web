@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import dynamic from "next/dynamic";
 import SurpriseCard from "../../components/SurpriseCard";
 import GraphCanvas from "../../components/GraphCanvas";
 import LogoAnimation from "../../components/LogoAnimation";
 import InterestOnboarding from "../../components/InterestOnboarding";
 import SavedDrawer from "../../components/SavedDrawer";
+import SkyIgnition from "../../components/SkyIgnition";
 import { activities, interests } from "../../data/activities";
 import { nicheContent } from "../../data/nicheContent";
 import { getResources } from "../../data/resources";
@@ -13,9 +15,9 @@ import type { Activity, HobbyEdge, HobbyNode } from "@/types/graph";
 import QuickFilters, {
   type ActiveFilters,
 } from "../../components/QuickFilters";
-import RabbitHolePanel from "../../components/RabbitHolePanel";
+import BrandMark from "../../components/BrandMark";
+import ThemeSwitcher from "../../components/ThemeSwitcher";
 import {
-  IconAppMark,
   IconFitness,
   IconCreative,
   IconOutdoor,
@@ -39,24 +41,29 @@ import {
 } from "@/lib/graphUtils";
 import { getSaved, toggleSaved, isSaved } from "@/lib/storage";
 import { mapsSearchUrl } from "@/lib/maps";
-import {
-  colors,
-  interestColors,
-  accentFor,
-  darkenAccent,
-  motionTokens,
-} from "@/lib/theme";
+import { darkenAccent, motionTokens, nightSky, starHues } from "@/lib/theme";
+import { Button, PageStarField } from "../../components/ui";
+import { useTheme } from "@/lib/useTheme";
 import NicheCard from "../../components/NicheCard";
 import QuickCard from "../../components/QuickCard";
 import DeepDiveCard from "../../components/DeepDiveCard";
-import PlanADateMode from "../../components/PlanADate/PlanADateMode";
 import {
   getWhyItFits,
   getBeginnerChecklist,
   getSimilarActivities,
 } from "@/lib/recommendations";
 
-type Screen = "splash" | "onboarding" | "app";
+// Heavy, below-the-fold panels load on demand
+const RabbitHolePanel = dynamic(
+  () => import("../../components/RabbitHolePanel"),
+  { ssr: false },
+);
+const PlanADateMode = dynamic(
+  () => import("../../components/PlanADate/PlanADateMode"),
+  { ssr: false },
+);
+
+type Screen = "splash" | "onboarding" | "ignition" | "app";
 type CardState = "quick" | "deep" | "niche";
 
 const INTEREST_ICONS: Record<string, React.ReactNode> = {
@@ -135,6 +142,10 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [mouseStartX, setMouseStartX] = useState<number | null>(null);
   const [dateMode, setDateMode] = useState(false);
+  const { theme } = useTheme();
+  // The sky-ignition moment plays once per session, not on every edit
+  const [seenIgnition, setSeenIgnition] = useState(false);
+  const [nicheError, setNicheError] = useState<string | null>(null);
 
   // ── Onboarding ─────────────────────────────────────────
   function toggleInterest(id: string) {
@@ -146,7 +157,12 @@ export default function Home() {
     setExpandedInterests(new Set());
     setSelectedId(null);
     setRandomReason(null);
-    setScreen("app");
+    if (!seenIgnition) {
+      setSeenIgnition(true);
+      setScreen("ignition");
+    } else {
+      setScreen("app");
+    }
   }
 
   function toggleFilter(category: keyof ActiveFilters, value: string) {
@@ -255,7 +271,7 @@ export default function Home() {
             tags: n.tags,
             source: "ai-generated" as const,
           } as Activity,
-          color: colors.brand,
+          color: nightSky.violetGlow,
           position: {
             x: pos.x + Math.cos(angle) * dist,
             y: pos.y + Math.sin(angle) * dist,
@@ -450,6 +466,10 @@ export default function Home() {
       setTimeout(() => setNewNodeId(null), 1000);
     } catch (err) {
       console.error("Create niche failed:", err);
+      setNicheError(
+        "Couldn't create a new niche — the AI service didn't answer. Try again in a moment.",
+      );
+      setTimeout(() => setNicheError(null), 6000);
     } finally {
       setCreatingNiche(null);
     }
@@ -468,7 +488,14 @@ export default function Home() {
     return null;
   }, [displayedId, customNiches]);
 
-  const accentColor = accentFor(displayedId);
+  const accentColor = useMemo(() => {
+    if (!displayedId) return nightSky.violetGlow;
+    if (starHues[displayedId]) return starHues[displayedId];
+    const parent = interests.find((i) => i.activityIds.includes(displayedId));
+    return parent
+      ? (starHues[parent.id] ?? nightSky.violetGlow)
+      : nightSky.violetGlow;
+  }, [displayedId]);
   const accentDark = darkenAccent(accentColor);
 
   const isExpanded = displayedId
@@ -622,28 +649,56 @@ export default function Home() {
           onConfirm={handleConfirmInterests}
         />
       )}
+      {screen === "ignition" && (
+        <SkyIgnition
+          interestIds={selectedInterests}
+          onComplete={() => setScreen("app")}
+        />
+      )}
       {screen === "app" && (
-        <main className="min-h-screen bg-background text-foreground">
-          <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-7">
-            {/* Header */}
-            <header className="mb-6 flex items-center justify-between">
+        <main className="min-h-screen bg-space-950 text-starlight">
+          <h1 className="sr-only">Aspect Niche — your hobby sky</h1>
+          {/* Fixed page star field — chrome floats over the night sky */}
+          <PageStarField />
+          {/* Header — slim, translucent, blurred over the star field */}
+          <header
+            className="sticky top-0 z-40 border-b"
+            style={{
+              background:
+                "color-mix(in srgb, var(--color-bg) 72%, transparent)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              borderColor: nightSky.space800,
+            }}
+          >
+            <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2.5">
               <button
                 onClick={() => setScreen("onboarding")}
                 className="flex items-center gap-2"
               >
-                <IconAppMark size={20} />
-                <span className="text-lg font-semibold tracking-tight">
-                  aspect<span className="text-brand">·niche</span>
+                <BrandMark
+                  size={22}
+                  variant={theme.logoVariant === "mono" ? "mono" : "night"}
+                  className="text-starlight"
+                />
+                <span
+                  className="hidden sm:inline text-lg font-semibold tracking-tight"
+                  style={{ fontFamily: "var(--font-grotesk), sans-serif" }}
+                >
+                  aspect<span className="text-violet-glow">·niche</span>
                 </span>
               </button>
               <div className="flex items-center gap-2">
                 {selectedInterests.map((id) => {
-                  const color = interestColors[id] ?? colors.brand;
+                  const color = starHues[id] ?? nightSky.violetGlow;
                   return (
                     <span
                       key={id}
-                      className="rounded-full px-2.5 py-1 text-xs font-medium"
-                      style={{ background: `${color}14`, color }}
+                      className="hidden md:inline-flex rounded-full px-2.5 py-1 text-xs font-medium"
+                      style={{
+                        background: `color-mix(in srgb, ${color} 8%, transparent)`,
+                        color,
+                      }}
                     >
                       {interests.find((i) => i.id === id)?.label}
                     </span>
@@ -652,7 +707,8 @@ export default function Home() {
                 {/* Plan a date — its own warm theme signals the mode switch */}
                 <button
                   onClick={() => setDateMode(true)}
-                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ml-1 active:scale-95 hover:opacity-90"
+                  aria-label="Plan a date"
+                  className="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition-all ml-1 active:scale-95 hover:opacity-90"
                   style={{
                     minHeight: 44,
                     background: "linear-gradient(135deg, #E85D8A, #B03A62)",
@@ -666,23 +722,28 @@ export default function Home() {
                       fill="white"
                     />
                   </svg>
-                  Plan a date
+                  <span className="hidden sm:inline">Plan a date</span>
                 </button>
                 <button
                   onClick={() => setShowSaved(true)}
-                  className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-white border border-border hover:border-border-hover transition-colors ml-1 active:scale-95"
+                  aria-label={
+                    savedIds.length > 0
+                      ? `${savedIds.length} saved activities`
+                      : "Saved activities"
+                  }
+                  className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-space-900 border border-space-800 hover:border-violet-glow/40 transition-colors ml-1 active:scale-95"
                   style={{ minHeight: 44 }}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path
                       d="M2 1.5h8a.5.5 0 01.5.5v9L6 8.5 1.5 11V2a.5.5 0 01.5-.5z"
-                      stroke={colors.textBody}
+                      stroke={nightSky.dust}
                       strokeWidth="1.2"
                       strokeLinejoin="round"
-                      fill={savedIds.length > 0 ? colors.brand : "none"}
+                      fill={savedIds.length > 0 ? nightSky.violetGlow : "none"}
                     />
                   </svg>
-                  <span className="text-body">
+                  <span className="text-dust hidden sm:inline">
                     {savedIds.length > 0 ? `${savedIds.length} saved` : "Saved"}
                   </span>
                 </button>
@@ -693,10 +754,12 @@ export default function Home() {
                       setShowEditHint(false);
                       setScreen("onboarding");
                     }}
-                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-white transition-colors hover:border-brand hover:text-brand active:scale-95"
+                    aria-label="Edit interests"
+
+                    className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium bg-space-900 transition-colors hover:border-violet-glow hover:text-violet-glow active:scale-95"
                     style={{
-                      borderColor: colors.border,
-                      color: colors.textBody,
+                      borderColor: nightSky.space800,
+                      color: nightSky.dust,
                       minHeight: 44,
                     }}
                   >
@@ -708,19 +771,39 @@ export default function Home() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Edit interests
+                    <span className="hidden sm:inline">Edit interests</span>
                   </button>
                   {showEditHint && (
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium bg-foreground text-white pointer-events-none z-50">
+                    <div
+                      className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium pointer-events-none z-50"
+                      style={{
+                        background: nightSky.space800,
+                        color: nightSky.starlight,
+                      }}
+                    >
                       ← Change your interests here
                     </div>
                   )}
                 </div>
-              </div>
-            </header>
 
+                <ThemeSwitcher />
+
+                {/* Random Activity — the alpha-star action. While a detail
+                    panel is open it holds the alpha primary instead, so the
+                    reserve rule (one per screen) always holds. */}
+                <Button
+                  variant={selectedId ? "violet" : "alpha"}
+                  onClick={handleRandom}
+                >
+                  Surprise me
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <div className="relative z-10 mx-auto flex max-w-6xl flex-col px-5 py-5">
             {/* Quick filters */}
-            <div className="mb-4">
+            <div className="mb-4 min-w-0">
               <QuickFilters
                 activeFilters={activeFilters}
                 onToggle={toggleFilter}
@@ -731,25 +814,19 @@ export default function Home() {
             {/* Graph + detail dock — the canvas reflows into the remaining
                 width when the dock opens; the card never overlays the graph */}
             <section className="flex-1 flex items-stretch min-w-0">
-              <div className="flex-1 min-w-0 rounded-3xl border border-border bg-white p-5 shadow-sm flex flex-col gap-4">
+              <div className="flex-1 min-w-0 rounded-3xl border border-space-800 bg-space-900 p-5 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-semibold">Explore</h2>
+                    <h2
+                      className="text-base font-semibold"
+                      style={{ fontFamily: "var(--font-grotesk), sans-serif" }}
+                    >
+                      Explore
+                    </h2>
                     {hintText && (
-                      <p className="text-xs text-muted mt-0.5">{hintText}</p>
+                      <p className="text-xs text-dust mt-0.5">{hintText}</p>
                     )}
                   </div>
-                  <button
-                    onClick={handleRandom}
-                    className="rounded-full px-4 py-2 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95"
-                    style={{
-                      background: colors.brand,
-                      boxShadow: `0 2px 10px ${colors.brand}35`,
-                      minHeight: 44,
-                    }}
-                  >
-                    Surprise me
-                  </button>
                 </div>
                 <GraphCanvas
                   nodes={layoutNodes}
@@ -776,7 +853,7 @@ export default function Home() {
                 }
                 aria-hidden={!(selectedId && detail)}
               >
-                <div className="detail-dock-inner bg-white md:bg-transparent rounded-t-3xl md:rounded-none">
+                <div className="detail-dock-inner bg-space-900 md:bg-transparent rounded-t-3xl md:rounded-none">
                   {detail && (
                     <div
                       className="card-face-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 md:p-0"
@@ -785,7 +862,7 @@ export default function Home() {
                         WebkitOverflowScrolling: "touch",
                       }}
                     >
-                      <div className="w-full flex-shrink-0 bg-white md:border md:border-border rounded-3xl md:shadow-sm flex flex-col overflow-hidden">
+                      <div className="w-full flex-shrink-0 bg-space-900 md:border md:border-space-800 rounded-3xl md:shadow-sm flex flex-col overflow-hidden">
                         {/* Modal header */}
                         <div className="flex items-center justify-between px-5 pt-5 pb-2 flex-shrink-0">
                           <h2 className="text-base font-semibold">Details</h2>
@@ -799,10 +876,10 @@ export default function Home() {
                                 className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0"
                                 style={{
                                   background: saved
-                                    ? `${accentColor}18`
-                                    : colors.surfaceSubtle,
+                                    ? `color-mix(in srgb, ${accentColor} 9%, transparent)`
+                                    : nightSky.space800,
                                   border: saved
-                                    ? `1.5px solid ${accentColor}40`
+                                    ? `1.5px solid color-mix(in srgb, ${accentColor} 25%, transparent)`
                                     : "1.5px solid transparent",
                                 }}
                                 title={
@@ -818,9 +895,7 @@ export default function Home() {
                                   <path
                                     d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
                                     fill={saved ? accentColor : "none"}
-                                    stroke={
-                                      saved ? accentColor : colors.textFaint
-                                    }
+                                    stroke={saved ? accentColor : nightSky.dust}
                                     strokeWidth="1.3"
                                     strokeLinejoin="round"
                                   />
@@ -830,7 +905,7 @@ export default function Home() {
                             {/* Close button */}
                             <button
                               onClick={() => handleSelectNode(null)}
-                              className="w-9 h-9 rounded-full flex items-center justify-center text-faint hover:bg-surface-subtle transition-colors active:scale-95"
+                              className="w-9 h-9 rounded-full flex items-center justify-center text-dust hover:bg-space-800 transition-colors active:scale-95"
                               title="Close"
                             >
                               <svg
@@ -875,8 +950,8 @@ export default function Home() {
                                       color: active
                                         ? "white"
                                         : disabled
-                                          ? colors.borderHover
-                                          : colors.textFaint,
+                                          ? nightSky.violetGlow
+                                          : nightSky.dust,
                                       fontSize: 13,
                                       fontWeight: active ? 600 : 400,
                                       border: "none",
@@ -967,10 +1042,10 @@ export default function Home() {
                                     />
                                   ) : (
                                     <div className="flex flex-col items-center justify-center gap-3 text-center py-8">
-                                      <p className="text-sm font-medium text-body">
+                                      <p className="text-sm font-medium text-dust">
                                         No niche content yet
                                       </p>
-                                      <p className="text-xs text-muted leading-relaxed max-w-[200px]">
+                                      <p className="text-xs text-dust leading-relaxed max-w-[200px]">
                                         Use the AI panel below to explore deeper
                                         angles for this activity.
                                       </p>
@@ -988,7 +1063,9 @@ export default function Home() {
                             <div className="flex items-center gap-3">
                               <div
                                 className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                                style={{ background: `${accentColor}12` }}
+                                style={{
+                                  background: `color-mix(in srgb, ${accentColor} 7%, transparent)`,
+                                }}
                               >
                                 {INTEREST_ICONS[detail.data.id] ?? (
                                   <div
@@ -998,7 +1075,7 @@ export default function Home() {
                                 )}
                               </div>
                               <div>
-                                <p className="text-[10px] uppercase tracking-widest text-muted mb-0.5">
+                                <p className="text-[10px] uppercase tracking-widest text-dust mb-0.5">
                                   Interest
                                 </p>
                                 <h3 className="text-xl font-semibold tracking-tight">
@@ -1007,7 +1084,7 @@ export default function Home() {
                               </div>
                             </div>
 
-                            <p className="text-sm text-body">
+                            <p className="text-sm text-dust">
                               <span
                                 className="font-semibold"
                                 style={{ color: accentColor }}
@@ -1034,7 +1111,7 @@ export default function Home() {
                                       onClick={() => setSelectedId(id)}
                                       className="rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 active:scale-95"
                                       style={{
-                                        background: `${accentColor}14`,
+                                        background: `color-mix(in srgb, ${accentColor} 8%, transparent)`,
                                         color: accentColor,
                                         minHeight: 36,
                                       }}
@@ -1047,7 +1124,7 @@ export default function Home() {
                             )}
 
                             {!isExpanded && (
-                              <p className="text-xs text-muted">
+                              <p className="text-xs text-dust">
                                 Tap the node in the graph to reveal activities.
                               </p>
                             )}
@@ -1069,14 +1146,14 @@ export default function Home() {
                           <div className="px-5 pb-5 flex flex-col gap-4">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="text-[10px] uppercase tracking-widest text-muted">
+                                <p className="text-[10px] uppercase tracking-widest text-dust">
                                   Activity
                                 </p>
                                 <span
                                   className="text-[10px] font-semibold rounded-full px-2 py-0.5"
                                   style={{
-                                    background: `${colors.brand}14`,
-                                    color: colors.brand,
+                                    background: `color-mix(in srgb, ${nightSky.violetGlow} 8%, transparent)`,
+                                    color: nightSky.violetGlow,
                                   }}
                                 >
                                   ✦ AI Created
@@ -1087,24 +1164,24 @@ export default function Home() {
                               </h3>
                             </div>
 
-                            <p className="text-sm text-body leading-relaxed">
+                            <p className="text-sm text-dust leading-relaxed">
                               {customDetail.description}
                             </p>
 
                             <div
                               className="rounded-xl p-3.5 flex flex-col gap-1"
                               style={{
-                                background: `${colors.brand}0e`,
-                                border: `1px solid ${colors.brand}20`,
+                                background: `color-mix(in srgb, ${nightSky.violetGlow} 5%, transparent)`,
+                                border: `1px solid color-mix(in srgb, ${nightSky.violetGlow} 13%, transparent)`,
                               }}
                             >
                               <p
                                 className="text-[10px] uppercase tracking-widest font-semibold"
-                                style={{ color: colors.brand }}
+                                style={{ color: nightSky.violetGlow }}
                               >
                                 Why it&apos;s niche
                               </p>
-                              <p className="text-xs text-body leading-relaxed">
+                              <p className="text-xs text-dust leading-relaxed">
                                 {customDetail.whyItsNiche}
                               </p>
                             </div>
@@ -1121,8 +1198,8 @@ export default function Home() {
                                     key={tag}
                                     className="rounded-full px-2.5 py-1 text-[11px] font-medium"
                                     style={{
-                                      background: `${colors.brand}12`,
-                                      color: colors.brand,
+                                      background: `color-mix(in srgb, ${nightSky.violetGlow} 7%, transparent)`,
+                                      color: nightSky.violetGlow,
                                     }}
                                   >
                                     {tag}
@@ -1132,28 +1209,28 @@ export default function Home() {
 
                             <div
                               className="rounded-xl p-3.5 flex gap-3"
-                              style={{ background: colors.appBg }}
+                              style={{ background: nightSky.space950 }}
                             >
                               <span className="text-base flex-shrink-0">
                                 💡
                               </span>
                               <div>
-                                <p className="text-[10px] uppercase tracking-widest text-muted mb-1">
+                                <p className="text-[10px] uppercase tracking-widest text-dust mb-1">
                                   First step
                                 </p>
-                                <p className="text-xs text-foreground leading-relaxed">
+                                <p className="text-xs text-starlight leading-relaxed">
                                   {customDetail.beginnerTip}
                                 </p>
                               </div>
                             </div>
 
                             <div className="flex items-center gap-2">
-                              <p className="text-[10px] uppercase tracking-widest text-muted">
+                              <p className="text-[10px] uppercase tracking-widest text-dust">
                                 Category
                               </p>
                               <span
                                 className="text-xs font-medium"
-                                style={{ color: colors.brand }}
+                                style={{ color: nightSky.violetGlow }}
                               >
                                 {customDetail.categoryLabel}
                               </span>
@@ -1165,13 +1242,31 @@ export default function Home() {
                                 setCustomNiches(getCustomNiches());
                                 setSelectedId(null);
                               }}
-                              className="text-xs text-muted hover:text-red-400 transition-colors mt-2 text-center active:scale-95"
+                              className="text-xs text-dust hover:text-red-400 transition-colors mt-2 text-center active:scale-95"
                             >
                               Remove from graph
                             </button>
                           </div>
                         )}
                       </div>
+
+                      {nicheError && (
+                        <div
+                          role="alert"
+                          style={{
+                            borderRadius: 10,
+                            padding: "10px 14px",
+                            background:
+                              "color-mix(in srgb, var(--color-danger-t) 10%, transparent)",
+                            border: `1px solid color-mix(in srgb, var(--color-danger-t) 40%, transparent)`,
+                            color: nightSky.danger,
+                            fontSize: 12,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {nicheError}
+                        </div>
+                      )}
 
                       {/* Rabbit hole — activities only, scrolls with the card above */}
                       {detail.type === "activity" && activityDetail && (
@@ -1224,6 +1319,7 @@ export default function Home() {
           interestIds={selectedInterests}
           reason={randomReason}
           onDismiss={() => setSurpriseActivity(null)}
+          onAgain={handleRandom}
         />
       )}
 

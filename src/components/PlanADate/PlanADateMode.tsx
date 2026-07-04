@@ -140,7 +140,7 @@ export default function PlanADateMode({ onExit }: Props) {
           <div>
             <h1
               style={{
-                fontFamily: "Georgia, serif",
+                fontFamily: "var(--font-grotesk), sans-serif",
                 fontSize: 26,
                 color: dateTheme.text,
                 margin: 0,
@@ -326,7 +326,7 @@ export default function PlanADateMode({ onExit }: Props) {
                 </p>
                 <p
                   style={{
-                    fontFamily: "Georgia, serif",
+                    fontFamily: "var(--font-grotesk), sans-serif",
                     fontSize: 30,
                     color: dateTheme.gold,
                     margin: "12px 0",

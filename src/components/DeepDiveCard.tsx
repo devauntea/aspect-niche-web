@@ -43,7 +43,7 @@ function Divider() {
     <div
       style={{
         height: 1,
-        background: "#F0EDE6",
+        background: "var(--color-surface-raised)",
         margin: "4px 0",
       }}
     />
@@ -91,7 +91,7 @@ export default function DeepDiveCard({
             <span
               key={tag}
               style={{
-                background: `${accentColor}12`,
+                background: `color-mix(in srgb, ${accentColor} 7%, transparent)`,
                 color: accentColor,
                 borderRadius: 999,
                 padding: "4px 10px",
@@ -108,7 +108,7 @@ export default function DeepDiveCard({
         <p
           style={{
             fontSize: 13,
-            color: "#5A5855",
+            color: "var(--color-text-dim)",
             lineHeight: 1.65,
             margin: 0,
           }}
@@ -120,7 +120,7 @@ export default function DeepDiveCard({
         {randomReason && (
           <div
             style={{
-              background: `${accentColor}0e`,
+              background: `color-mix(in srgb, ${accentColor} 5%, transparent)`,
               borderRadius: 12,
               padding: "12px 14px",
               display: "flex",
@@ -144,7 +144,7 @@ export default function DeepDiveCard({
               <p
                 style={{
                   fontSize: 12,
-                  color: "#1A1916",
+                  color: "var(--color-text)",
                   lineHeight: 1.5,
                   margin: 0,
                 }}
@@ -197,7 +197,7 @@ export default function DeepDiveCard({
                   fontSize: 10,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
-                  color: "#B0ADA8",
+                  color: "var(--color-text-dim)",
                   margin: 0,
                 }}
               >
@@ -211,7 +211,7 @@ export default function DeepDiveCard({
                 All done! ✦
               </span>
             ) : checklist.length > 0 ? (
-              <span style={{ fontSize: 11, color: "#B0ADA8" }}>
+              <span style={{ fontSize: 11, color: "var(--color-text-dim)" }}>
                 {checkedItems.length} of {checklist.length} done
               </span>
             ) : null}
@@ -249,7 +249,7 @@ export default function DeepDiveCard({
                       width: 16,
                       height: 16,
                       borderRadius: "50%",
-                      border: `1.5px solid ${done ? accentColor : `${accentColor}60`}`,
+                      border: `1.5px solid ${done ? accentColor : `color-mix(in srgb, ${accentColor} 38%, transparent)`}`,
                       background: done ? accentColor : "transparent",
                       display: "flex",
                       alignItems: "center",
@@ -275,7 +275,9 @@ export default function DeepDiveCard({
                     style={{
                       fontSize: 12,
                       lineHeight: 1.5,
-                      color: done ? `${accentColor}80` : "#5A5855",
+                      color: done
+                        ? `color-mix(in srgb, ${accentColor} 50%, transparent)`
+                        : "var(--color-text-dim)",
                       textDecoration: done ? "line-through" : "none",
                       margin: 0,
                       transition: "all 0.15s",
@@ -298,7 +300,7 @@ export default function DeepDiveCard({
         {activity.beginnerTip && (
           <div
             style={{
-              background: "#FAF8F2",
+              background: "var(--color-bg)",
               borderRadius: 12,
               padding: "12px 14px",
               display: "flex",
@@ -312,7 +314,7 @@ export default function DeepDiveCard({
                   fontSize: 10,
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
-                  color: "#B0ADA8",
+                  color: "var(--color-text-dim)",
                   margin: "0 0 4px",
                 }}
               >
@@ -321,7 +323,7 @@ export default function DeepDiveCard({
               <p
                 style={{
                   fontSize: 12,
-                  color: "#1A1916",
+                  color: "var(--color-text)",
                   lineHeight: 1.5,
                   margin: 0,
                 }}
@@ -340,7 +342,7 @@ export default function DeepDiveCard({
                 fontSize: 10,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
-                color: "#B0ADA8",
+                color: "var(--color-text-dim)",
                 margin: "0 0 8px",
               }}
             >
@@ -352,7 +354,7 @@ export default function DeepDiveCard({
                   key={a.id}
                   onClick={() => onSelectActivity(a.id)}
                   style={{
-                    background: `${accentColor}12`,
+                    background: `color-mix(in srgb, ${accentColor} 7%, transparent)`,
                     color: accentColor,
                     border: "none",
                     borderRadius: 999,
@@ -391,9 +393,11 @@ export default function DeepDiveCard({
               minHeight: 44,
               borderRadius: 999,
               border: isSaved
-                ? `1.5px solid ${accentColor}40`
-                : "1.5px solid #E8E4DA",
-              background: isSaved ? `${accentColor}18` : "#F0EDE6",
+                ? `1.5px solid color-mix(in srgb, ${accentColor} 25%, transparent)`
+                : "1.5px solid var(--color-surface-raised)",
+              background: isSaved
+                ? `color-mix(in srgb, ${accentColor} 9%, transparent)`
+                : "var(--color-surface-raised)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -410,7 +414,7 @@ export default function DeepDiveCard({
               <path
                 d="M3 2h10a.5.5 0 01.5.5v12L8 11.5 2.5 14.5V2.5A.5.5 0 013 2z"
                 fill={isSaved ? accentColor : "none"}
-                stroke={isSaved ? accentColor : "#9A9690"}
+                stroke={isSaved ? accentColor : "var(--color-text-dim)"}
                 strokeWidth="1.3"
                 strokeLinejoin="round"
               />
@@ -430,7 +434,7 @@ export default function DeepDiveCard({
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
-              boxShadow: `0 4px 14px ${accentColor}35`,
+              boxShadow: `0 4px 14px color-mix(in srgb, ${accentColor} 21%, transparent)`,
               transition: "opacity 0.15s, transform 0.15s",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}

@@ -20,7 +20,7 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[10px] uppercase tracking-widest text-[#B0ADA8]">
+        <p className="text-[10px] uppercase tracking-widest text-dust">
           Resources
         </p>
         <button
@@ -44,9 +44,9 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
               rel="noreferrer"
               className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:scale-105 active:scale-95"
               style={{
-                background: `${cfg.color}12`,
+                background: `color-mix(in srgb, ${cfg.color} 7%, transparent)`,
                 color: cfg.color,
-                border: `1px solid ${cfg.color}25`,
+                border: `1px solid color-mix(in srgb, ${cfg.color} 15%, transparent)`,
               }}
             >
               <span style={{ fontSize: 8 }}>{cfg.icon}</span>
@@ -68,19 +68,25 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-start gap-3 rounded-xl p-3 transition-all hover:scale-[1.01] active:scale-[0.99]"
-                style={{ background: "#FAF8F2", border: "1px solid #E8E4DA" }}
+                style={{
+                  background: "var(--color-bg)",
+                  border: "1px solid var(--color-surface-raised)",
+                }}
               >
                 <div
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0 mt-0.5"
-                  style={{ background: `${cfg.color}14`, color: cfg.color }}
+                  style={{
+                    background: `color-mix(in srgb, ${cfg.color} 8%, transparent)`,
+                    color: cfg.color,
+                  }}
                 >
                   {cfg.icon}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#1A1916] truncate">
+                  <p className="text-xs font-semibold text-starlight truncate">
                     {r.title}
                   </p>
-                  <p className="text-[11px] text-[#9A9690] leading-snug mt-0.5">
+                  <p className="text-[11px] text-dust leading-snug mt-0.5">
                     {r.description}
                   </p>
                 </div>
@@ -93,7 +99,7 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
                 >
                   <path
                     d="M2 8l6-6M4 2h4v4"
-                    stroke="#B0ADA8"
+                    stroke="var(--color-text-dim)"
                     strokeWidth="1.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"

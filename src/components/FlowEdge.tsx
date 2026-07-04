@@ -1,19 +1,19 @@
 "use client";
 
+// Constellation edge: hairline violet at rest — calm by default. Edges in the
+// active neighborhood brighten and carry a slow starlight pulse traveling
+// along the path (.edge-comet in globals.css; removed under reduced motion).
+
 import { memo } from "react";
 import { getBezierPath, type EdgeProps } from "@xyflow/react";
 import { constellation } from "@/lib/theme";
 import type { NodeVisualState } from "@/types/graph";
 
 interface FlowEdgeData {
-  color: string;
   visualState: NodeVisualState;
+  hue?: string | null;
 }
 
-// Constellation edge: a soft base stroke plus a drifting dash layer that makes
-// the link feel alive. Neighborhood edges brighten and gain a glow; unrelated
-// edges recede. The dash animation lives in globals.css (.edge-flow) and is
-// disabled under prefers-reduced-motion.
 function FlowEdge({
   id,
   sourceX,
@@ -24,7 +24,11 @@ function FlowEdge({
   targetPosition,
   data,
 }: EdgeProps) {
-  const { color, visualState } = data as unknown as FlowEdgeData;
+  const { visualState, hue } = data as unknown as FlowEdgeData;
+  // Themes opt into hue-tinted edges via --edge-hue-mix (0% = theme edge)
+  const stroke = hue
+    ? `color-mix(in srgb, ${hue} var(--edge-hue-mix, 0%), var(--graph-edge))`
+    : "var(--graph-edge)";
   const [path] = getBezierPath({
     sourceX,
     sourceY,
@@ -43,36 +47,32 @@ function FlowEdge({
     : dimmed
       ? edge.dimOpacity
       : edge.idleOpacity;
-  const width = highlighted ? edge.highlightWidth : edge.idleWidth;
 
   return (
-    <g style={{ opacity, transition: "opacity 0.25s ease" }}>
-      {/* Base stroke */}
+    <g style={{ opacity, transition: "opacity 0.24s ease" }}>
       <path
         id={id}
         d={path}
         fill="none"
-        stroke={color}
-        strokeWidth={width}
-        strokeOpacity={highlighted ? 0.55 : 0.4}
+        stroke={stroke}
+        strokeWidth={highlighted ? edge.highlightWidth : edge.idleWidth}
         style={{
-          filter: highlighted ? `drop-shadow(0 0 4px ${color})` : "none",
-          transition: "stroke-width 0.25s ease",
+          filter: highlighted ? `drop-shadow(0 0 3px ${stroke})` : "none",
+          transition: "stroke-width 0.24s ease",
         }}
       />
-      {/* Drifting flow layer — hidden entirely on dimmed edges */}
-      {!dimmed && (
+      {/* Traveling light-pulse — live edges only */}
+      {highlighted && (
         <path
-          className="edge-flow"
+          className="edge-comet"
           d={path}
           fill="none"
-          stroke={color}
-          strokeWidth={width}
-          strokeOpacity={highlighted ? 1 : 0.7}
+          stroke="var(--graph-edge-active)"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeDasharray="14 220"
           style={{
-            ["--edge-flow-duration" as string]: highlighted
-              ? `${edge.flowMs * 0.6}ms`
-              : `${edge.flowMs}ms`,
+            ["--edge-pulse-duration" as string]: `${edge.pulseMs}ms`,
           }}
         />
       )}

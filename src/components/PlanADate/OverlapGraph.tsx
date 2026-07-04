@@ -172,11 +172,15 @@ export default function OverlapGraph({
         );
       })}
 
-      {/* Shared interests — the glowing middle */}
-      {shared.map((n) => {
+      {/* Shared interests — the glowing middle; each star ignites on reveal */}
+      {shared.map((n, i) => {
         const c = interestColors[n.id] ?? colors.brand;
         return (
-          <g key={`s-${n.id}`}>
+          <g
+            key={`s-${n.id}`}
+            className="overlap-ignite"
+            style={{ ["--ignite-delay" as string]: `${300 + i * 180}ms` }}
+          >
             <circle
               cx={n.x}
               cy={n.y}

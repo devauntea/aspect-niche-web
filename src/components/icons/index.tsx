@@ -90,12 +90,18 @@ export function IconCreative({ size = 24, className }: IconProps) {
       {/* Palette oval */}
       <path
         d="M28,8 C42,8 50,17 48,28 C46,37 38,44 30,42 C26,41 24,38 24,35 C24,31 20,28 16,28 C10,28 6,22 10,16 C14,10 20,8 28,8 Z"
-        stroke="#7F77DD"
+        stroke="var(--color-glow)"
         strokeWidth="2"
         strokeLinejoin="round"
       />
       {/* Thumb hole */}
-      <circle cx="20" cy="16" r="4" stroke="#7F77DD" strokeWidth="2" />
+      <circle
+        cx="20"
+        cy="16"
+        r="4"
+        stroke="var(--color-glow)"
+        strokeWidth="2"
+      />
       {/* Color paint dots */}
       <circle cx="32" cy="18" r="3" fill="#D4537E" />
       <circle cx="40" cy="24" r="3" fill="#EF9F27" />
@@ -519,7 +525,7 @@ export function IconCraft({ size = 24, className }: IconProps) {
         transform="rotate(-45 20 36)"
         stroke="#D85A30"
         strokeWidth="1.5"
-        fill="#FAF6EC"
+        fill="var(--color-bg)"
       />
       {/* Thread loop */}
       <path
@@ -622,12 +628,12 @@ export function IconCommunity({ size = 24, className }: IconProps) {
           y1={cy}
           x2={p.x}
           y2={p.y}
-          stroke="#7F77DD"
+          stroke="var(--color-glow)"
           strokeWidth="2"
           strokeLinecap="round"
         />
       ))}
-      <circle cx={cx} cy={cy} r="3" fill="#7F77DD" />
+      <circle cx={cx} cy={cy} r="3" fill="var(--color-glow)" />
       {pts.map((p, i) => {
         const dx = p.x - cx,
           dy = p.y - cy;
@@ -646,101 +652,24 @@ export function IconCommunity({ size = 24, className }: IconProps) {
           by2 = sy2 + ny * 5;
         return (
           <g key={`p-${i}`}>
-            <circle cx={hx} cy={hy} r="4" stroke="#7F77DD" strokeWidth="2" />
+            <circle
+              cx={hx}
+              cy={hy}
+              r="4"
+              stroke="var(--color-glow)"
+              strokeWidth="2"
+            />
             <path
               d={`M${bx1.toFixed(1)},${by1.toFixed(1)} Q${(hx + nx * 7).toFixed(1)},${(hy + ny * 7).toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}`}
-              stroke="#7F77DD"
+              stroke="var(--color-glow)"
               strokeWidth="2"
               strokeLinecap="round"
               fill="none"
             />
-            <circle cx={hx} cy={hy} r="3" fill="#7F77DD" />
+            <circle cx={hx} cy={hy} r="3" fill="var(--color-glow)" />
           </g>
         );
       })}
-    </svg>
-  );
-}
-
-export function IconAppMark({ size = 32, className }: IconProps) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 120 110"
-      fill="none"
-      className={className}
-    >
-      <line
-        x1="38"
-        y1="30"
-        x2="58"
-        y2="18"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="58"
-        y1="18"
-        x2="80"
-        y2="26"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="80"
-        y1="26"
-        x2="88"
-        y2="50"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="88"
-        y1="50"
-        x2="72"
-        y2="70"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="72"
-        y1="70"
-        x2="48"
-        y2="76"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="48"
-        y1="76"
-        x2="30"
-        y2="60"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <line
-        x1="30"
-        y1="60"
-        x2="38"
-        y2="30"
-        stroke="#C4BFB4"
-        strokeWidth="1.2"
-        opacity="0.7"
-      />
-      <circle cx="38" cy="30" r="11" fill="#D4537E" />
-      <circle cx="58" cy="18" r="8" fill="#EF9F27" />
-      <circle cx="80" cy="26" r="10" fill="#7F77DD" />
-      <circle cx="88" cy="50" r="7" fill="#378ADD" />
-      <circle cx="72" cy="70" r="9" fill="#D85A30" />
-      <circle cx="48" cy="76" r="7" fill="#639922" />
-      <circle cx="30" cy="60" r="8" fill="#D4537E" opacity="0.7" />
     </svg>
   );
 }

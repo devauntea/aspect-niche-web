@@ -3,8 +3,14 @@
 import { useEffect, useRef } from "react";
 import { constellation } from "@/lib/theme";
 
-const PALETTE = constellation.stars;
-const DOT_COUNT = 70;
+// constellation.stars holds var() references; canvas 2D needs resolved
+// values, so we read computed custom properties at runtime (and again on
+// data-theme changes — the observer below).
+function resolveVar(cs: CSSStyleDeclaration, value: string): string {
+  const m = /var\((--[\w-]+)\)/.exec(value);
+  if (!m) return value;
+  return cs.getPropertyValue(m[1]).trim() || "var(--color-text)";
+}
 
 interface Dot {
   ox: number; // fraction of W (0-1)
@@ -45,6 +51,21 @@ export default function GraphBackground() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    // Theme-resolved star palette + density/opacity
+    let palette: string[] = [];
+    let opacityMax = 0.35;
+    let dotCount = 40;
+    function resolveTheme() {
+      const cs = getComputedStyle(document.documentElement);
+      palette = constellation.stars.map((v) => resolveVar(cs, v));
+      opacityMax =
+        parseFloat(cs.getPropertyValue("--starfield-opacity")) || 0.35;
+      dotCount = Math.round(
+        parseFloat(cs.getPropertyValue("--starfield-density")) || 40,
+      );
+    }
+    resolveTheme();
+
     let W = 0;
     let H = 0;
 
@@ -62,19 +83,37 @@ export default function GraphBackground() {
 
     resize();
 
-    // Dots store positions as fractions so they scale with canvas resizes
-    const dots: Dot[] = Array.from({ length: DOT_COUNT }, () => ({
-      ox: Math.random(),
-      oy: Math.random(),
-      r: 0.8 + Math.random() * 1.6,
-      c: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-      phase: Math.random() * Math.PI * 2,
-      period: 20 + Math.random() * 20,
-      ampX: 15 + Math.random() * 30,
-      ampY: 10 + Math.random() * 20,
-      baseAlpha: 0.25 + Math.random() * 0.35,
-      twinklePeriod: 2.5 + Math.random() * 4,
-    }));
+    // Dots store positions as fractions so they scale with canvas resizes.
+    // Regenerated on theme change (palette/density/opacity are theme tokens).
+    let dots: Dot[] = [];
+    function buildDots() {
+      dots = Array.from({ length: dotCount }, () => ({
+        ox: Math.random(),
+        oy: Math.random(),
+        r: 1 + Math.random() * 0.5,
+        c: palette[Math.floor(Math.random() * palette.length)],
+        phase: Math.random() * Math.PI * 2,
+        period: 20 + Math.random() * 20,
+        ampX: 15 + Math.random() * 30,
+        ampY: 10 + Math.random() * 20,
+        baseAlpha: opacityMax * (0.57 + Math.random() * 0.43),
+        twinklePeriod: 2.5 + Math.random() * 4,
+      }));
+    }
+    buildDots();
+
+    // Theme switch → re-resolve tokens, rebuild the field (no relayout of
+    // anything else — this canvas is purely decorative)
+    const themeObserver = new MutationObserver(() => {
+      resolveTheme();
+      buildDots();
+      connections.length = 0;
+      if (reducedMotion) drawFrame(0, 0);
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
 
     const connections: Connection[] = [];
     let sinceLastConnection = 0;
@@ -140,7 +179,7 @@ export default function GraphBackground() {
         const fadeIn = Math.min(t / 0.25, 1);
         const fadeOut = Math.min(c.life / 0.5, 1);
         ctx.save();
-        ctx.globalAlpha = fadeIn * fadeOut * 0.22;
+        ctx.globalAlpha = fadeIn * fadeOut * 0.16;
         ctx.strokeStyle = dots[c.a].c;
         ctx.lineWidth = 1;
         ctx.lineCap = "round";
@@ -193,6 +232,7 @@ export default function GraphBackground() {
     return () => {
       cancelAnimationFrame(animId);
       ro.disconnect();
+      themeObserver.disconnect();
     };
   }, []);
 
