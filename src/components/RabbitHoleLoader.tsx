@@ -133,15 +133,7 @@ export default function RabbitHoleLoader({
       <style>{css}</style>
       <svg
         viewBox={HARE_VIEWBOX}
-        style={
-          {
-            width: "100%",
-            height: "auto",
-            display: "block",
-            "--rh-delay": `${delayMs}ms`,
-            animationDelay: `${delayMs}ms`,
-          } as React.CSSProperties
-        }
+        style={{ width: "100%", height: "auto", display: "block" }}
         aria-label="A constellation hare dives down a rabbit hole"
       >
         {/* per-element delay for finale mode */}
