@@ -1,5 +1,9 @@
 # Aspect Niche — Hobby Graph
 
+[![Live](https://img.shields.io/badge/live-aspectniche.com-brightgreen)](https://aspectniche.com) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
+
+![Aspect Niche graph view](docs/ux-overhaul/after-app.png)
+
 A graph-based hobby discovery app inspired by Obsidian's visual links. Pick a few
 interests, explore a constellation of activities, get a "surprise me" suggestion
 with a deterministic *why it fits*, save what you like, and drop down an
