@@ -23,18 +23,19 @@ interface Props {
   onConfirm: () => void;
 }
 
+// Icon accents = the theme's category star hues (switch with the theme)
 const INTEREST_COLORS: Record<string, string> = {
-  fitness: "#D4537E",
-  creative: "var(--color-glow)",
-  outdoor: "#1D9E75",
-  tech: "#378ADD",
-  social: "#EF9F27",
-  culinary: "#D85A30",
-  adventure: "#D4537E",
-  nature: "#1D9E75",
-  craft: "var(--color-glow)",
-  mind: "#378ADD",
-  community: "#EF9F27",
+  fitness: "var(--hue-fitness)",
+  creative: "var(--hue-creative)",
+  outdoor: "var(--hue-outdoor)",
+  tech: "var(--hue-tech)",
+  social: "var(--hue-social)",
+  culinary: "var(--hue-culinary)",
+  adventure: "var(--hue-adventure)",
+  nature: "var(--hue-nature)",
+  craft: "var(--hue-craft)",
+  mind: "var(--hue-mind)",
+  community: "var(--hue-community)",
 };
 
 type IconComponent = (props: {

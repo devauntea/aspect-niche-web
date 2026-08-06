@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import BrandMark from "./BrandMark";
 import { starHues } from "@/lib/theme";
 
@@ -21,6 +23,15 @@ export default function SavedDrawer({
   const savedActivities = savedIds
     .map((id) => activities.find((a) => a.id === id))
     .filter(Boolean) as typeof activities;
+
+  // Keyboard path: Esc closes the drawer (backdrop click already does)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   return (
     <>
