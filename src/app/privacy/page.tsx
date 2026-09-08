@@ -187,11 +187,18 @@ export default function PrivacyPolicy() {
         />
       </Section>
 
-      <Section title="Children">
+      <Section title="Age">
         <p>
-          Aspect Niche does not collect personal information from anyone, of any
-          age. It is not directed at children under 13, and because nothing is
-          collected there is nothing held about a child to delete.
+          Aspect Niche is intended for adults and the{" "}
+          <Link href="/terms">Terms of Use</Link> ask that you be 18 or older.
+          It is not directed at children.
+        </p>
+        <p>
+          It collects no personal information from anyone, of any age, so there
+          is nothing held about a child to disclose or delete. If you believe a
+          child has somehow provided us with personal information, contact us
+          and we will look into it — though by design there is nowhere for such
+          information to have gone.
         </p>
       </Section>
 

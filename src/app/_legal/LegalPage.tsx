@@ -124,6 +124,7 @@ export function LegalPage({
         >
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
+          <Link href="/support">Support</Link>
           <Link href="/">Home</Link>
           <span style={{ marginLeft: "auto" }}>
             Aspect Niche &middot; Devauntae Norman
