@@ -519,6 +519,12 @@ export default function HomePage() {
               >
                 Demo
               </Link>
+              <Link
+                href="/privacy"
+                style={{ fontSize: 13, color: "rgba(250,246,236,0.7)" }}
+              >
+                Privacy
+              </Link>
               <a
                 href="https://github.com/Devauntae"
                 target="_blank"
