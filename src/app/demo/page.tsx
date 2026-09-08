@@ -18,6 +18,8 @@ import QuickFilters, {
 import BrandMark from "../../components/BrandMark";
 import ThemeSwitcher from "../../components/ThemeSwitcher";
 import MemoryWalk from "../../components/MemoryWalk";
+import IconSetSwitcher from "../../components/IconSetSwitcher";
+import { storedIconSet, type IconSetId } from "@/lib/iconSet";
 import { collectedGraph, focusGraph, type GraphView } from "@/lib/flipGraph";
 import {
   samplePhotos,
@@ -115,6 +117,9 @@ export default function Home() {
   // it. See lib/flipGraph — the flip is a change of data, not a second canvas.
   const [view, setView] = useState<GraphView>({ kind: "discovery" });
   const [walkOpen, setWalkOpen] = useState(false);
+  // Which icon family draws every mark. Lazy initialiser so the stored choice
+  // is read once, on the client, rather than on every render.
+  const [iconSet, setIconSet] = useState<IconSetId>(() => storedIconSet());
   const [randomReason, setRandomReason] = useState<string | null>(null);
   const [surpriseActivity, setSurpriseActivity] = useState<
     (typeof activities)[0] | null
@@ -876,6 +881,7 @@ export default function Home() {
                 </div>
 
                 <ThemeSwitcher />
+                <IconSetSwitcher value={iconSet} onChange={setIconSet} />
 
                 {/* Random Activity — the alpha-star action. While a detail
                     panel is open it holds the alpha primary instead, so the
@@ -924,6 +930,7 @@ export default function Home() {
                   expandedInterests={effectiveExpandedInterests}
                   onSelectNode={handleSelectNode}
                   newNodeId={newNodeId}
+                  iconSet={iconSet}
                   onCollapseAll={handleCollapseAll}
                 />
               </div>

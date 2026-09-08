@@ -8,11 +8,18 @@ import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { constellation, motionTokens, nightSky } from "@/lib/theme";
 import type { NodeVisualState } from "@/types/graph";
+import type { Category } from "@/lib/themes";
+import type { IconSetId } from "@/lib/iconSet";
+import HobbyGlyph from "@/components/HobbyGlyph";
 
 interface OrbitalActivityData {
   label: string;
   color: string;
   visualState: NodeVisualState;
+  /** Set by GraphCanvas so the node can draw the chosen icon family. */
+  iconSet?: IconSetId;
+  glyphId?: string;
+  category?: Category;
 }
 
 const CORE = 12;
@@ -102,17 +109,38 @@ function OrbitalActivityNode({ data, selected }: NodeProps) {
             />
           </svg>
         )}
-        <div
-          className="star-core"
-          style={{
-            width: core,
-            height: core,
-            borderRadius: "50%",
-            background: `radial-gradient(circle at 40% 35%, ${nightSky.starlight}, ${color} 70%)`,
-            boxShadow: glow,
-            transition: `box-shadow ${motionTokens.hoverMs}ms ease, width ${motionTokens.hoverMs}ms ease, height ${motionTokens.hoverMs}ms ease`,
-          }}
-        />
+        {d.glyphId && d.category ? (
+          // The chosen icon family draws the hobby. The star core stays as the
+          // fallback for anything without a drawing, so a missing glyph is a
+          // dimmer node rather than an empty space.
+          <div
+            className="star-core star-core-glyph"
+            style={{
+              filter: `drop-shadow(0 0 ${selected ? 10 : 5}px ${color}88)`,
+              transition: `filter ${motionTokens.hoverMs}ms ease`,
+            }}
+          >
+            <HobbyGlyph
+              id={d.glyphId}
+              category={d.category}
+              hue={color}
+              size={selected ? 34 : 28}
+              iconSet={d.iconSet}
+            />
+          </div>
+        ) : (
+          <div
+            className="star-core"
+            style={{
+              width: core,
+              height: core,
+              borderRadius: "50%",
+              background: `radial-gradient(circle at 40% 35%, ${nightSky.starlight}, ${color} 70%)`,
+              boxShadow: glow,
+              transition: `box-shadow ${motionTokens.hoverMs}ms ease, width ${motionTokens.hoverMs}ms ease, height ${motionTokens.hoverMs}ms ease`,
+            }}
+          />
+        )}
       </div>
 
       {/* Label — Inter with a soft dark halo; minor labels fade at low zoom */}

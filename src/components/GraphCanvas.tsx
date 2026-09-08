@@ -18,6 +18,9 @@ import OrbitNode from "./OrbitNode";
 import OrbitalActivityNode from "./OrbitalActivityNode";
 import OrbitRingNode from "./OrbitRingNode";
 import ProgressNode from "./ProgressNode";
+import type { IconSetId } from "@/lib/iconSet";
+import type { Category } from "@/lib/themes";
+import { interests as allInterests } from "@/data/activities";
 import FlowEdge from "./FlowEdge";
 import GraphBackground from "./GraphBackground";
 import {
@@ -27,6 +30,12 @@ import {
   nightSky,
   durations,
 } from "@/lib/theme";
+
+/** Which cluster a hobby belongs to, for the mark's fallback and its hue. */
+function categoryOf(activityId: string): Category {
+  const owner = allInterests.find((i) => i.activityIds.includes(activityId));
+  return (owner?.id ?? "mind") as Category;
+}
 
 const nodeTypes = {
   orbitInterest: OrbitNode,
@@ -46,6 +55,8 @@ type Props = {
   edges: HobbyEdge[];
   selectedId: string | null;
   expandedInterests: Set<string>;
+  /** Which icon family draws the marks. */
+  iconSet?: IconSetId;
   onSelectNode: (id: string | null) => void;
   newNodeId?: string | null;
   onCollapseAll: () => void;
@@ -337,6 +348,7 @@ export default function GraphCanvas({
   edges: hobbyEdges,
   selectedId,
   expandedInterests,
+  iconSet,
   onSelectNode,
   newNodeId,
   onCollapseAll,
@@ -506,6 +518,9 @@ export default function GraphCanvas({
             isExpanded: expandedInterests.has(n.id),
             childCount: (interest.activityIds ?? []).length,
             visualState,
+            iconSet,
+            glyphId: n.id,
+            category: n.id as Category,
           },
         });
 
@@ -551,6 +566,9 @@ export default function GraphCanvas({
             label: n.label,
             color,
             visualState,
+            iconSet,
+            glyphId: n.id,
+            category: categoryOf(n.id),
           },
         });
       }
@@ -561,6 +579,7 @@ export default function GraphCanvas({
     hobbyNodes,
     selectedId,
     expandedInterests,
+    iconSet,
     posOverrides,
     visualStateFor,
     focusIds,
