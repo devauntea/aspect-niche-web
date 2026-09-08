@@ -112,6 +112,30 @@ function FeatureBlock({
   );
 }
 
+// One line of the iPhone app's feature list. Deliberately plainer than
+// FeatureBlock: that section sells the idea, this one just says what the app
+// does, and a second numbered grid competing with the first would read as the
+// same pitch made twice.
+function AppLine({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+      <h3
+        style={{
+          fontFamily: "var(--font-grotesk), sans-serif",
+          fontSize: 17,
+          color: "#FAF6EC",
+        }}
+      >
+        {title}
+      </h3>
+      <p style={{ fontSize: 14.5, lineHeight: 1.7, color: "rgba(250,246,236,0.72)" }}>
+        {desc}
+      </p>
+    </div>
+  );
+}
+
+
 const INSPIRE_CARDS = [
   {
     dot: "#5FA8A8",
@@ -337,6 +361,78 @@ export default function HomePage() {
               >
                 Try it now →
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Section 3b: the iPhone app ──
+            The demo above is the web version. The app has grown past it —
+            collecting, a record of what you did, themes and icon sets — and a
+            landing page that still describes only the demo undersells it. Dark
+            band so it reads as a different surface rather than more of the
+            same section. */}
+        <section style={{ background: "#2C2420", padding: "80px 24px" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#E0A94E",
+                letterSpacing: "0.08em",
+              }}
+            >
+              ON IPHONE
+            </span>
+            <h2
+              style={{
+                fontFamily: "var(--font-grotesk), sans-serif",
+                fontSize: 36,
+                color: "#FAF6EC",
+                lineHeight: 1.2,
+                margin: "16px 0 12px",
+              }}
+            >
+              The graph remembers what you did with it.
+            </h2>
+            <p
+              style={{
+                fontSize: 16,
+                lineHeight: 1.7,
+                color: "rgba(250,246,236,0.72)",
+                maxWidth: 620,
+                marginBottom: 48,
+              }}
+            >
+              The demo is where the idea lives. The app is where it becomes
+              yours — and none of it leaves your phone.
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                // 320 rather than 260, so four items land as two rows of two
+                // inside this section's 900px column. At 260 they came out
+                // three across with a lone fourth underneath.
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: "36px 40px",
+              }}
+            >
+              <AppLine
+                title="Collect, then look back"
+                desc="Flip the graph over and it shows only the hobbies you kept. Open one and it sprouts the photos you took and the notes you pinned, each on the day it happened."
+              />
+              <AppLine
+                title="Walk through it"
+                desc="Memory Walk moves the camera between your own photographs, stopping on notes if you want them, or lays the same entries out as a collage."
+              />
+              <AppLine
+                title="Make it look like yours"
+                desc="Eight themes and six icon sets, chosen separately — folders and paper, brushed metal, glossy pigment, smoked glass, or plain line art in the theme's own colour."
+              />
+              <AppLine
+                title="Bring someone"
+                desc="Plan a date from what you have both collected, or send an invitation that carries the whole event in the link — no account needed at either end."
+              />
             </div>
           </div>
         </section>
