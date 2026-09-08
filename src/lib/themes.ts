@@ -270,9 +270,232 @@ export const playground: ThemeDefinition = {
 };
 
 /** The registry. Order = order in the switcher. */
+// Obsidian: the vault. One lavender accent, no starfield, near-square
+// corners, and category hues narrowed to a lavender-to-slate range — a rainbow
+// would undo exactly the quality being borrowed.
+export const obsidian: ThemeDefinition = {
+  id: "obsidian",
+  label: "Obsidian",
+  description: "A quiet vault. One accent, and a graph that sits still",
+  colors: {
+    bg: "#15171C",
+    surface: "#1B1E24",
+    surfaceRaised: "#24282F",
+    border: "#2E333C",
+    text: "#EFEDE8",
+    textDim: "#B1B3BF",
+    glow: "#7F73C2",
+    alpha: "#BDB1F9",
+    success: "#7FD1A8",
+    warning: "#E3C07B",
+    danger: "#E88E8E",
+  },
+  graph: {
+    edge: "#424650",
+    edgeActive: "#BDB1F9",
+    nodeGlow: "#7F73C2",
+    categoryHues: {
+      creative: "#BDB1F9",
+      mind: "#A9A6E8",
+      tech: "#94A9DC",
+      outdoor: "#8FB8C9",
+      nature: "#94C4B0",
+      craft: "#C4A9E0",
+      fitness: "#D4A0C4",
+      social: "#D9A8B8",
+      community: "#C9A0AC",
+      culinary: "#D4B49C",
+      adventure: "#C9A894",
+    },
+    starfieldDensity: 0,
+    starfieldOpacity: 0,
+    nebulaColor: "rgba(189, 177, 249, 0.07)",
+  },
+  motion: {
+    micro: 110,
+    standard: 220,
+    scene: 380,
+    spring: "calm",
+  },
+  shape: {
+    radiusControl: 6,
+    radiusCard: 8,
+    radiusSheet: 16,
+  },
+  logoVariant: "glow",
+};
+
+// Pocket Tech: blue hour. Smoked glass and satin silver, with the three
+// ribbon colours spread across the clusters. Narrow on purpose — a rainbow over
+// a blue-hour ground stops it reading as one time of day.
+export const pocketTech: ThemeDefinition = {
+  id: "pocket-tech",
+  label: "Pocket Tech",
+  description: "Blue hour. Smoked glass and a pale status light",
+  colors: {
+    bg: "#071120",
+    surface: "#172B41",
+    surfaceRaised: "#1F3A55",
+    border: "#2C4A68",
+    text: "#EEF5FF",
+    textDim: "#B1C3D7",
+    glow: "#8ACDDD",
+    alpha: "#BDDFF5",
+    success: "#B8D7AD",
+    warning: "#E3C07B",
+    danger: "#E88E8E",
+  },
+  graph: {
+    edge: "#2C4A68",
+    edgeActive: "#BDDFF5",
+    nodeGlow: "#8ACDDD",
+    categoryHues: {
+      creative: "#CBBAF1",
+      mind: "#B9C2F3",
+      tech: "#779CEC",
+      outdoor: "#7FB6E4",
+      nature: "#8ACDDD",
+      craft: "#C2C0F2",
+      fitness: "#9FD3E4",
+      social: "#A8C4EE",
+      community: "#B3BEEE",
+      culinary: "#A7D6DC",
+      adventure: "#93C2E8",
+    },
+    starfieldDensity: 0,
+    starfieldOpacity: 0,
+    nebulaColor: "transparent",
+  },
+  motion: {
+    micro: 110,
+    standard: 220,
+    scene: 380,
+    spring: "calm",
+  },
+  shape: {
+    radiusControl: 10,
+    radiusCard: 14,
+    radiusSheet: 20,
+  },
+  logoVariant: "glow",
+};
+
+// Gallery: the app as a collection, the UI as its wall labels. Warm paper
+// rather than white, and every category is one graphite — under this theme the
+// mark's shape carries the meaning, never its colour.
+export const gallery: ThemeDefinition = {
+  id: "gallery",
+  label: "Gallery",
+  description: "Ink on paper. The collection, quietly hung",
+  colors: {
+    bg: "#F5F0E7",
+    surface: "#FFFDF8",
+    surfaceRaised: "#EDE7DA",
+    border: "#BDB7AC",
+    text: "#2C302E",
+    textDim: "#5E5A54",
+    glow: "#4A463F",
+    alpha: "#A8342A",
+    success: "#2C6046",
+    warning: "#7A5300",
+    danger: "#9B2C24",
+  },
+  graph: {
+    edge: "#BDB7AC",
+    edgeActive: "#2C302E",
+    nodeGlow: "#4A463F",
+    categoryHues: {
+      creative: "#4A463F",
+      mind: "#4A463F",
+      tech: "#4A463F",
+      outdoor: "#4A463F",
+      nature: "#4A463F",
+      craft: "#4A463F",
+      fitness: "#4A463F",
+      social: "#4A463F",
+      community: "#4A463F",
+      culinary: "#4A463F",
+      adventure: "#4A463F",
+    },
+    starfieldDensity: 0,
+    starfieldOpacity: 0,
+    nebulaColor: "transparent",
+  },
+  motion: {
+    micro: 110,
+    standard: 180,
+    scene: 260,
+    spring: "none",
+  },
+  shape: {
+    radiusControl: 2,
+    radiusCard: 2,
+    radiusSheet: 16,
+  },
+  logoVariant: "mono",
+};
+
+// Gallery Night: the same room after the lights go down. A charcoal with
+// green in it rather than a neutral one, so it is still the gallery.
+export const galleryNight: ThemeDefinition = {
+  id: "gallery-night",
+  label: "Gallery Night",
+  description: "The collection after hours",
+  colors: {
+    bg: "#1B2020",
+    surface: "#282E2D",
+    surfaceRaised: "#333937",
+    border: "#454B49",
+    text: "#F6F0E5",
+    textDim: "#C1BBAE",
+    glow: "#8E8A83",
+    alpha: "#DE786D",
+    success: "#8FC9A6",
+    warning: "#D6AB58",
+    danger: "#E8837A",
+  },
+  graph: {
+    edge: "#7B837D",
+    edgeActive: "#F6F0E5",
+    nodeGlow: "#9A958D",
+    categoryHues: {
+      creative: "#9A958D",
+      mind: "#9A958D",
+      tech: "#9A958D",
+      outdoor: "#9A958D",
+      nature: "#9A958D",
+      craft: "#9A958D",
+      fitness: "#9A958D",
+      social: "#9A958D",
+      community: "#9A958D",
+      culinary: "#9A958D",
+      adventure: "#9A958D",
+    },
+    starfieldDensity: 0,
+    starfieldOpacity: 0,
+    nebulaColor: "transparent",
+  },
+  motion: {
+    micro: 110,
+    standard: 180,
+    scene: 260,
+    spring: "none",
+  },
+  shape: {
+    radiusControl: 2,
+    radiusCard: 2,
+    radiusSheet: 16,
+  },
+  logoVariant: "mono",
+};
+
 export const THEMES: ThemeDefinition[] = [
   midnight,
+  obsidian,
+  pocketTech,
   aurora,
+  gallery,
+  galleryNight,
   daybreak,
   playground,
 ];
