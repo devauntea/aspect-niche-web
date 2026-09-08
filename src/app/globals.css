@@ -649,3 +649,307 @@ html.theme-xfade *::after {
     animation: none;
   }
 }
+
+/* ── Flipped graph: progress nodes ──────────────────────────────────
+   Photo and note nodes only ever appear on the collected side, in focus.
+   They read as objects rather than stars: an instant-frame and a square of
+   warm paper, matching the app's marks so the two feel like one product. */
+.progress-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.progress-photo {
+  border-radius: 4px;
+  background: #f6f3ea;
+  padding: 3px 3px 9px;
+  box-shadow: 0 6px 18px #0008;
+  transform: rotate(-3deg);
+  transition: transform var(--dur-standard, 240ms) ease;
+}
+.progress-node.is-selected .progress-photo,
+.progress-node.is-selected .progress-note {
+  /* The selected frame settles upright — the tilt is for the ones around it. */
+  transform: rotate(0deg) scale(1.06);
+}
+.progress-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+.progress-photo-empty {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: #cfd6d2;
+}
+.progress-note {
+  position: relative;
+  border-radius: 3px;
+  /* Note paper keeps its own colour rather than the theme's, so the ink stays
+     fixed to the paper the way it does in the app. */
+  background: linear-gradient(160deg, #f7e9a8, #ecd782);
+  box-shadow: 0 6px 16px #0007;
+  transform: rotate(2.5deg);
+  transition: transform var(--dur-standard, 240ms) ease;
+}
+.progress-note-lines {
+  position: absolute;
+  inset: 26% 20% auto 20%;
+  height: 2px;
+  background: #00000026;
+  box-shadow: 0 7px 0 #00000026, 0 14px 0 #00000026;
+}
+.progress-note-fold {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, transparent 50%, #00000022 50%);
+  border-bottom-right-radius: 3px;
+}
+.progress-node-caption {
+  text-align: center;
+  line-height: 1.25;
+  pointer-events: none;
+}
+.progress-node-kind {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text, #f0eeff);
+}
+.progress-node-date {
+  display: block;
+  font-size: 10px;
+  /* Meets AA on the dark canvas; the date is information, not decoration. */
+  color: #a8adc4;
+  white-space: nowrap;
+}
+
+/* ── Flip / Memory walk controls ──────────────────────────────────── */
+.demo-flip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-t, #2a2f4a);
+  background: var(--color-surface, #131629);
+  color: var(--color-text, #f0eeff);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-micro, 120ms) ease;
+}
+.demo-flip-btn:hover {
+  background: var(--color-surface-raised, #1b1e36);
+}
+.demo-flip-btn[aria-pressed="true"] {
+  background: var(--color-glow, #8b7cf6);
+  border-color: transparent;
+  color: #10111f;
+}
+
+/* ── Memory Walk viewer ───────────────────────────────────────────── */
+.mw-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg, #0a0c18);
+}
+.mw-bar,
+.mw-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  flex-wrap: wrap;
+}
+.mw-bar {
+  border-bottom: 1px solid var(--color-border-t, #2a2f4a);
+}
+.mw-controls {
+  border-top: 1px solid var(--color-border-t, #2a2f4a);
+  flex-direction: column;
+  align-items: stretch;
+}
+.mw-count {
+  font-size: 13px;
+  color: var(--color-text-dim, #9aa0c4);
+}
+.mw-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-t, #2a2f4a);
+  background: transparent;
+  color: var(--color-text, #f0eeff);
+  font-size: 14px;
+  cursor: pointer;
+}
+.mw-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.mw-play {
+  background: var(--color-glow, #8b7cf6);
+  border-color: transparent;
+  color: #10111f;
+  font-weight: 600;
+}
+.mw-stage {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.mw-photo {
+  /* Contained, never cropped: the photograph is the thing being looked at. */
+  max-width: min(70vw, 900px);
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #f6f3ea;
+  padding: 10px 10px 34px;
+  box-shadow: 0 20px 50px #000a;
+}
+.mw-note {
+  max-width: min(70vw, 620px);
+  padding: 30px 32px;
+  border-radius: 6px;
+  background: linear-gradient(160deg, #f7e9a8, #ecd782);
+  color: #2c2a20;
+  font-size: 17px;
+  line-height: 1.65;
+  box-shadow: 0 20px 50px #000a;
+}
+.mw-caption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--color-text, #f0eeff);
+}
+.mw-caption span {
+  color: var(--color-text-dim, #9aa0c4);
+}
+.mw-sample {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--color-border-t, #2a2f4a);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.mw-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 40px;
+  color: var(--color-text-dim, #9aa0c4);
+  text-align: center;
+}
+.mw-collage {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+.mw-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-t, #2a2f4a);
+  background: var(--color-surface, #131629);
+  color: var(--color-text, #f0eeff);
+  cursor: pointer;
+  text-align: left;
+}
+.mw-tile.is-current {
+  border-color: var(--color-glow, #8b7cf6);
+}
+.mw-tile-img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.mw-tile-note {
+  display: block;
+  padding: 12px;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #f7e9a8, #ecd782);
+  color: #2c2a20;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 96px;
+}
+.mw-tile-cap {
+  font-size: 12px;
+  color: var(--color-text-dim, #9aa0c4);
+}
+.mw-nav {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.mw-options {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--color-text-dim, #9aa0c4);
+}
+.mw-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.mw-check select {
+  background: var(--color-surface, #131629);
+  color: var(--color-text, #f0eeff);
+  border: 1px solid var(--color-border-t, #2a2f4a);
+  border-radius: 6px;
+  padding: 7px 9px;
+  min-height: 40px;
+}
+.mw-scope-label {
+  color: var(--color-text-dim, #9aa0c4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No camera travel and no tilt: the same entries, placed immediately. */
+  .progress-photo,
+  .progress-note,
+  .progress-node.is-selected .progress-photo,
+  .progress-node.is-selected .progress-note {
+    transform: none;
+    transition: none;
+  }
+}

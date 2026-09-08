@@ -17,6 +17,13 @@ import QuickFilters, {
 } from "../../components/QuickFilters";
 import BrandMark from "../../components/BrandMark";
 import ThemeSwitcher from "../../components/ThemeSwitcher";
+import MemoryWalk from "../../components/MemoryWalk";
+import { collectedGraph, focusGraph, type GraphView } from "@/lib/flipGraph";
+import {
+  samplePhotos,
+  sampleNotes,
+  hasSampleProgress,
+} from "@/data/sampleProgress";
 import {
   IconFitness,
   IconCreative,
@@ -103,6 +110,11 @@ export default function Home() {
   );
   const [savedIds, setSavedIds] = useState<string[]>(() => getSaved());
   const [showSaved, setShowSaved] = useState(false);
+  // Which side of the graph is showing. Discovery is what there is; collected
+  // is what you have; focus is one collected hobby with its own record around
+  // it. See lib/flipGraph — the flip is a change of data, not a second canvas.
+  const [view, setView] = useState<GraphView>({ kind: "discovery" });
+  const [walkOpen, setWalkOpen] = useState(false);
   const [randomReason, setRandomReason] = useState<string | null>(null);
   const [surpriseActivity, setSurpriseActivity] = useState<
     (typeof activities)[0] | null
@@ -300,7 +312,7 @@ export default function Home() {
     return [...base, ...customEdges];
   }, [visibleIds, selectedInterests, customNiches]);
 
-  const layoutNodes = useMemo(
+  const discoveryNodes = useMemo(
     () =>
       expandedInterests.size > 0
         ? applyForceLayout(allNodes, graphEdges)
@@ -308,8 +320,44 @@ export default function Home() {
     [allNodes, graphEdges, expandedInterests],
   );
 
+  // The flipped side builds its own node and edge lists from the collection.
+  // Nothing here is invented: collected keeps an edge only where both ends are
+  // collected, and focus links the hobby to each entry and never entries to
+  // each other.
+  const flipped = useMemo(() => {
+    if (view.kind === "collected") return collectedGraph(savedIds);
+    if (view.kind === "focus")
+      return focusGraph(
+        view.hobbyId,
+        samplePhotos(view.hobbyId),
+        sampleNotes(view.hobbyId),
+      );
+    return null;
+  }, [view, savedIds]);
+
+  const layoutNodes = flipped ? flipped.nodes : discoveryNodes;
+  const visibleEdges = flipped ? flipped.edges : graphEdges;
+
   // ── Node tap ───────────────────────────────────────────
   const handleSelectNode = useCallback((id: string | null) => {
+    // On the flipped side a tap means "open this hobby's record", not
+    // "expand this cluster" — there are no clusters over there.
+    if (view.kind === "collected" && id) {
+      setSelectedId(null);
+      setView({ kind: "focus", hobbyId: id });
+      return;
+    }
+    // In focus, tapping the hobby itself goes back; tapping an entry selects
+    // it so the detail can show the photo or the note in full.
+    if (view.kind === "focus") {
+      if (id === view.hobbyId) {
+        setSelectedId(null);
+        setView({ kind: "collected" });
+        return;
+      }
+      setSelectedId(id);
+      return;
+    }
     if (id === null) {
       setRandomReason(null);
       setSelectedId(null);
@@ -326,7 +374,7 @@ export default function Home() {
       });
     }
     setSelectedId(id);
-  }, []);
+  }, [view]);
 
   const handleCollapseAll = useCallback(() => {
     setExpandedInterests(new Set());
@@ -773,6 +821,47 @@ export default function Home() {
                     </svg>
                     <span className="hidden sm:inline">Edit interests</span>
                   </button>
+                  {/* Flip. Absent, not disabled, on an empty collection —
+                      there is nothing on the other side to turn over to, and
+                      the empty collected graph is the only answer it could
+                      give. Same rule as the app. */}
+                  {savedIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedId(null);
+                        setView((v) =>
+                          v.kind === "discovery"
+                            ? { kind: "collected" }
+                            : { kind: "discovery" },
+                        );
+                      }}
+                      aria-pressed={view.kind !== "discovery"}
+                      className="demo-flip-btn"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M3.3 7.1C6.9 .7 17.2 .7 20.7 7.1M17.1 6.6L20.7 7.1L21.1 3.5M20.7 16.9C17.1 23.3 6.8 23.3 3.3 16.9M6.9 17.4L3.3 16.9L2.9 20.5"
+                          stroke="currentColor"
+                          strokeWidth="1.7"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span className="hidden sm:inline">
+                        {view.kind === "discovery" ? "Collected" : "Discovery"}
+                      </span>
+                    </button>
+                  )}
+                  {view.kind !== "discovery" && (
+                    <button
+                      type="button"
+                      onClick={() => setWalkOpen(true)}
+                      className="demo-flip-btn"
+                    >
+                      <span>Memory walk</span>
+                    </button>
+                  )}
                   {showEditHint && (
                     <div
                       className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium pointer-events-none z-50"
@@ -830,7 +919,7 @@ export default function Home() {
                 </div>
                 <GraphCanvas
                   nodes={layoutNodes}
-                  edges={graphEdges}
+                  edges={visibleEdges}
                   selectedId={selectedId}
                   expandedInterests={effectiveExpandedInterests}
                   onSelectNode={handleSelectNode}
@@ -1298,6 +1387,27 @@ export default function Home() {
               </aside>
             </section>
           </div>
+
+            {walkOpen && (
+              <MemoryWalk
+                collected={savedIds}
+                photos={Object.fromEntries(
+                  savedIds.map((id) => [id, samplePhotos(id)]),
+                )}
+                notes={Object.fromEntries(
+                  savedIds.map((id) => [id, sampleNotes(id)]),
+                )}
+                labels={Object.fromEntries(
+                  activities.map((a) => [a.id, a.label]),
+                )}
+                initialScope={
+                  view.kind === "focus"
+                    ? { kind: "hobby", hobbyId: view.hobbyId }
+                    : undefined
+                }
+                onClose={() => setWalkOpen(false)}
+              />
+            )}
 
           {showSaved && (
             <SavedDrawer
