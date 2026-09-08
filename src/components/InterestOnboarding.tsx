@@ -16,6 +16,9 @@ import {
   IconMind,
   IconCommunity,
 } from "./icons";
+import HobbyGlyph from "@/components/HobbyGlyph";
+import type { Category } from "@/lib/themes";
+import { storedIconSet, type IconSetId } from "@/lib/iconSet";
 
 interface Props {
   selected: string[];
@@ -75,12 +78,14 @@ function InterestTile({
   label,
   isSelected,
   color,
+  iconSet,
   onToggle,
 }: {
   interestId: string;
   label: string;
   isSelected: boolean;
   color: string;
+  iconSet?: IconSetId;
   onToggle: () => void;
 }) {
   const Icon = INTEREST_ICON[interestId];
@@ -114,7 +119,22 @@ function InterestTile({
           </svg>
         </div>
       )}
-      <div className="mb-2">{Icon ? <Icon size={52} /> : null}</div>
+      {/* The chosen icon family draws the cluster, so onboarding shows the
+          same marks the graph will. The old hand-drawn set stays as the
+          fallback for anything a family does not cover. */}
+      <div className="mb-2">
+        {iconSet ? (
+          <HobbyGlyph
+            id={interestId}
+            category={interestId as Category}
+            hue={color}
+            size={52}
+            iconSet={iconSet}
+          />
+        ) : Icon ? (
+          <Icon size={52} />
+        ) : null}
+      </div>
       <span
         style={{
           fontSize: 14,
@@ -135,6 +155,8 @@ export default function InterestOnboarding({
   onToggle,
   onConfirm,
 }: Props) {
+  // The demo's chosen icon family, read once on the client.
+  const iconSet = storedIconSet();
   const canContinue = selected.length > 0;
   const interestMap = Object.fromEntries(interests.map((i) => [i.id, i]));
 
@@ -196,6 +218,7 @@ export default function InterestOnboarding({
             if (!interest) return null;
             return (
               <InterestTile
+                iconSet={iconSet}
                 key={id}
                 interestId={id}
                 label={interest.label}
@@ -222,6 +245,7 @@ export default function InterestOnboarding({
             return (
               <div key={id} style={{ width: "calc((100% - 12px) / 3)" }}>
                 <InterestTile
+                iconSet={iconSet}
                   interestId={id}
                   label={interest.label}
                   isSelected={selected.includes(id)}
