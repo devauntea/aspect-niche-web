@@ -187,7 +187,7 @@ export default function QuickCard({
           <a
             href={youtubeResource.url}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             style={{
               display: "flex",
               alignItems: "center",
