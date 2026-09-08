@@ -35,6 +35,20 @@ export default function Terms() {
         </p>
       </Section>
 
+      <Section title="Who it is for">
+        <p>
+          Aspect Niche is intended for adults. <strong>You must be 18 or older
+          to use it.</strong> By using it you confirm that you are.
+        </p>
+        <p>
+          We cannot verify anyone&rsquo;s age, because we collect nothing and
+          have no account to attach an age to. This is a condition of use rather
+          than a gate, and it is here because some of what the app helps you
+          plan — bars, and hobbies that carry real physical risk — is not
+          suitable for children.
+        </p>
+      </Section>
+
       <Section title="Using it">
         <p>
           You may use Aspect Niche for your own personal, non-commercial

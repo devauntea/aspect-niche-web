@@ -154,6 +154,7 @@ export default function Landing() {
               privacy policy and the footer is where a reviewer looks. */}
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
+          <Link href="/support">Support</Link>
           <Link href="/demo">
             Try the demo <span aria-hidden="true">↗</span>
           </Link>
