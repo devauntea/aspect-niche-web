@@ -41,7 +41,7 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
               key={i}
               href={r.url}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:scale-105 active:scale-95"
               style={{
                 background: `color-mix(in srgb, ${cfg.color} 7%, transparent)`,
@@ -66,7 +66,7 @@ export default function ResourceLinks({ resources, accentColor }: Props) {
                 key={i}
                 href={r.url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex items-start gap-3 rounded-xl p-3 transition-all hover:scale-[1.01] active:scale-[0.99]"
                 style={{
                   background: "var(--color-bg)",

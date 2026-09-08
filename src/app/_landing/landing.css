@@ -45,7 +45,12 @@
 .anl button:focus-visible,
 .anl a:focus-visible,
 .anl input:focus-visible {
-  outline: 3px solid #a182e4;
+  /* WCAG 1.4.11 asks a focus indicator to clear 3:1 against what it sits on.
+     The brand lilac #a182e4 managed 2.73 on the warm paper and 2.51 on the
+     studio ground — fine on the dark field, too faint on the light half of the
+     page, which is where most of the controls are. This is the same hue taken
+     darker: 3.52 and 3.24 on those two, 4.37 on the dark. */
+  outline: 3px solid #8c71c6;
   outline-offset: 5px;
 }
 .anl button:disabled {
@@ -424,7 +429,12 @@
   background: none;
   border: 0;
   border-top: 1px solid var(--line);
-  opacity: 0.4;
+  /* 0.4 put the unselected chapters at 2.44:1 on the dark field — well under
+     AA, and these are buttons you are meant to read in order to choose one,
+     not disabled controls that WCAG exempts. 0.68 is the point all three lines
+     clear 4.5; 0.7 leaves a little margin and still reads as clearly quieter
+     than the active chapter at full strength. */
+  opacity: 0.7;
   transition: opacity 0.4s;
 }
 .anl .chapter.active,
@@ -746,7 +756,7 @@
 }
 .anl .studio-heading > p {
   font-size: 17px;
-  color: #6a6e66;
+  color: #60645c;
   line-height: 1.8;
   margin: 0 0 8px;
 }
@@ -820,7 +830,7 @@
   font-size: 14px;
   line-height: 1.7;
   max-width: 175px;
-  color: #6a6e66;
+  color: #60645c;
 }
 .anl .theme-corner {
   position: absolute;
@@ -829,7 +839,9 @@
   font-size: 11px;
   letter-spacing: 0.15em;
   z-index: 2;
-  color: #777c72;
+  /* 4.82:1 on the studio's paper. Was #777c72, which measured 3.79 — under AA
+     for text this size, and this is a section label rather than decoration. */
+  color: #676b63;
 }
 .anl .theme-edges {
   position: absolute;
@@ -901,7 +913,7 @@
   bottom: 25px;
   right: 30px;
   font-size: 12px;
-  color: #757c6f;
+  color: #656b60;
 }
 .anl .theme-wave {
   position: absolute;
@@ -1077,7 +1089,9 @@
 .anl .photo-card small {
   display: block;
   font-size: 11px;
-  color: #687063;
+  /* 4.92:1 on the card. Was #687063 at 4.20 — under AA, and this line carries
+     the hobby, the date and the word "sample", all of which have to be read. */
+  color: #5e655a;
   margin-top: 10px;
 }
 .anl .card-clay {
