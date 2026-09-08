@@ -17,6 +17,7 @@ import type { HobbyNode, HobbyEdge, NodeVisualState } from "@/types/graph";
 import OrbitNode from "./OrbitNode";
 import OrbitalActivityNode from "./OrbitalActivityNode";
 import OrbitRingNode from "./OrbitRingNode";
+import ProgressNode from "./ProgressNode";
 import FlowEdge from "./FlowEdge";
 import GraphBackground from "./GraphBackground";
 import {
@@ -31,6 +32,9 @@ const nodeTypes = {
   orbitInterest: OrbitNode,
   orbitalActivity: OrbitalActivityNode,
   orbitRing: OrbitRingNode,
+  // Only ever rendered on the flipped graph, in focus mode.
+  progressPhoto: ProgressNode,
+  progressNote: ProgressNode,
 };
 
 const edgeTypes = {
@@ -452,6 +456,29 @@ export default function GraphCanvas({
       const dimmed = visualState === "dim";
       const isHiddenByFocus =
         focusModeActive && focusIds !== null && !focusIds.has(n.id);
+
+      if (n.type === "photo" || n.type === "note") {
+        const entry = n.data as {
+          kind: "photo" | "note";
+          photo?: { uri: string };
+          note?: { body: string };
+        };
+        result.push({
+          id: n.id,
+          position,
+          type: n.type === "photo" ? "progressPhoto" : "progressNote",
+          selected: isSelected,
+          zIndex: isSelected ? 30 : 12,
+          data: {
+            label: n.label,
+            sublabel: n.sublabel,
+            labelAbove: n.labelAbove,
+            thumbnail: entry.photo?.uri,
+            noteExcerpt: entry.note?.body,
+          },
+        });
+        continue;
+      }
 
       if (isInterest) {
         const interest = n.data as { activityIds: string[] };

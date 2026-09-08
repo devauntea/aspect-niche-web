@@ -13,7 +13,7 @@ import type { HobbyNode, HobbyEdge } from "@/types/graph";
 
 type SimNode = SimulationNodeDatum & {
   id: string;
-  type: "interest" | "activity";
+  type: HobbyNode["type"];
 };
 
 type SimLink = SimulationLinkDatum<SimNode>;

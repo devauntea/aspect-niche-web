@@ -1,3 +1,5 @@
+import type { ProgressEntry } from "@/lib/progress";
+
 export type TagSet = {
   environment: "indoors" | "outdoors" | "both";
   social: "solo" | "social" | "either";
@@ -24,10 +26,18 @@ export type Interest = {
 export type HobbyNode = {
   id: string;
   label: string;
-  type: "interest" | "activity";
-  data: Activity | Interest;
+  /**
+   * "photo" and "note" only ever appear on the flipped graph, in focus mode.
+   * The discovery side never carries a progress entry — see lib/progress.ts.
+   */
+  type: "interest" | "activity" | "photo" | "note";
+  data: Activity | Interest | ProgressEntry;
   position: { x: number; y: number };
   color?: string;
+  /** Progress entries carry their own date, drawn under the node. */
+  sublabel?: string;
+  /** True when the label belongs above the node rather than below it. */
+  labelAbove?: boolean;
 };
 
 export type HobbyEdge = {
