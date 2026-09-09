@@ -1,0 +1,253 @@
+/* The invitation pages.
+ *
+ * Kept beside the two routes that use it rather than in globals.css: nothing
+ * else on the site is a card with a border, and these styles have no business
+ * in the bundle for the landing page or the demo.
+ *
+ * Every pair here was measured against the ground it sits on — body text at
+ * AA (4.5:1) and the control borders at 1.4.11's 3:1, which is why the border
+ * is #5b62a4 and not the darker hairline the rest of the site uses. A control
+ * you cannot see the edge of is the failure that audit exists to catch.
+ */
+
+.invite-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 56px;
+  background: #0a0c18;
+  background-image: radial-gradient(
+    900px 480px at 50% -12%,
+    #131629 0%,
+    #0a0c18 68%
+  );
+  color: #f0eeff;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* An invitation is one object someone handed you, so it is a card — the only
+   bordered thing on the site. */
+.invite-shell {
+  width: 100%;
+  max-width: 34rem;
+  padding: 32px 28px 28px;
+  border: 1px solid #2b2f52;
+  border-radius: 20px;
+  background: #131629;
+}
+
+.invite-kicker {
+  margin: 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b93c9;
+}
+
+.invite-title {
+  margin: 12px 0 0;
+  font-family: var(--font-grotesk), var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(2rem, 7vw, 2.75rem);
+  line-height: 1.08;
+  font-weight: 600;
+}
+
+/* Facts are a label-over-value grid, never pills — a pill has the silhouette
+   of a button, and none of these do anything. */
+.invite-facts {
+  margin: 28px 0 0;
+  display: grid;
+  gap: 18px;
+}
+.invite-facts > div {
+  display: grid;
+  gap: 4px;
+}
+.invite-facts dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b93c9;
+}
+.invite-facts dd {
+  margin: 0;
+  font-size: 1.0625rem;
+}
+.invite-facts a {
+  color: #f0eeff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.invite-note {
+  margin: 26px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid #2b2f52;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #cfd3ee;
+}
+
+.invite-rsvp {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid #2b2f52;
+}
+.invite-rsvp h2 {
+  margin: 0 0 16px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.invite-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.invite-choice {
+  /* 44px minimum so the answer is not a target you have to aim at. */
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #5b62a4;
+  border-radius: 999px;
+  background: transparent;
+  color: #f0eeff;
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.invite-choice:hover {
+  background: #1b1e36;
+}
+/* Selection is stated by more than colour: the border thickens and the label
+   goes to the accent, so it survives a monochrome screen. */
+.invite-choice.is-picked {
+  border-color: #fff7d6;
+  background: #1b1e36;
+  color: #fff7d6;
+  font-weight: 600;
+}
+
+.invite-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 22px;
+}
+.invite-field span {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b93c9;
+}
+.invite-field input {
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #5b62a4;
+  border-radius: 10px;
+  background: #0a0c18;
+  color: #f0eeff;
+  font: inherit;
+  font-size: 1rem;
+}
+.invite-field input::placeholder {
+  color: #8b93c9;
+}
+
+.invite-send {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 22px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff7d6;
+  color: #0a0c18;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.invite-send:hover:not(:disabled) {
+  background: #fffdf0;
+}
+/* A disabled control is exempt from 1.4.3, but it still has to read as
+   unavailable rather than broken. */
+.invite-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.invite-copied {
+  margin: 16px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #7ce8b5;
+}
+
+.invite-caveat,
+.invite-broken-body,
+.invite-foot {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #8b93c9;
+}
+.invite-caveat {
+  margin: 18px 0 0;
+}
+
+.invite-foot {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #2b2f52;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.invite-foot a {
+  color: #8b93c9;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.invite-open-app {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #5b62a4;
+  border-radius: 999px;
+  color: #f0eeff;
+  text-decoration: none;
+  font-size: 0.9375rem;
+}
+.invite-open-app:hover {
+  background: #1b1e36;
+}
+
+.invite-broken-title {
+  margin: 0 0 14px;
+  font-family: var(--font-grotesk), var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.15;
+  font-weight: 600;
+}
+.invite-broken-body {
+  margin: 0;
+}
+
+/* Focus is visible on every ground here, and clears 1.4.11's 3:1 against both
+   the card and the page. */
+.invite-page :is(a, button, input):focus-visible {
+  outline: 2px solid #fff7d6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-choice {
+    transition: none;
+  }
+}
