@@ -2,7 +2,7 @@
  *
  * Kept beside the two routes that use it rather than in globals.css: nothing
  * else on the site is a card with a border, and these styles have no business
- * in the bundle for the landing page or the demo.
+ * in the landing page's bundle.
  *
  * Every pair here was measured against the ground it sits on — body text at
  * AA (4.5:1) and the control borders at 1.4.11's 3:1, which is why the border

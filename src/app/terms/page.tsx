@@ -30,8 +30,7 @@ export default function Terms() {
             devauntaenorman@gmail.com
           </a>
           . &ldquo;We&rdquo; and &ldquo;us&rdquo; below mean that person. These
-          terms cover the Aspect Niche mobile app and this website, including
-          the interactive demo.
+          terms cover the Aspect Niche mobile app and this website.
         </p>
       </Section>
 
@@ -114,15 +113,6 @@ export default function Terms() {
           activity.</strong> Links to third-party sites and videos are
           suggestions; we do not control them and are not responsible for their
           content or safety.
-        </p>
-      </Section>
-
-      <Section title="Generated content in the web demo">
-        <p>
-          The demo can generate a suggested niche hobby using a language model.
-          Generated text can be wrong, odd, or inconsistent with the rest of the
-          catalogue. It is illustrative, it is not checked by a person before
-          you see it, and it should not be relied on as fact.
         </p>
       </Section>
 
