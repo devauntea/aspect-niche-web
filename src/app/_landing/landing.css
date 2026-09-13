@@ -173,12 +173,6 @@
 .anl .masthead nav a:hover {
   color: var(--purple);
 }
-.anl .nav-cta {
-  border-bottom: 1px solid #b7b8b0;
-  padding: 12px 0;
-  display: flex;
-  gap: 20px;
-}
 .anl .hero {
   min-height: 850px;
   height: 100svh;
@@ -1532,10 +1526,6 @@
   }
   .anl .masthead nav {
     display: none;
-  }
-  .anl .nav-cta {
-    font-size: 13px;
-    gap: 12px;
   }
   .anl .hero {
     height: auto;

@@ -140,28 +140,9 @@ export default function PrivacyPolicy() {
           to consent to.
         </p>
         <p>
-          The site does keep a small amount of information in your browser&rsquo;s
-          own local storage — whether you have seen a hint, which theme you
-          chose, and anything you build in the demo. That never leaves your
-          browser, is not readable by us, and clearing your browsing data
-          removes it.
-        </p>
-      </Section>
-
-      <Section title="This website: the demo and generated hobbies">
-        <p>
-          The demo can generate a suggested niche hobby. When you ask it to, our
-          server sends the hobby category you picked and the names of the
-          catalogue entries already shown — no personal data and nothing you
-          have typed — to{" "}
-          <a href="https://groq.com" target="_blank" rel="noopener noreferrer">
-            Groq
-          </a>
-          , which runs the language model that writes the suggestion.
-        </p>
-        <p>
-          Anything you type into the demo, including a name in the date planner,
-          stays in your browser and is never sent anywhere.
+          The site also stores nothing in your browser&rsquo;s own local storage.
+          It is a set of pages that describe the app, plus the invitation links
+          the app generates, and it keeps no record of your visit.
         </p>
       </Section>
 

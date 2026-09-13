@@ -1,5 +1,3 @@
-import type { Category } from "@/lib/themes";
-
 // Invitations: one hobby session or one date, sent to one person.
 //
 // **There is no server, and the design follows from that.** An invitation is
@@ -175,8 +173,12 @@ export function decodeBase64Url(text: string): string {
  */
 const V2 = 2;
 
-/** Category as an index. The order is frozen — append only. */
-const CATEGORIES: Category[] = [
+/** Category as an index. The order is frozen — append only: the index is what
+ *  goes on the wire, so reordering this list silently re-labels every link
+ *  already out there. It used to live in the theme registry the web demo drew
+ *  its palette from; that registry went with the demo, and this is now the only
+ *  definition, with the type derived from the list so the two cannot drift. */
+const CATEGORIES = [
   "creative",
   "mind",
   "tech",
@@ -188,7 +190,9 @@ const CATEGORIES: Category[] = [
   "community",
   "culinary",
   "adventure",
-];
+] as const;
+
+export type Category = (typeof CATEGORIES)[number];
 
 /** The object form the first version sent. Still decoded, never written. */
 type WireV1 = {

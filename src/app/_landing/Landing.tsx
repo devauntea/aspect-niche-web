@@ -15,8 +15,8 @@ import MemoryWalk from "./MemoryWalk";
 //
 // Everything is scoped under `.anl` — the reference ships a buildless
 // stylesheet with bare `body`, `*` and `h2` rules, and dropping those into a
-// site that already has a demo route and a privacy page would restyle both.
-// The scope keeps the design intact without letting it leak.
+// site that also serves a privacy page and the invitation pages would restyle
+// those too. The scope keeps the design intact without letting it leak.
 //
 // `js-motion` goes on the same element and is added only once this component
 // has mounted, which is what makes the entrance animations safe: the hidden
@@ -67,12 +67,9 @@ function Closing() {
         <br />
         the <em>rabbit hole.</em>
       </h2>
-      {/* The acquisition CTA goes to the real demo route, not back to the
-          section above it. The reference pointed at its own graph because it
-          had nowhere else to go. */}
-      <Link className="button light" href="/demo">
-        Find your first connection <span aria-hidden="true">↗</span>
-      </Link>
+      {/* No CTA here yet. The web demo this used to point at is gone, and the
+          app is not on the App Store, so there is nowhere honest to send
+          someone. A demo-video gallery is meant to land in this spot. */}
       <p>A little curiosity looks good on you.</p>
     </section>
   );
@@ -131,9 +128,6 @@ export default function Landing() {
             <a href="#studio">Make it yours</a>
             <a href="#memories">Your story</a>
           </nav>
-          <Link className="nav-cta" href="/demo">
-            Take a look <span aria-hidden="true">↗</span>
-          </Link>
         </header>
 
         <main>
@@ -155,9 +149,6 @@ export default function Landing() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>
-          <Link href="/demo">
-            Try the demo <span aria-hidden="true">↗</span>
-          </Link>
           <span>© 2026 Aspect Niche · Built by Devauntae Norman</span>
         </footer>
 

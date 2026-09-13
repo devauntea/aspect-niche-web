@@ -6,8 +6,8 @@ import Landing from "./_landing/Landing";
 //
 // The previous landing page is kept in git history rather than beside this one:
 // it described only the web demo, and two landing pages is a routing question
-// nobody asked for. The demo itself is untouched at /demo, which is where every
-// acquisition CTA here points.
+// nobody asked for. The web demo has since been removed; the closing section
+// holds the spot where a demo-video gallery is meant to go.
 
 // Self-hosted through the framework's own loader, which is the site's existing
 // strategy — the reference's Google Fonts <link> would add a third-party

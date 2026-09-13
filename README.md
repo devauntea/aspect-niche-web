@@ -1,51 +1,41 @@
-# Aspect Niche — Hobby Graph
+# Aspect Niche — Website
 
 [![Live](https://img.shields.io/badge/live-aspectniche.com-brightgreen)](https://aspectniche.com) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
 
-![Aspect Niche graph view](docs/ux-overhaul/after-app.png)
+The marketing site for Aspect Niche, a graph-based hobby discovery app: pick a few
+interests, explore a constellation of activities, and follow a connection into
+ultra-niche corners of a hobby. The app itself is the iOS project in
+[`aspect-niche-mobile`](../aspect-niche-mobile); this repo is the site that
+describes it, plus the pages that open the invitations the app generates.
 
-A graph-based hobby discovery app inspired by Obsidian's visual links. Pick a few
-interests, explore a constellation of activities, get a "surprise me" suggestion
-with a deterministic *why it fits*, save what you like, and drop down an
-AI-powered rabbit hole into ultra-niche corners of any hobby.
+Built with Next.js + TypeScript + Tailwind CSS v4. No database, no cookies, and
+no third-party requests — fonts included.
 
-Built with Next.js + TypeScript + Tailwind CSS v4 + React Flow. State is local
-React + `localStorage` first; there is no database.
+> **The interactive web demo has been removed.** It used to live at `/demo` and
+> carried the graph canvas, onboarding, rabbit hole, and date planner. All of it
+> is recoverable from git history at commit `9b86bc5` if a web app version gets
+> built later.
 
 ## Routes
 
-- `/` — marketing landing page.
-- `/demo` — **the actual app** (onboarding → graph → detail cards → rabbit hole).
-
-## Prerequisites
-
-- Node.js 20+ and npm.
-- A [Groq](https://console.groq.com/) API key — **optional**. Core navigation
-  (graph, filters, Surprise Me, save, checklists) runs fully offline from local
-  data. The key only powers the two AI features: the Rabbit Hole panel and
-  "create a niche." Without it, those calls fail gracefully and the rest works.
+| Route | What it is |
+|---|---|
+| `/` | The landing page. Its own interactive sections (discovery graph, theme studio, memory walk) are marketing pieces, self-contained in `src/app/_landing/`. |
+| `/i` | Opens an invitation encoded in the link the mobile app shares. |
+| `/r` | Shows the RSVP reply encoded back from an invitation. |
+| `/privacy` | Privacy policy — the App Store requires a reachable URL. |
+| `/terms` | Terms of use. |
+| `/support` | Support page — also required by App Store Connect. |
 
 ## Getting started
 
 ```bash
-git clone <repo-url>
-cd hobby-graph-app
 npm install
-
-# Configure environment (see .env.example)
-cp .env.example .env.local
-# then edit .env.local and set GROQ_API_KEY=... to enable AI features
-
 npm run dev
 ```
 
-Open [http://localhost:3000/demo](http://localhost:3000/demo) to use the app.
-
-## Environment variables
-
-| Variable | Required | Purpose |
-|---|---|---|
-| `GROQ_API_KEY` | Optional | Enables the AI Rabbit Hole (`/api/rabbit-hole`) and Create Niche (`/api/create-niche`) routes. |
+Open [http://localhost:3000](http://localhost:3000). No environment variables are
+needed; there is nothing to configure.
 
 ## Scripts
 
@@ -65,34 +55,29 @@ Open [http://localhost:3000/demo](http://localhost:3000/demo) to use the app.
 ```
 src/
   app/
-    page.tsx            Marketing landing page
-    demo/page.tsx       The app (graph, detail cards, rabbit hole)
-    api/                AI routes (rabbit-hole, create-niche) — server-side Groq
-  components/           UI: GraphCanvas, cards, onboarding, drawers, icons
-  data/                 Curated typed content (activities, edges, niches, resources)
+    page.tsx          The landing route — fonts and metadata only
+    _landing/         The landing page itself, scoped under `.anl`
+                      Hero, DiscoveryStory, ThemeStudio, MemoryWalk, Landing
+    _legal/           Shared shell for the privacy, terms, and support pages
+    i/                Invitation: page, view, OG card route, invite.css
+    r/                RSVP reply
+    globals.css       Only what every page shares — the two design surfaces
+                      live in landing.css and invite.css
   lib/
-    theme.ts            JS-side design tokens (colors, radii, transitions)
-    graphUtils.ts       Deterministic node/edge builders from data
-    recommendations.ts  Deterministic "why it fits", checklist, similar picks
-    *.test.ts           Vitest unit tests for the deterministic core
-  types/graph.ts        Core types (Activity, Interest, HobbyNode/Edge, GraphState)
+    invite.ts         Encode/decode the invitation and reply links
+    invite.test.ts    Vitest coverage for that round trip
 ```
-
-## Design tokens
-
-The palette lives in two coordinated places, kept in sync by hand:
-
-- **`src/lib/theme.ts`** — JS-side source of truth (inline styles, React Flow node
-  colors, hex-keyed accent lookups). Values are hex on purpose.
-- **`src/app/globals.css` `@theme`** — the Tailwind v4 utility palette
-  (`bg-brand`, `text-body`, `text-muted`, `border-border`, …).
 
 ## Testing
 
-Vitest covers the deterministic logic (`recommendations.ts`, `graphUtils.ts`).
-AI routes are intentionally not unit-tested yet — see the project vault's
-`Current-Phase` / `Decisions` for the planned Phase 4 provider refactor.
+Vitest covers the invitation link encoding, which is the one piece of logic on
+the site that the mobile app depends on being exactly right.
 
 ```bash
 npm run test
 ```
+
+## Docs
+
+`docs/` and `MOBILE-PARITY.md` are a record of the removed web demo and of what
+the mobile app became. They describe history, not the current site.
