@@ -40,7 +40,9 @@ export async function generateMetadata({
     ? `${invite.host} invited you to ${invite.title}`
     : "You're invited — Aspect Niche";
   const description = invite
-    ? [formatInviteWhen(invite.startsAt), invite.place].filter(Boolean).join(" · ")
+    ? [formatInviteWhen(invite.startsAt, invite.tzOffset), invite.place]
+        .filter(Boolean)
+        .join(" · ")
     : "An invitation from Aspect Niche.";
   const card = `${ORIGIN}/i/card${d ? `?d=${encodeURIComponent(d)}` : ""}`;
 
@@ -89,5 +91,10 @@ export default async function InvitePage({
     );
   }
 
-  return <InviteView invite={invite} when={formatInviteWhen(invite.startsAt)} />;
+  return (
+    <InviteView
+      invite={invite}
+      when={formatInviteWhen(invite.startsAt, invite.tzOffset)}
+    />
+  );
 }
