@@ -48,6 +48,17 @@ export type Invite = {
   /** ISO 8601. */
   startsAt: string;
   durationMinutes: number;
+  /**
+   * Minutes east of UTC in the HOST's zone, at this instant. Optional, because
+   * links sent before this field existed do not carry it.
+   *
+   * This page is server-rendered, and the server runs UTC — so formatting
+   * `startsAt` in the ambient zone put 10pm on the preview card for an
+   * invitation the host set to 6pm in New York. An instant alone cannot say
+   * what time somebody meant. Kept identical to the mobile repo's copy: the
+   * two encode and decode the same links.
+   */
+  tzOffset?: number;
   /** Free text: a venue, an address, or empty. */
   place: string;
   /** The host's own description. This is the part that makes it an invitation. */
@@ -241,6 +252,8 @@ export function encodeInvite(invite: Invite): string {
     invite.place,
     invite.note,
     invite.activityId ?? "",
+    // Appended; positions never change meaning.
+    typeof invite.tzOffset === "number" ? invite.tzOffset : "",
   ];
   // Trailing blanks carry nothing; a missing tail reads as empty on the way in.
   while (wire.length > 8 && (wire[wire.length - 1] === "" || wire[wire.length - 1] == null)) {
@@ -283,8 +296,20 @@ export function decodeInvite(encoded: string): Invite | null {
   if (!Array.isArray(parsed)) return decodeV1(parsed as Partial<WireV1>);
   if (parsed[0] !== V2) return null;
 
-  const [, id, host, kind, title, category, time, duration, place, note, activityId] =
-    parsed;
+  const [
+    ,
+    id,
+    host,
+    kind,
+    title,
+    category,
+    time,
+    duration,
+    place,
+    note,
+    activityId,
+    tzOffset,
+  ] = parsed;
   const startsAt = unpackTime(time);
   if (!str(id) || !str(host) || !str(title) || !startsAt) return null;
 
@@ -304,6 +329,9 @@ export function decodeInvite(encoded: string): Invite | null {
       typeof duration === "number" && duration > 0 ? duration : 90,
     place: str(place),
     note: str(note),
+    ...(typeof tzOffset === "number" && Number.isFinite(tzOffset)
+      ? { tzOffset }
+      : {}),
   };
 }
 
@@ -347,15 +375,37 @@ export function newInviteId(): string {
 // ---------------------------------------------------------------------------
 
 /** "Friday, Sept 18 · 9:00 PM" — the header line on the invitation card. */
-export function formatInviteWhen(iso: string): string {
+export function formatInviteWhen(iso: string, tzOffset?: number): string {
   const d = new Date(iso);
-  const day = d.toLocaleDateString(undefined, {
+  // No offset: an old link. Fall back to the ambient zone, which on this
+  // server is UTC — wrong, and still better than refusing to render a link
+  // somebody is holding.
+  if (typeof tzOffset !== "number" || !Number.isFinite(tzOffset)) {
+    const day = d.toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+    const time = d
+      .toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+      .toLowerCase();
+    return `${day} · ${time}`;
+  }
+  // Shift the instant by the host's offset and read it back as UTC — the
+  // portable way to render a fixed offset.
+  const shifted = new Date(d.getTime() + tzOffset * 60000);
+  const day = shifted.toLocaleDateString(undefined, {
     weekday: "long",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
-  const time = d
-    .toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+  const time = shifted
+    .toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "UTC",
+    })
     .toLowerCase();
   return `${day} · ${time}`;
 }
@@ -376,7 +426,7 @@ export function formatInviteWhen(iso: string): string {
 export function inviteMessage(invite: Invite): string {
   const lines = [
     `${invite.host} invited you to ${invite.title}`,
-    formatInviteWhen(invite.startsAt),
+    formatInviteWhen(invite.startsAt, invite.tzOffset),
   ];
   if (invite.place) lines.push(invite.place);
   if (invite.note) lines.push("", invite.note);
