@@ -68,7 +68,7 @@ describe("invite links", () => {
   });
 
   it("opens the app rather than a web page", () => {
-    expect(inviteLink(invite).startsWith("aspectniche://invite?d=")).toBe(true);
+    expect(inviteLink(invite).startsWith("https://aspectniche.com/i?d=")).toBe(true);
   });
 
   it("refuses anything that is not one of ours", () => {

@@ -52,11 +52,18 @@ export type Invite = {
    * Minutes east of UTC in the HOST's zone, at this instant. Optional, because
    * links sent before this field existed do not carry it.
    *
-   * This page is server-rendered, and the server runs UTC — so formatting
-   * `startsAt` in the ambient zone put 10pm on the preview card for an
-   * invitation the host set to 6pm in New York. An instant alone cannot say
-   * what time somebody meant. Kept identical to the mobile repo's copy: the
-   * two encode and decode the same links.
+   * `startsAt` is an instant, and an instant alone cannot say what time the
+   * host meant. Rendering it in whatever zone the reader happens to be in got
+   * the preview card wrong for everyone: the page is server-rendered on a box
+   * running UTC, so an invitation set for 6pm in New York went out to every
+   * guest as 10pm. A guest in another zone reading their own local time is the
+   * same bug wearing a friendlier face — "6pm at Far Rockaway" means 6pm
+   * there, and a meetup has one clock, the host's.
+   *
+   * An offset rather than an IANA name because the link's length is paid for
+   * in every message thread it sits in (see `encodeInvite`), and the offset for
+   * one known instant is exactly as correct as the name it came from. It is
+   * captured at the event's own date, so a summer event keeps summer time.
    */
   tzOffset?: number;
   /** Free text: a venue, an address, or empty. */
@@ -186,9 +193,10 @@ const V2 = 2;
 
 /** Category as an index. The order is frozen — append only: the index is what
  *  goes on the wire, so reordering this list silently re-labels every link
- *  already out there. It used to live in the theme registry the web demo drew
- *  its palette from; that registry went with the demo, and this is now the only
- *  definition, with the type derived from the list so the two cannot drift. */
+ *  already out there. This file exists in two repositories and must stay
+ *  byte-for-byte identical between them, which is why the type is derived from
+ *  the list here rather than imported from a theme registry only one of the two
+ *  repositories has. */
 const CATEGORIES = [
   "creative",
   "mind",
@@ -252,7 +260,9 @@ export function encodeInvite(invite: Invite): string {
     invite.place,
     invite.note,
     invite.activityId ?? "",
-    // Appended; positions never change meaning.
+    // Appended, which is the only way this format grows: positions never
+    // change meaning, so an older reader stops at activityId and still
+    // decodes everything before it.
     typeof invite.tzOffset === "number" ? invite.tzOffset : "",
   ];
   // Trailing blanks carry nothing; a missing tail reads as empty on the way in.
@@ -335,11 +345,27 @@ export function decodeInvite(encoded: string): Invite | null {
   };
 }
 
-/** The app's own scheme, so a tapped link opens the invitation rather than a page. */
-const SCHEME = "aspectniche://";
+/**
+ * Invitations travel as https links on our own domain, not as `aspectniche://`.
+ *
+ * The custom scheme was the whole reason sharing was broken. Messaging apps do
+ * not reliably turn an unknown scheme into something tappable — plenty render
+ * it as grey text — and for anyone who has not installed the app, tapping it
+ * does nothing at all. An invitation that only works if you already have the
+ * app is not an invitation.
+ *
+ * An https link is always tappable, can carry a preview, and opens a real page
+ * that shows the invitation and takes an answer. Where the app *is* installed
+ * and the domain is associated, iOS hands the same link straight to it, so the
+ * app path is unchanged — it is the fallback that is new.
+ *
+ * `APP_SCHEME` stays for links already sitting in people's message threads.
+ */
+const WEB_ORIGIN = "https://aspectniche.com";
+export const APP_SCHEME = "aspectniche://";
 
 export function inviteLink(invite: Invite): string {
-  return `${SCHEME}invite?d=${encodeInvite(invite)}`;
+  return `${WEB_ORIGIN}/i?d=${encodeInvite(invite)}`;
 }
 
 export function replyLink(
@@ -348,7 +374,7 @@ export function replyLink(
   status: RsvpStatus,
 ): string {
   const n = encodeBase64Url(name);
-  return `${SCHEME}rsvp?i=${encodeURIComponent(inviteId)}&n=${n}&s=${status}`;
+  return `${WEB_ORIGIN}/r?i=${encodeURIComponent(inviteId)}&n=${n}&s=${status}`;
 }
 
 export function decodeReply(params: {
@@ -377,9 +403,9 @@ export function newInviteId(): string {
 /** "Friday, Sept 18 · 9:00 PM" — the header line on the invitation card. */
 export function formatInviteWhen(iso: string, tzOffset?: number): string {
   const d = new Date(iso);
-  // No offset: an old link. Fall back to the ambient zone, which on this
-  // server is UTC — wrong, and still better than refusing to render a link
-  // somebody is holding.
+  // No offset: an old link, so fall back to the reader's own zone. Wrong in
+  // the ways `Invite.tzOffset` describes, and still better than refusing to
+  // render a link somebody is holding.
   if (typeof tzOffset !== "number" || !Number.isFinite(tzOffset)) {
     const day = d.toLocaleDateString(undefined, {
       weekday: "long",
@@ -391,8 +417,11 @@ export function formatInviteWhen(iso: string, tzOffset?: number): string {
       .toLowerCase();
     return `${day} · ${time}`;
   }
-  // Shift the instant by the host's offset and read it back as UTC — the
-  // portable way to render a fixed offset.
+  // Shift the instant by the host's offset and read it back as UTC. The
+  // portable way to render a fixed offset: `timeZone` takes IANA names, and
+  // offset strings like "+04:00" are a recent addition that Hermes cannot be
+  // relied on for. The locale stays the reader's — only the clock is the
+  // host's.
   const shifted = new Date(d.getTime() + tzOffset * 60000);
   const day = shifted.toLocaleDateString(undefined, {
     weekday: "long",
@@ -410,29 +439,18 @@ export function formatInviteWhen(iso: string, tzOffset?: number): string {
   return `${day} · ${time}`;
 }
 
-/** The message body the host sends alongside the link. */
-/**
- * What actually gets sent.
- *
- * The invitation has to read as an invitation in the message bubble itself,
- * because the link cannot show a preview — there is no page behind it to
- * preview, only the app. So the words carry it and the link is a footer: the
- * whole thing is legible to someone who never taps it.
- *
- * The last line says what tapping does. Without it a long opaque URL from a
- * friend looks like something you should not tap, which is the opposite of the
- * intention.
- */
-export function inviteMessage(invite: Invite): string {
-  const lines = [
-    `${invite.host} invited you to ${invite.title}`,
-    formatInviteWhen(invite.startsAt, invite.tzOffset),
-  ];
-  if (invite.place) lines.push(invite.place);
-  if (invite.note) lines.push("", invite.note);
-  lines.push("", "Tap to see it and reply:", inviteLink(invite));
-  return lines.join("\n");
-}
+// There is deliberately no `inviteMessage` any more.
+//
+// The host used to send the whole invitation written out as text with the link
+// as a footer, because at the time the link was an `aspectniche://` scheme with
+// no page behind it: nothing could preview it, so the words had to carry the
+// invitation on their own. Both halves of that have changed. The link is an
+// https URL on our own domain, and `/i` renders the invitation and serves a
+// per-invitation preview card — so the text was a second, worse copy of the
+// card sitting directly above it in the same thread.
+//
+// The trade this accepts: a client that does not unfurl links now shows a bare
+// URL. Every messaging app the feature is actually used in does unfurl.
 
 /** The guest's reply, which is the link plus enough words to make sense alone. */
 export function replyMessage(
