@@ -14,6 +14,15 @@ export type TimeWindow = {
   id: string;
   /** ISO 8601 instant. */
   start: string;
+  /**
+   * When it is over, ISO 8601. Absent when the host named no end.
+   *
+   * Optional, and required by nobody. Every dating-safety source names a
+   * predetermined end time as the thing that makes a first meeting easy to
+   * leave — so the field exists for the person who wants one, rather than as
+   * a question the app puts to everybody.
+   */
+  end?: string;
 };
 
 export type PlanParticipant = {
@@ -30,6 +39,14 @@ export type GuestResponse = {
   dinnerVotes: string[];
   /** Window ids that work for the guest. */
   windowVotes: string[];
+  /**
+   * The guest asked to meet somewhere public.
+   *
+   * Merges by OR, not by agreement: either person asking settles it. A safety
+   * preference is a floor rather than a negotiation — the opposite of budget,
+   * which intersects, and of a meal, which both have to pick.
+   */
+  preferPublic?: boolean;
 };
 
 export type DatePlan = {
@@ -51,6 +68,17 @@ export type DatePlan = {
      * a version behind its meaning.
      */
     dinnerOptionIds: string[];
+    /**
+     * What the host called this plan. Absent when they named nothing.
+     *
+     * Never written automatically. A suggested title that applied itself
+     * would occupy its slot in every link ever encoded, which is the one
+     * thing an appending wire format exists to avoid — and a joke nobody
+     * chose is worse than no joke.
+     */
+    title?: string;
+    /** The host asked to meet somewhere public. See `GuestResponse`. */
+    preferPublic?: boolean;
     windows: TimeWindow[];
   };
   response?: GuestResponse;
