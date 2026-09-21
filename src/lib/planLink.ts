@@ -88,6 +88,24 @@ function trimTail(wire: unknown[], keepAtLeast: number): unknown[] {
 // The proposal
 // ---------------------------------------------------------------------------
 
+/**
+ * Flags travel as a string of letters, never as a bitfield number.
+ *
+ * `trimTail` drops an empty string and KEEPS a numeric zero, so a numeric
+ * field would sit on the end of every link that sets no flags at all. Letters
+ * cost the same to read and vanish when there are none, which is what keeps
+ * an unchanged plan encoding to an unchanged link.
+ */
+const FLAG_PUBLIC = "p";
+
+function packFlags(preferPublic: boolean | undefined): string {
+  return preferPublic ? FLAG_PUBLIC : "";
+}
+
+function unpackPublic(v: unknown): boolean {
+  return typeof v === "string" && v.includes(FLAG_PUBLIC);
+}
+
 /** What the other person needs in order to answer. */
 export type PlanProposalWire = {
   planId: string;
@@ -97,6 +115,9 @@ export type PlanProposalWire = {
   budget: BudgetRange;
   dinnerOptionIds: string[];
   windows: TimeWindow[];
+  /** "" when the host named nothing. */
+  title: string;
+  preferPublic: boolean;
 };
 
 export function encodePlan(plan: DatePlan): string {
@@ -112,7 +133,15 @@ export function encodePlan(plan: DatePlan): string {
     // A window is its id and its instant. The id travels because the ANSWER
     // refers to windows by id, and a guest's reply has to name something the
     // host's own copy of the plan will recognise.
-    plan.proposal.windows.map((w) => [w.id, packTime(w.start)]),
+    // The end appends INSIDE the tuple, so an older decoder reads the first
+    // two entries and ignores a third it was never told about.
+    plan.proposal.windows.map((w) =>
+      w.end
+        ? [w.id, packTime(w.start), packTime(w.end)]
+        : [w.id, packTime(w.start)],
+    ),
+    plan.proposal.title ?? "",
+    packFlags(plan.proposal.preferPublic),
   ];
   return encodeBase64Url(JSON.stringify(trimTail(wire, 7)));
 }
@@ -125,7 +154,8 @@ export function decodePlan(encoded: string): PlanProposalWire | null {
     return null;
   }
   if (!Array.isArray(parsed) || parsed[0] !== PLAN_V1) return null;
-  const [, id, name, interestIds, activityIds, min, max, dinners, windows] = parsed;
+  const [, id, name, interestIds, activityIds, min, max, dinners, windows, title, flags] =
+    parsed;
   const planId = str(id);
   if (!planId) return null;
 
@@ -135,7 +165,9 @@ export function decodePlan(encoded: string): PlanProposalWire | null {
           if (!Array.isArray(w)) return null;
           const wid = str(w[0]);
           const start = unpackTime(w[1]);
-          return wid && start ? { id: wid, start } : null;
+          if (!wid || !start) return null;
+          const end = w.length > 2 ? unpackTime(w[2]) : null;
+          return end ? { id: wid, start, end } : { id: wid, start };
         })
         .filter((w): w is TimeWindow => w !== null)
     : [];
@@ -150,6 +182,8 @@ export function decodePlan(encoded: string): PlanProposalWire | null {
     budget: { min: num(min, 0), max: num(max, 60) },
     dinnerOptionIds: strList(dinners),
     windows: decodedWindows,
+    title: str(title),
+    preferPublic: unpackPublic(flags),
   };
 }
 
@@ -157,13 +191,21 @@ export function planLink(plan: DatePlan): string {
   return `${WEB_ORIGIN}/p?d=${encodePlan(plan)}`;
 }
 
-/** Whether a plan has enough on it to be worth sending. Mirrors the screen's
- * own readiness rule: something to do, something to eat, some time to do it. */
+/**
+ * Whether a plan has enough on it to be worth sending.
+ *
+ * Mirrors `isProposalReady` exactly, and deliberately. The two disagreed: that
+ * one dropped its meal requirement when the "Food, if any" contradiction was
+ * fixed, and this one kept it — so a plan the draft screen called ready was
+ * one this refused to send, and the screen could offer no reason.
+ *
+ * Food is optional. "Climbing at two on Saturday" is a whole date, and
+ * `mergePlan` already reads an empty meal list as a question nobody asked
+ * rather than as a disagreement.
+ */
 export function isPlanSendable(plan: DatePlan): boolean {
   return (
-    plan.proposal.activityIds.length > 0 &&
-    plan.proposal.dinnerOptionIds.length > 0 &&
-    plan.proposal.windows.length > 0
+    plan.proposal.activityIds.length > 0 && plan.proposal.windows.length > 0
   );
 }
 
@@ -208,6 +250,7 @@ export function encodePlanReply(
     response.budget.max,
     response.dinnerVotes,
     response.windowVotes,
+    packFlags(response.preferPublic),
   ];
   return encodeBase64Url(JSON.stringify(trimTail(wire, 3)));
 }
@@ -220,7 +263,8 @@ export function decodePlanReply(encoded: string): PlanReplyWire | null {
     return null;
   }
   if (!Array.isArray(parsed) || parsed[0] !== REPLY_V1) return null;
-  const [, id, name, interestIds, up, down, min, max, dinners, windows] = parsed;
+  const [, id, name, interestIds, up, down, min, max, dinners, windows, flags] =
+    parsed;
   const planId = str(id);
   if (!planId) return null;
 
@@ -239,6 +283,11 @@ export function decodePlanReply(encoded: string): PlanReplyWire | null {
       budget: { min: num(min, 0), max: num(max, 60) },
       dinnerVotes: strList(dinners),
       windowVotes: strList(windows),
+      // Spread rather than set, so a guest who asked for nothing decodes to a
+      // response with no such key. `preferPublic` is optional, absent and
+      // false mean the same thing to `mergePlan`, and decode(encode(x)) === x
+      // is a property two tests already hold this file to.
+      ...(unpackPublic(flags) ? { preferPublic: true } : {}),
     },
   };
 }
