@@ -3,24 +3,31 @@ import Link from "next/link";
 import { LegalPage, Section, List } from "@/app/_legal/LegalPage";
 
 // The terms the App Store and the ordinary "can I get sued" checklist both ask
-// for. Written from what the product actually is: a free app with no account,
-// no purchases and no user-to-user content on our servers, because there are no
-// servers holding user content. Every limitation below describes something the
-// software really does or really does not do.
+// for, written from what the product actually is. Every limitation below
+// describes something the software really does or really does not do.
+//
+// Rewritten 26 September 2026. The first version described an app with no
+// account, no purchases and nothing leaving the phone. Since then the app
+// gained optional accounts that sync, photo backup, clubs, live replies to
+// invitations, a subscription sold through Apple, one sponsored row, and help
+// from an AI model -- and a page that still said otherwise would have been a
+// promise the product broke.
 
 export const metadata: Metadata = {
   title: "Terms of Use — Aspect Niche",
   description:
-    "The terms for using Aspect Niche, a free hobby-discovery app and website.",
+    "The terms for using Aspect Niche, a hobby-discovery app and website: accounts, the membership subscription, AI help, clubs and your content.",
 };
 
 export default function Terms() {
   return (
     <LegalPage
       title="Terms of Use"
-      updated="8 September 2026"
-      lede="Aspect Niche is free, has no account, and sells nothing. These terms
-            explain what you can expect from it and what it expects from you."
+      updated="26 September 2026"
+      lede="Aspect Niche is free to use and complete without an account. An
+            optional account carries your things between phones, and an
+            optional membership adds room. These terms explain what you can
+            expect from it and what it expects from you."
     >
       <Section title="Who provides this">
         <p>
@@ -36,66 +43,182 @@ export default function Terms() {
 
       <Section title="Who it is for">
         <p>
-          Aspect Niche is intended for adults. <strong>You must be 18 or older
-          to use it.</strong> By using it you confirm that you are.
+          Aspect Niche is intended for adults.{" "}
+          <strong>You must be 18 or older to use it.</strong> By using it you
+          confirm that you are.
         </p>
         <p>
-          We cannot verify anyone&rsquo;s age, because we collect nothing and
-          have no account to attach an age to. This is a condition of use rather
-          than a gate, and it is here because some of what the app helps you
-          plan — bars, and hobbies that carry real physical risk — is not
-          suitable for children.
+          This is a condition of use rather than a gate: the app works without
+          an account, so there is often nothing to attach an age to. It is here
+          because some of what the app helps you plan — bars, and hobbies that
+          carry real physical risk — is not suitable for children.
         </p>
       </Section>
 
       <Section title="Using it">
         <p>
           You may use Aspect Niche for your own personal, non-commercial
-          purposes. You do not need an account and we do not ask for one.
+          purposes. Every hobby in it is free, with or without an account.
         </p>
         <List
           items={[
-            "Do not attempt to break, overload, or gain unauthorised access to the website or its services.",
-            "Do not scrape or bulk-download the hobby catalogue for republication.",
-            "Do not use the app to harass anyone, including through the invitations it can generate.",
+            "Do not attempt to break, overload, or gain unauthorised access to the website, the app or the services behind them.",
+            "Do not scrape or bulk-download the hobby catalogue or the place data for republication.",
+            "Do not use invitations, clubs or anything else in the app to harass, threaten or deceive anyone.",
+            "Do not try to get around the limits on free use, or use the AI features to produce anything unlawful or harmful.",
           ]}
         />
       </Section>
 
-      <Section title="What it costs, and refunds">
+      <Section title="Accounts">
         <p>
-          Aspect Niche is free. There are no purchases, no subscriptions, no
-          in-app payments and no advertising, so there is nothing to refund and
-          no refund policy to apply.
+          An account is optional. Signing in uses a six-digit code sent to your
+          email address; there is no password. With an account, your hobbies,
+          notes and plans are copied to our servers so they can reach another
+          phone you sign in on. You are responsible for keeping access to your
+          email address, since that is how you get back in.
         </p>
         <p>
-          If that ever changes, this page will say so before any charge exists,
-          and any purchase made through the App Store would additionally be
-          covered by Apple&rsquo;s own refund process, which we cannot override.
+          You can sign out at any time, and you can delete the account&rsquo;s
+          copy of your things from the app when you do. Signing out never
+          removes anything from the phone you are holding.
+        </p>
+      </Section>
+
+      <Section title="The membership">
+        <p>
+          A membership is an optional subscription that adds room. It does not
+          unlock any hobby: the catalogue is free for everyone. While active, it
+          includes:
+        </p>
+        <List
+          items={[
+            "More hobbies of your own than the three a free account can make.",
+            "Backup for up to 5,000 photos, instead of 100.",
+            "Up to 200 answers a month from the AI features, instead of 5.",
+            "No sponsored row in the app.",
+          ]}
+        />
+        <p>
+          <strong>Payment and renewal.</strong> Memberships are sold monthly or
+          yearly through the Apple App Store, at the price shown in the app
+          before you buy. Payment is charged to your Apple ID when you confirm
+          the purchase. A membership renews automatically at the end of each
+          period, at the same length and price, unless you turn off auto-renewal
+          at least 24 hours before the period ends. Your Apple ID is charged for
+          the renewal within the 24 hours before the period ends.
+        </p>
+        <p>
+          <strong>Cancelling.</strong> You can manage or cancel a membership at
+          any time in your Apple ID&rsquo;s subscription settings, or from
+          Manage subscription in the app. Cancelling stops the next renewal; the
+          membership stays active until the end of the period you have paid for.
+        </p>
+        <p>
+          <strong>Refunds.</strong> Purchases are processed by Apple, and
+          refunds are handled by Apple under its own policies at
+          reportaproblem.apple.com. We cannot issue or override them. A refunded
+          membership ends when the refund is made.
+        </p>
+        <p>
+          <strong>
+            When a membership ends, nothing you made is taken away.
+          </strong>{" "}
+          Every hobby, note and photo stays on your phone, editable, and photos
+          already backed up stay backed up. The free limits apply only to what
+          you add after that.
+        </p>
+        <p>
+          If we change the price, Apple will tell you before it applies, and you
+          can cancel before your next renewal. Purchases are verified through a
+          service called RevenueCat, which tells our servers whether a
+          membership is active.
+        </p>
+      </Section>
+
+      <Section title="The sponsored row">
+        <p>
+          Free use shows one sponsored row, at the foot of the Discover and
+          Plans lists, labelled &ldquo;Sponsored&rdquo;. It is served by
+          Google&rsquo;s advertising service and is not personalised to you. A
+          sponsored row is not a recommendation from us, and we are not
+          responsible for what an advertiser offers. Members see none.
+        </p>
+      </Section>
+
+      <Section title="Help from AI">
+        <p>
+          When you are signed in, the app can write a plan for your first time
+          at a hobby, answer questions about a hobby, look back over your own
+          notes, and suggest where a hobby you made yourself might be done.
+          These answers are written by an AI model, run for us by Groq, and are
+          labelled as written by AI wherever they appear.
+        </p>
+        <p>
+          <strong>AI answers can be wrong.</strong> They are not instruction, a
+          safety assessment, or medical, financial or professional advice, and
+          they do not know a place&rsquo;s current prices, hours or rules. Check
+          anything that matters with the place or a qualified person before you
+          rely on it.
+        </p>
+        <p>
+          To produce an answer, what you asked and the details it needs — the
+          hobby, the place you picked, and your notes for that hobby — are sent
+          to the model provider. Use of the AI features is limited each month,
+          as described above.
         </p>
       </Section>
 
       <Section title="Your content stays yours">
         <p>
-          The notes and photos you add stay on your device. We claim no licence
-          over them, we cannot see them, and we do not store, transmit or back
-          them up. See the{" "}
-          <Link href="/privacy">Privacy Policy</Link> for exactly where things
-          live.
+          The notes, photos, plans and hobbies you add are yours, and we claim
+          no ownership of them. Everything lives on your device first. If you
+          sign in, you give us permission to store and transmit a copy only so
+          far as that is needed to carry it to your other phones and to run the
+          features you use — nothing else. See the{" "}
+          <Link href="/privacy">Privacy Policy</Link> for exactly what is stored
+          where.
         </p>
         <p>
-          Because your content is only on your device, <strong>you are
-          responsible for backing it up</strong>. Deleting the app deletes what
-          it held, and we have no copy to restore.
+          Some things stay on the phone even with an account: unfinished draft
+          notes, vision boards, and photos beyond your backup limit.{" "}
+          <strong>
+            You are responsible for keeping copies of anything you cannot afford
+            to lose
+          </strong>
+          ; the app&rsquo;s Keeping a copy setting exports one.
         </p>
       </Section>
 
-      <Section title="Invitations">
+      <Section title="Clubs, invitations and what other people see">
         <p>
-          An invitation is a link you send yourself, through whichever messaging
-          app you choose. It travels between you and the person you send it to;
-          it does not pass through us. You are responsible for who you send one
-          to and what you write in it.
+          A club is shared with the people in it, and an invitation with the
+          people you send it to. What you write there — your name, a
+          club&rsquo;s name and description, the message on an invitation — is
+          seen by them, and you are responsible for it. Do not write anything
+          unlawful, abusive, or that you do not have the right to share.
+        </p>
+        <p>
+          Clubs are private: there is no public directory, and a club is reached
+          only through its link. You can report a club from inside the app. We
+          may remove a club or end access to clubs for anyone who breaks these
+          terms.
+        </p>
+        <p>
+          When a signed-in host sends an invitation, guests&rsquo; replies pass
+          through our servers so the host can see them. Otherwise an invitation
+          travels between you and the person you send it to, through whichever
+          messaging app you choose.
+        </p>
+      </Section>
+
+      <Section title="Places to go">
+        <p>
+          Suggested places come from open map data — Overture Maps, and
+          OpenStreetMap where that is not available — ranked for a first visit.
+          Map data can be out of date or wrong: a place may have moved, closed,
+          or never been what its listing says. A suggestion is not an
+          endorsement, and you should check a place before you go.
         </p>
       </Section>
 
@@ -104,15 +227,17 @@ export default function Terms() {
           The catalogue, first steps and linked resources are general
           information to help you find something to try. Some hobbies carry real
           physical risk — climbing, kayaking, blacksmithing, glassblowing and
-          others. Nothing here is instruction, training, or a safety
-          assessment, and it is not medical, financial or professional advice.
+          others. Nothing here is instruction, training, or a safety assessment,
+          and it is not medical, financial or professional advice.
         </p>
         <p>
-          <strong>Use your own judgement, get proper instruction where a hobby
-          calls for it, and follow the safety guidance of the people running the
-          activity.</strong> Links to third-party sites and videos are
-          suggestions; we do not control them and are not responsible for their
-          content or safety.
+          <strong>
+            Use your own judgement, get proper instruction where a hobby calls
+            for it, and follow the safety guidance of the people running the
+            activity.
+          </strong>{" "}
+          Links to third-party sites and videos are suggestions; we do not
+          control them and are not responsible for their content or safety.
         </p>
       </Section>
 
@@ -120,22 +245,50 @@ export default function Terms() {
         <p>
           Aspect Niche is provided as it is, without any warranty. We do not
           promise it will be available, uninterrupted, or free of errors, and we
-          may change or discontinue any part of it. Because the app runs on your
-          device, it will keep working if this website does not.
+          may change or discontinue any part of it. The app keeps working on
+          your phone without our servers; accounts, backup, clubs, AI help and
+          place suggestions need them. If we ever discontinue a paid feature, we
+          will say so in the app first.
         </p>
       </Section>
 
       <Section title="Liability">
         <p>
           To the fullest extent the law allows, we are not liable for indirect
-          or consequential loss, lost data, or loss arising from a hobby you
-          chose to take up. Nothing here limits liability that cannot legally be
-          limited — including for death or personal injury caused by negligence,
-          or for fraud.
+          or consequential loss, lost data, loss arising from a hobby you chose
+          to take up or a place you chose to visit, or loss from relying on an
+          AI answer. Our total liability to you for anything else is limited to
+          what you paid us in the twelve months before the claim. Nothing here
+          limits liability that cannot legally be limited — including for death
+          or personal injury caused by negligence, or for fraud.
         </p>
         <p>
           If you are a consumer, you keep every right your local consumer law
           gives you, and nothing in these terms takes those rights away.
+        </p>
+      </Section>
+
+      <Section title="The App Store">
+        <p>
+          These terms are between you and us, not Apple. Apple is not
+          responsible for the app or its content, has no obligation to provide
+          maintenance or support for it, and is not responsible for any claims
+          relating to it, including product liability, legal or regulatory
+          claims, or claims that it infringes someone&rsquo;s intellectual
+          property. If the app fails to conform to a warranty that applies by
+          law, you may notify Apple, and Apple may refund the purchase price, if
+          any; beyond that, Apple has no warranty obligation. Apple and its
+          subsidiaries are third-party beneficiaries of these terms and may
+          enforce them against you.
+        </p>
+      </Section>
+
+      <Section title="Ending use">
+        <p>
+          You can stop using Aspect Niche at any time, and delete your
+          account&rsquo;s copy of your things from the app. We may suspend or
+          end an account that breaks these terms. Ending an account does not
+          cancel an Apple subscription; cancel that in your Apple ID settings.
         </p>
       </Section>
 
@@ -151,8 +304,10 @@ export default function Terms() {
 
       <Section title="Changes to these terms">
         <p>
-          If these terms change, the date at the top changes with them. Carrying
-          on using Aspect Niche after that means the new version applies.
+          If these terms change, the date at the top changes with them. If a
+          change affects what a membership includes or costs, we will say so in
+          the app before it applies. Carrying on using Aspect Niche after a
+          change means the new version applies.
         </p>
       </Section>
 
