@@ -247,18 +247,28 @@ export default function PrivacyPolicy() {
           servers, your account&rsquo;s data stays while the account exists.
         </p>
         <p>
-          When you sign out you can choose{" "}
-          <strong>Sign out and delete the copy</strong>, which deletes your
-          synced collection, notes, plans and settings from our servers. That
-          does not yet remove your sign-in, backed-up photos, club memberships
-          or invitation records. To delete your account and everything held with
-          it, email{" "}
+          You can delete your account from inside the app, under{" "}
+          <strong>You &rarr; Account &rarr; Delete my account</strong>. That
+          deletes, straight away and for good, your sign-in and everything our
+          servers hold for it: the synced copy, backed-up photos, clubs you made
+          (their other members lose them too), your club memberships,
+          invitations and the replies to them, your membership record and AI
+          usage counts, and your customer record with RevenueCat. Everything on
+          your phone stays. Reports you made about a club are kept for the
+          moderator, without your name on them.
+        </p>
+        <p>
+          If you only want the synced copy gone, choose{" "}
+          <strong>Sign out and delete the copy</strong> when you sign out
+          instead. Deleting an account does not cancel a membership bought
+          through Apple; cancel that in your Apple ID settings. Apple keeps its
+          own purchase records as its policies and the law require. If you
+          cannot use the app, email{" "}
           <a href="mailto:devauntaenorman@gmail.com">
             devauntaenorman@gmail.com
           </a>{" "}
-          from the address you sign in with, and we will delete it within 30
-          days. Apple and RevenueCat keep purchase records as their own policies
-          and the law require.
+          from the address you sign in with and we will delete the account
+          within 30 days.
         </p>
       </Section>
 
