@@ -32,6 +32,32 @@ export type PlanParticipant = {
 
 export type PlanStatus = "draft" | "invited" | "responded" | "merged";
 
+/**
+ * What the host chose to show the guest beyond the proposal itself: where to
+ * meet, a note, the itinerary as the guest may see it, and a few essentials.
+ *
+ * Built only by an allowlist on the host's phone (lib/dateDetails
+ * `sharedExtras` in the app); private notes, costs, reservations and
+ * surprises have no field here to land in. Absent on every link made before
+ * it existed.
+ */
+export type SharedDateExtras = {
+  meetAt: string;
+  /** The host has not picked a place yet and says so. */
+  meetUndecided: boolean;
+  note: string;
+  stops: { title: string; start?: string; place: string; note: string; optional?: boolean }[];
+  bring: string;
+  wear: string;
+  access: string;
+  /**
+   * The artwork behind the invitation. The same shape as `InviteBackground`
+   * in invite.ts, written out rather than imported because this module
+   * imports nothing.
+   */
+  background?: { layout: "banner" | "full"; art: string; photo?: string };
+};
+
 export type GuestResponse = {
   /** "up" = sounds fun, "down" = pass. Unvoted candidates are neutral. */
   activityVotes: Record<string, "up" | "down">;
@@ -47,6 +73,16 @@ export type GuestResponse = {
    * which intersects, and of a meal, which both have to pick.
    */
   preferPublic?: boolean;
+  /**
+   * The guest said they cannot make it. A clear answer, and not agreement to
+   * anything: a declined response carries no votes.
+   */
+  declined?: boolean;
+  /**
+   * Another time the guest suggested, in their own words. A suggestion, not
+   * an agreed time -- the host still has to answer it.
+   */
+  suggestion?: string;
 };
 
 export type DatePlan = {
@@ -80,6 +116,12 @@ export type DatePlan = {
     /** The host asked to meet somewhere public. See `GuestResponse`. */
     preferPublic?: boolean;
     windows: TimeWindow[];
+    /**
+     * The guest-visible extras, as RECEIVED from a link. The host's own plan
+     * never stores these here: the host's details live on the host's phone
+     * and are projected into the link only when it is made.
+     */
+    extras?: SharedDateExtras;
   };
   response?: GuestResponse;
   /** Manual conflict resolutions picked on the merged screen. */

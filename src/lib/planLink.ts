@@ -1,8 +1,9 @@
-import { decodeBase64Url, encodeBase64Url } from "@/lib/invite";
+import { decodeBase64Url, encodeBase64Url, packBackground, unpackBackground } from "@/lib/invite";
 import type {
   BudgetRange,
   DatePlan,
   GuestResponse,
+  SharedDateExtras,
   TimeWindow,
 } from "@/lib/planTypes";
 
@@ -98,12 +99,70 @@ function trimTail(wire: unknown[], keepAtLeast: number): unknown[] {
  */
 const FLAG_PUBLIC = "p";
 
-function packFlags(preferPublic: boolean | undefined): string {
-  return preferPublic ? FLAG_PUBLIC : "";
+/** On a reply only: the guest cannot make it. */
+const FLAG_DECLINED = "d";
+
+function packFlags(preferPublic: boolean | undefined, declined?: boolean): string {
+  return `${preferPublic ? FLAG_PUBLIC : ""}${declined ? FLAG_DECLINED : ""}`;
 }
 
 function unpackPublic(v: unknown): boolean {
   return typeof v === "string" && v.includes(FLAG_PUBLIC);
+}
+
+function unpackDeclined(v: unknown): boolean {
+  return typeof v === "string" && v.includes(FLAG_DECLINED);
+}
+
+// The shared extras, packed positionally like everything else here and
+// appended at the END of the proposal, so a decoder from before them reads
+// the rest unchanged. Each stop is [title, start, place, note, optional].
+function packExtras(extras: SharedDateExtras | undefined): unknown {
+  if (!extras) return "";
+  return trimTail(
+    [
+      extras.meetAt,
+      extras.meetUndecided ? 1 : 0,
+      extras.note,
+      extras.stops.map((s) =>
+        trimTail([s.title, s.start ? packTime(s.start) : "", s.place, s.note, s.optional ? 1 : 0], 1),
+      ),
+      extras.bring,
+      extras.wear,
+      extras.access,
+      packBackground(extras.background),
+    ],
+    0,
+  );
+}
+
+function unpackExtras(v: unknown): SharedDateExtras | undefined {
+  if (!Array.isArray(v) || v.length === 0) return undefined;
+  const [meetAt, undecided, note, stops, bring, wear, access, background] = v;
+  const bg = unpackBackground(background);
+  return {
+    meetAt: str(meetAt),
+    meetUndecided: undecided === 1,
+    note: str(note),
+    stops: Array.isArray(stops)
+      ? stops
+          .filter((s): s is unknown[] => Array.isArray(s))
+          .map((s) => {
+            const start = s[1] ? unpackTime(s[1]) : null;
+            return {
+              title: str(s[0]),
+              ...(start ? { start } : {}),
+              place: str(s[2]),
+              note: str(s[3]),
+              ...(s[4] === 1 ? { optional: true } : {}),
+            };
+          })
+      : [],
+    bring: str(bring),
+    wear: str(wear),
+    access: str(access),
+    ...(bg ? { background: bg } : {}),
+  };
 }
 
 /** What the other person needs in order to answer. */
@@ -118,9 +177,16 @@ export type PlanProposalWire = {
   /** "" when the host named nothing. */
   title: string;
   preferPublic: boolean;
+  /** Absent on links made before extras existed, or with nothing to show. */
+  extras?: SharedDateExtras;
 };
 
-export function encodePlan(plan: DatePlan): string {
+/**
+ * `extras` is passed in rather than read from the plan: the host's copy
+ * never stores them, and the only thing that builds them is an allowlist
+ * (`sharedExtras` in the app).
+ */
+export function encodePlan(plan: DatePlan, extras?: SharedDateExtras): string {
   const wire: unknown[] = [
     PLAN_V1,
     plan.id,
@@ -142,6 +208,7 @@ export function encodePlan(plan: DatePlan): string {
     ),
     plan.proposal.title ?? "",
     packFlags(plan.proposal.preferPublic),
+    packExtras(extras),
   ];
   return encodeBase64Url(JSON.stringify(trimTail(wire, 7)));
 }
@@ -154,7 +221,7 @@ export function decodePlan(encoded: string): PlanProposalWire | null {
     return null;
   }
   if (!Array.isArray(parsed) || parsed[0] !== PLAN_V1) return null;
-  const [, id, name, interestIds, activityIds, min, max, dinners, windows, title, flags] =
+  const [, id, name, interestIds, activityIds, min, max, dinners, windows, title, flags, extras] =
     parsed;
   const planId = str(id);
   if (!planId) return null;
@@ -184,11 +251,12 @@ export function decodePlan(encoded: string): PlanProposalWire | null {
     windows: decodedWindows,
     title: str(title),
     preferPublic: unpackPublic(flags),
+    ...(unpackExtras(extras) ? { extras: unpackExtras(extras) } : {}),
   };
 }
 
-export function planLink(plan: DatePlan): string {
-  return `${WEB_ORIGIN}/p?d=${encodePlan(plan)}`;
+export function planLink(plan: DatePlan, extras?: SharedDateExtras): string {
+  return `${WEB_ORIGIN}/p?d=${encodePlan(plan, extras)}`;
 }
 
 /**
@@ -203,9 +271,13 @@ export function planLink(plan: DatePlan): string {
  * `mergePlan` already reads an empty meal list as a question nobody asked
  * rather than as a disagreement.
  */
+//
+// The something to do is a hobby from the catalogue or, since a date need not
+// start from a hobby, the host's own words in the title.
 export function isPlanSendable(plan: DatePlan): boolean {
   return (
-    plan.proposal.activityIds.length > 0 && plan.proposal.windows.length > 0
+    (plan.proposal.activityIds.length > 0 || !!plan.proposal.title?.trim()) &&
+    plan.proposal.windows.length > 0
   );
 }
 
@@ -250,7 +322,8 @@ export function encodePlanReply(
     response.budget.max,
     response.dinnerVotes,
     response.windowVotes,
-    packFlags(response.preferPublic),
+    packFlags(response.preferPublic, response.declined),
+    response.suggestion ?? "",
   ];
   return encodeBase64Url(JSON.stringify(trimTail(wire, 3)));
 }
@@ -263,7 +336,7 @@ export function decodePlanReply(encoded: string): PlanReplyWire | null {
     return null;
   }
   if (!Array.isArray(parsed) || parsed[0] !== REPLY_V1) return null;
-  const [, id, name, interestIds, up, down, min, max, dinners, windows, flags] =
+  const [, id, name, interestIds, up, down, min, max, dinners, windows, flags, suggestion] =
     parsed;
   const planId = str(id);
   if (!planId) return null;
@@ -288,6 +361,8 @@ export function decodePlanReply(encoded: string): PlanReplyWire | null {
       // false mean the same thing to `mergePlan`, and decode(encode(x)) === x
       // is a property two tests already hold this file to.
       ...(unpackPublic(flags) ? { preferPublic: true } : {}),
+      ...(unpackDeclined(flags) ? { declined: true } : {}),
+      ...(str(suggestion).trim() ? { suggestion: str(suggestion).trim().slice(0, 200) } : {}),
     },
   };
 }

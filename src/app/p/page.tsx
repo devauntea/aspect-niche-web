@@ -1,48 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { decodePlan } from "@/lib/planLink";
-import "../i/invite.css";
+import { datePreview, posterQuery } from "./preview";
+import DateView from "./DateView";
+import { artUrl } from "../i/art";
+import "./date.css";
 
-// The page a date-plan link opens.
+// A date invitation, for somebody who may not have the app.
 //
-// The same reason `/i` exists, for the other half of the same idea. Plan a
-// Date was built around handing somebody your phone, which works when they are
-// standing next to you and is the whole feature otherwise. The proposal now
-// travels as a link, and a link needs a page: messaging apps do not make an
-// unknown scheme tappable, and for anyone without the app, tapping one does
-// nothing at all.
+// Two representations, kept apart on purpose. The METADATA -- the title,
+// description and poster a messaging app shows before anyone taps -- is
+// `datePreview`: the host, what they called it, and the day. The PAGE is the
+// invitation itself: times, where to meet, the note and the plan, which the
+// host chose to share with whoever opens the link. Private planning never
+// reaches either; it was never put in the link.
 //
-// Everything needed to render the proposal is inside the link, so this page
-// needs no database and no account — the same property that makes the feature
-// work with no backend makes it work for a stranger on a browser.
-//
-// It renders the proposal and stops there. Answering happens in the app,
-// because the answer is a second link and only the app can make one. Saying so
-// plainly is the honest version of a design that has no server; pretending a
-// browser could record something would not be.
+// An unlisted link can be forwarded, and the page says nothing more than the
+// link carries.
 
 const ORIGIN = "https://aspectniche.com";
-
-function whenLabel(iso: string): string {
-  const at = new Date(iso);
-  if (Number.isNaN(at.getTime())) return "";
-  return at.toLocaleString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function budgetLabel(budget: { min: number; max: number }): string {
-  // The open end is a large sentinel rather than Infinity, because the plan is
-  // written to storage and JSON turns Infinity into null — which reads back as
-  // a budget nobody set. Anything above the top named stop is that sentinel.
-  if (budget.max >= 1_000_000) return "No limit";
-  if (budget.max === 0) return "Free";
-  return `Up to $${budget.max}`;
-}
 
 export async function generateMetadata({
   searchParams,
@@ -50,32 +26,25 @@ export async function generateMetadata({
   searchParams: Promise<{ d?: string }>;
 }): Promise<Metadata> {
   const { d } = await searchParams;
-  const plan = d ? decodePlan(d) : null;
-
-  const title = plan
-    ? `${plan.inviterName || "Someone"} wants to plan a date`
-    : "A date plan — Aspect Niche";
-  const description = plan
-    ? [
-        `${plan.activityIds.length} ${plan.activityIds.length === 1 ? "idea" : "ideas"}`,
-        `${plan.windows.length} ${plan.windows.length === 1 ? "time" : "times"} that work for them`,
-      ].join(" · ")
-    : "A date plan from Aspect Niche.";
-
+  const preview = datePreview(d ? decodePlan(d) : null);
+  // Only the preview fields go to the poster, never the whole invitation.
+  const card = `${ORIGIN}/p/card?${posterQuery(preview)}`;
   return {
     metadataBase: new URL(ORIGIN),
-    title,
-    description,
-    // Same posture as the invitation: preview fetchers do not obey robots the
-    // way crawlers do, which is what makes the unfurl work at all, and a plan
-    // with somebody's name and evenings in it has no business in an index.
+    title: preview.headline,
+    description: preview.description,
     robots: { index: false, follow: false },
-    openGraph: { type: "website", title, description },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: {
+      type: "website",
+      title: preview.headline,
+      description: preview.description,
+      images: [{ url: card, width: 1200, height: 630, alt: preview.headline }],
+    },
+    twitter: { card: "summary_large_image", title: preview.headline, description: preview.description, images: [card] },
   };
 }
 
-export default async function PlanPage({
+export default async function DatePage({
   searchParams,
 }: {
   searchParams: Promise<{ d?: string }>;
@@ -85,14 +54,14 @@ export default async function PlanPage({
 
   if (!plan) {
     return (
-      <main className="invite-page">
-        <article className="invite-shell">
-          <h1 className="invite-broken-title">This plan did not open</h1>
-          <p className="invite-broken-body">
+      <main className="date-page">
+        <article className="date-shell">
+          <h1 className="date-title">This invitation did not open</h1>
+          <p className="date-quiet">
             The link may have been cut short in transit. Ask them to send it
             again, and tap it rather than copying it.
           </p>
-          <footer className="invite-foot">
+          <footer className="date-foot">
             <Link href="/">What is Aspect Niche?</Link>
           </footer>
         </article>
@@ -100,57 +69,5 @@ export default async function PlanPage({
     );
   }
 
-  const host = plan.inviterName || "Someone";
-
-  return (
-    <main className="invite-page">
-      <article className="invite-shell">
-        <p className="invite-kicker">Plan a date</p>
-        <h1 className="invite-title">{host} wants to plan something</h1>
-
-        <dl className="invite-facts">
-          <div>
-            <dt>Budget</dt>
-            <dd>{budgetLabel(plan.budget)}</dd>
-          </div>
-          {plan.windows.length > 0 && (
-            <div>
-              <dt>{plan.windows.length === 1 ? "Time" : "Times that work for them"}</dt>
-              <dd>
-                {plan.windows
-                  .map((w) => whenLabel(w.start))
-                  .filter(Boolean)
-                  .join(" · ")}
-              </dd>
-            </div>
-          )}
-          {plan.activityIds.length > 0 && (
-            <div>
-              <dt>Ideas</dt>
-              <dd>
-                {plan.activityIds.length}{" "}
-                {plan.activityIds.length === 1 ? "hobby" : "hobbies"} to choose between
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        <p className="invite-note">
-          Open this link on a phone with Aspect Niche and it becomes the plan
-          itself: {host}&rsquo;s ideas, their budget and the evenings they
-          offered, with somewhere to say which of them work for you. Your answer
-          goes back as a second link they tap once.
-        </p>
-        <p className="invite-caveat">
-          It cannot be answered here. There is no account holding{" "}
-          {host}&rsquo;s plans — which is the same reason nobody else can see
-          them.
-        </p>
-
-        <footer className="invite-foot">
-          <Link href="/">What is Aspect Niche?</Link>
-        </footer>
-      </article>
-    </main>
-  );
+  return <DateView plan={plan} encoded={d ?? ""} art={artUrl(plan.extras?.background)} />;
 }

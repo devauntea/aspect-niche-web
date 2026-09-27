@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="26 September 2026"
+      updated="27 September 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -86,6 +86,16 @@ export default function PrivacyPolicy() {
           — going, maybe or out — and only the host can read it. A guest needs
           no account and gives nothing else. Signed out, replies travel as
           links, and nothing passes through us.
+        </p>
+        <p>
+          You can put one of the app&rsquo;s own pictures behind an invitation,
+          which sends nothing but its name. If you choose a photo of your own
+          and are signed in, we store a reduced copy (at most 1600 pixels on the
+          long side) under a long random name, so your guest&rsquo;s phone or
+          browser can show it. Anyone with the invitation link can see that
+          photo; nobody can find it without the link, and it carries nothing
+          that identifies you. Signed out, the photo stays on your phone and
+          your guest sees the invitation without it.
         </p>
       </Section>
 
@@ -224,7 +234,7 @@ export default function PrivacyPolicy() {
         </p>
         <List
           items={[
-            "Supabase — our servers and database: accounts, synced copies, backed-up photos, clubs, replies, membership status and AI usage counts.",
+            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
             "Apple — App Store purchases and payment.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
@@ -257,7 +267,8 @@ export default function PrivacyPolicy() {
           You can delete your account from inside the app, under{" "}
           <strong>You &rarr; Account &rarr; Delete my account</strong>. That
           deletes, straight away and for good, your sign-in and everything our
-          servers hold for it: the synced copy, backed-up photos, clubs you made
+          servers hold for it: the synced copy, backed-up photos, photos behind
+          your invitations, clubs you made
           (their other members lose them too), your club memberships,
           invitations and the replies to them, your membership record and AI
           usage counts, and your customer record with RevenueCat. Everything on
