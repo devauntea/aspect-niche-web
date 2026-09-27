@@ -23,10 +23,20 @@ const APP_SCHEME = "aspectniche://";
 export default function InviteView({
   invite,
   when,
+  art,
+  encoded,
 }: {
   invite: Invite;
   when: string;
+  /** The link's own payload, from the server, so "Open in the app" carries it
+   *  in the first HTML rather than only after hydration -- React does not
+   *  patch an attribute that differed, so reading it from `window` during
+   *  render left the server's empty link in place. */
+  encoded: string;
+  /** The background picture's address, when the host chose one. */
+  art: string | null;
 }) {
+  const layout = art ? invite.background?.layout : undefined;
   const [name, setName] = useState("");
   const [status, setStatus] = useState<RsvpStatus | null>(null);
   const [copied, setCopied] = useState(false);
@@ -56,7 +66,13 @@ export default function InviteView({
 
   return (
     <main className="invite-page">
-      <article className="invite-shell">
+      <article
+        className={`invite-shell${layout === "full" ? " has-art-full" : ""}${layout === "banner" ? " has-art-banner" : ""}`}
+        style={layout === "full" ? ({ "--invite-art": `url("${art}")` } as React.CSSProperties) : undefined}
+      >
+        {layout === "banner" && (
+          <div className="invite-banner" aria-hidden="true" style={{ backgroundImage: `url("${art}")` }} />
+        )}
         <p className="invite-kicker">{invite.host} invited you to</p>
         <h1 className="invite-title">{invite.title}</h1>
 
@@ -139,7 +155,7 @@ export default function InviteView({
         </section>
 
         <footer className="invite-foot">
-          <a className="invite-open-app" href={`${APP_SCHEME}i?d=${encodeURIComponent(new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("d") ?? "")}`}>
+          <a className="invite-open-app" href={`${APP_SCHEME}i?d=${encodeURIComponent(encoded)}`}>
             Open in the app
           </a>
           <Link href="/">What is Aspect Niche?</Link>

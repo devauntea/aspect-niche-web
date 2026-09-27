@@ -1,0 +1,197 @@
+/* The date invitation page: deep plum, rose, warm ivory, and a serif title.
+ *
+ * Its own palette, not the hobby invitation's violet: a date and an outing
+ * differ in tone and in wording, and the page should say which it is before
+ * a word is read. The same values the app's Dates screens use.
+ *
+ * Measured pairs: ivory (#F6EEE6) and the dim tone (#D6C6CE) on the card
+ * (#30242C) clear AA; the muted tone (#B09EA8) clears 4.5:1 on it; control
+ * borders (#8C7382) clear 3:1 against the card. */
+
+.date-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px 56px;
+  background: #21191f;
+  background-image: radial-gradient(900px 480px at 50% -12%, #3b2433 0%, #21191f 70%);
+  color: #f6eee6;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.date-shell {
+  width: 100%;
+  max-width: 34rem;
+  border: 1px solid #4a3843;
+  border-radius: 20px;
+  background: #30242c;
+  overflow: hidden;
+}
+
+/* The same evening sky the app draws: CSS shapes, never a photograph. */
+.date-sky {
+  position: relative;
+  height: 150px;
+  background: linear-gradient(180deg, rgba(239, 177, 197, 0.34), rgba(239, 177, 197, 0.04));
+  overflow: hidden;
+}
+.date-moon {
+  position: absolute;
+  right: 18%;
+  top: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: -9px 6px 0 0 rgba(239, 177, 197, 0.85);
+}
+.date-hill {
+  position: absolute;
+  bottom: -60px;
+  border-radius: 50%;
+  background: rgba(239, 177, 197, 0.2);
+}
+.date-hill-a { left: -10%; width: 70%; height: 130px; }
+.date-hill-b { right: -12%; width: 75%; height: 150px; background: rgba(239, 177, 197, 0.12); }
+
+/* A background the host chose: a banner in the sky's place, or a full drop
+   under the whole invitation with a scrim that ends on the card's own plum,
+   so the measured pairs above still hold over any photograph. */
+.date-art,
+.date-art-space {
+  height: clamp(150px, 42vw, 230px);
+  background-size: cover;
+  background-position: top center;
+}
+.date-shell.has-art-full {
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(48, 36, 44, 0.05) 0,
+      rgba(48, 36, 44, 0.4) clamp(120px, 30vw, 170px),
+      rgba(48, 36, 44, 0.72) clamp(260px, 60vw, 340px),
+      rgba(48, 36, 44, 0.84) 100%
+    ),
+    var(--date-art);
+  background-size: cover;
+  background-position: top center;
+}
+
+.date-body { padding: 24px 24px 24px; }
+
+.date-signature {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #b09ea8;
+}
+.date-kicker {
+  margin: 10px 0 0;
+  font-weight: 500;
+  color: #efb1c5;
+}
+.date-title {
+  margin: 6px 0 0;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 8vw, 3rem);
+  line-height: 1.1;
+}
+
+.date-facts { margin: 20px 0 0; display: grid; gap: 14px; }
+.date-facts dt { font-size: 0.8125rem; color: #b09ea8; }
+.date-facts dd { margin: 2px 0 0; font-size: 1.0625rem; font-weight: 500; }
+
+.date-note {
+  margin: 20px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid rgba(239, 177, 197, 0.6);
+  line-height: 1.5;
+}
+
+.date-plan { margin-top: 22px; }
+.date-plan h2, .date-answer h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #d6c6ce;
+}
+.date-plan ol { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.date-plan li { display: grid; gap: 2px; padding-left: 18px; position: relative; }
+.date-plan li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #efb1c5;
+}
+.date-plan li span { color: #d6c6ce; font-size: 0.9375rem; }
+
+.date-answer { margin-top: 28px; display: grid; gap: 12px; }
+.date-answer h2 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 1.6rem;
+  color: #f6eee6;
+}
+.date-choices { display: grid; gap: 8px; }
+.date-choice {
+  min-height: 52px;
+  border: 1px solid #8c7382;
+  border-radius: 14px;
+  background: transparent;
+  color: #f6eee6;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.date-choice.is-quiet { border-style: dashed; color: #d6c6ce; min-height: 46px; }
+.date-choice.is-picked { border: 2px solid #efb1c5; background: #3b2d36; color: #f6eee6; }
+
+.date-times { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+.date-times legend { margin-bottom: 6px; font-weight: 500; }
+.date-times label { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+
+.date-field { display: grid; gap: 6px; }
+.date-field span { font-weight: 500; }
+.date-field input {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #8c7382;
+  border-radius: 12px;
+  background: #21191f;
+  color: #f6eee6;
+  font: inherit;
+}
+.date-field input::placeholder { color: #b09ea8; }
+
+.date-send {
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: #efb1c5;
+  color: #21191f;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.date-send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.date-quiet { margin: 0; color: #d6c6ce; font-size: 0.9375rem; line-height: 1.5; }
+
+.date-foot {
+  margin-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.9375rem;
+}
+.date-foot a { color: #efb1c5; }
+
+.date-page :is(a, button, input):focus-visible {
+  outline: 2px solid #efb1c5;
+  outline-offset: 3px;
+}

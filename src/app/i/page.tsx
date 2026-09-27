@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { decodeInvite, formatInviteWhen } from "@/lib/invite";
 import InviteView from "./InviteView";
+import { artUrl } from "./art";
 import "./invite.css";
 
 // The page an invitation link opens.
@@ -95,6 +96,8 @@ export default async function InvitePage({
     <InviteView
       invite={invite}
       when={formatInviteWhen(invite.startsAt, invite.tzOffset)}
+      art={artUrl(invite.background)}
+      encoded={d ?? ""}
     />
   );
 }

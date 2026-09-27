@@ -37,6 +37,35 @@
   background: #131629;
 }
 
+/* A background the host chose. A banner bleeds to the card's edges across
+   the top; a full drop runs under everything, darkened toward the text so
+   every pair above still clears AA over any photograph -- the scrim ends on
+   the card's own colour at 82%, and the top stays light so the picture is
+   seen before the words start over it. */
+.invite-shell.has-art-banner {
+  overflow: hidden;
+}
+.invite-banner {
+  margin: -32px -28px 24px;
+  height: clamp(150px, 42vw, 230px);
+  background-size: cover;
+  background-position: top center;
+}
+.invite-shell.has-art-full {
+  padding-top: clamp(160px, 42vw, 230px);
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(19, 22, 41, 0.05) 0,
+      rgba(19, 22, 41, 0.4) clamp(120px, 30vw, 170px),
+      rgba(19, 22, 41, 0.72) clamp(260px, 60vw, 340px),
+      rgba(19, 22, 41, 0.84) 100%
+    ),
+    var(--invite-art);
+  background-size: cover;
+  background-position: top center;
+}
+
 .invite-kicker {
   margin: 0;
   font-size: 0.8125rem;

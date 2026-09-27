@@ -70,6 +70,8 @@ export type Invite = {
   place: string;
   /** The host's own description. This is the part that makes it an invitation. */
   note: string;
+  /** The artwork behind it, when the host chose one. See `InviteBackground`. */
+  background?: InviteBackground;
 };
 
 /** Someone the host has heard back from. */
@@ -268,6 +270,7 @@ export function encodeInvite(invite: Invite): string {
     // change meaning, so an older reader stops at activityId and still
     // decodes everything before it.
     typeof invite.tzOffset === "number" ? invite.tzOffset : "",
+    packBackground(invite.background),
   ];
   // Trailing blanks carry nothing; a missing tail reads as empty on the way in.
   while (wire.length > 8 && (wire[wire.length - 1] === "" || wire[wire.length - 1] == null)) {
@@ -323,6 +326,7 @@ export function decodeInvite(encoded: string): Invite | null {
     note,
     activityId,
     tzOffset,
+    background,
   ] = parsed;
   const startsAt = unpackTime(time);
   if (!str(id) || !str(host) || !str(title) || !startsAt) return null;
@@ -346,7 +350,83 @@ export function decodeInvite(encoded: string): Invite | null {
     ...(typeof tzOffset === "number" && Number.isFinite(tzOffset)
       ? { tzOffset }
       : {}),
+    ...(unpackBackground(background)
+      ? { background: unpackBackground(background) }
+      : {}),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Backgrounds
+//
+// The artwork behind an invitation: one of the app's own pieces, or a photo
+// the host chose, drawn either as a BANNER across the top or as a FULL DROP
+// behind everything written on it. The same few characters decide it for the
+// app and for the web page, which is why they live in this shared file.
+//
+// On the wire it is one short string: a layout letter, then either the
+// artwork's position in `INVITE_ART` or "u" and a photo key. "b3" is the
+// third artwork as a banner; "fuAbC..." is an uploaded photo behind the
+// whole card. Empty means the invitation's own drawn look.
+// ---------------------------------------------------------------------------
+
+export type InviteBackground = {
+  layout: "banner" | "full";
+  /** An `INVITE_ART` id, or "photo". */
+  art: string;
+  /**
+   * The uploaded photo's key when `art` is "photo". A key and never a URL:
+   * whoever renders it builds the address from its OWN storage origin, so a
+   * link cannot point a guest's browser at somebody else's server -- which
+   * is all a tracking pixel is.
+   */
+  photo?: string;
+};
+
+/**
+ * The app's own artwork, by id. The order is frozen -- append only: the
+ * position is what travels, and reordering would repaint every invitation
+ * already sent.
+ */
+export const INVITE_ART = ["graphite", "orbit", "heart", "ribbons"] as const;
+export type InviteArt = (typeof INVITE_ART)[number];
+
+/** Where uploaded photos live, public by their unguessable key. */
+export const BACKGROUND_BUCKET = "invite-backgrounds";
+
+const PHOTO_KEY = /^[A-Za-z0-9_-]{16,40}$/;
+
+export function isPhotoKey(key: unknown): key is string {
+  return typeof key === "string" && PHOTO_KEY.test(key);
+}
+
+export function packBackground(bg: InviteBackground | undefined): string {
+  if (!bg) return "";
+  const layout = bg.layout === "full" ? "f" : "b";
+  if (bg.art === "photo") return isPhotoKey(bg.photo) ? `${layout}u${bg.photo}` : "";
+  const i = INVITE_ART.indexOf(bg.art as InviteArt);
+  return i >= 0 ? `${layout}${i + 1}` : "";
+}
+
+/** Anything it does not recognise reads as no background, never as an error. */
+export function unpackBackground(v: unknown): InviteBackground | undefined {
+  if (typeof v !== "string" || v.length < 2) return undefined;
+  const layout = v[0] === "f" ? "full" : v[0] === "b" ? "banner" : null;
+  if (!layout) return undefined;
+  const rest = v.slice(1);
+  if (rest[0] === "u") {
+    const key = rest.slice(1);
+    return isPhotoKey(key) ? { layout, art: "photo", photo: key } : undefined;
+  }
+  if (!/^[0-9]+$/.test(rest)) return undefined;
+  const art = INVITE_ART[parseInt(rest, 10) - 1];
+  return art ? { layout, art } : undefined;
+}
+
+/** The public address of an uploaded photo, from the reader's own project. */
+export function backgroundPhotoUrl(projectUrl: string, key: string): string | null {
+  if (!projectUrl || !isPhotoKey(key)) return null;
+  return `${projectUrl.replace(/\/+$/, "")}/storage/v1/object/public/${BACKGROUND_BUCKET}/${key}.jpg`;
 }
 
 /**
