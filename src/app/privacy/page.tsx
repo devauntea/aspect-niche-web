@@ -137,14 +137,21 @@ export default function PrivacyPolicy() {
 
       <Section title="Help from AI">
         <p>
-          When you are signed in and ask for a first-session plan, ask a
-          question, or ask for a look back, our server sends what that answer
-          needs to Groq, which runs the AI model: the hobby, the place you
-          picked, your question and the earlier questions in that conversation,
-          and — for a plan or a look back — the pinned notes and answered
-          sessions for that hobby. Adding a hobby of your own sends its name and
-          description, to pick the kinds of places it is done at.
+          The AI features work only when you are signed in, and only when you
+          ask. Each time, our server sends Groq, which runs the AI model, what
+          that one answer needs, and nothing else:
         </p>
+        <List
+          items={[
+            "Asking about a hobby: the hobby, your question and the earlier ones in that conversation, and your level with it — how many sessions you confirmed, the time they added up to, when the last one was, and how long ago you took it up.",
+            "A plan for your first time: the hobby, the place you picked, and your pinned notes for it.",
+            "Looking back: the hobby, and your pinned notes and answered sessions for it.",
+            "Ideas for a date: the hobby you both agreed on, and the time, meal, budget and place you agreed.",
+            "What should I try?: what you type about what you like, and the names of hobbies you have collected.",
+            "Suggested words for a vision board: the board's title, the hobbies on it, and the words already on it.",
+            "Adding a hobby of your own: its name and description, to pick the kinds of places it is done at.",
+          ]}
+        />
         <p>
           We do not store the answers on our servers; they live on your phone
           unless you keep one as a note. We store only how many answers you have
