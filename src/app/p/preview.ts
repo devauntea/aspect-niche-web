@@ -1,4 +1,5 @@
 import type { PlanProposalWire } from "@/lib/planLink";
+import { packBackground, unpackBackground, type InviteBackground } from "@/lib/invite";
 
 // What a date invitation shows BEFORE anyone opens it: the link preview's
 // title, description and poster.
@@ -16,6 +17,8 @@ export type DatePreview = {
   day: string | null;
   headline: string;
   description: string;
+  /** The picture the host chose for the invitation, if any -- a cover, like the title. */
+  background?: InviteBackground;
 };
 
 export function datePreview(plan: PlanProposalWire | null): DatePreview {
@@ -41,6 +44,7 @@ export function datePreview(plan: PlanProposalWire | null): DatePreview {
     day,
     headline: host ? `${host} would love to take you out` : "You're invited out",
     description: [title, day ? `${day}${more}` : null].filter(Boolean).join(" · "),
+    ...(plan.extras?.background ? { background: plan.extras.background } : {}),
   };
 }
 
@@ -55,6 +59,8 @@ export function posterQuery(p: DatePreview): string {
   if (p.host) q.set("h", p.host.slice(0, 60));
   q.set("t", p.title.slice(0, 80));
   if (p.day) q.set("w", p.day);
+  const bg = packBackground(p.background);
+  if (bg) q.set("b", bg);
   return q.toString();
 }
 
@@ -68,5 +74,6 @@ export function previewFromQuery(q: URLSearchParams): DatePreview {
     day,
     headline: host ? `${host} would love to take you out` : "You're invited out",
     description: [title, day].filter(Boolean).join(" · "),
+    ...(unpackBackground(q.get("b")) ? { background: unpackBackground(q.get("b")) } : {}),
   };
 }

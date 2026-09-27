@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { decodeInvite, formatInviteWhen } from "@/lib/invite";
+import { cardArtUrl, loadCardArt } from "../cardArt";
 
 // The picture a messaging app shows instead of a link.
 //
@@ -43,8 +44,12 @@ function titleSize(title: string): number {
 }
 
 export async function GET(request: Request) {
-  const d = new URL(request.url).searchParams.get("d");
+  const url = new URL(request.url);
+  const d = url.searchParams.get("d");
   const invite = d ? decodeInvite(d) : null;
+  // The background the host chose, drawn under the words; the two lights
+  // below are the look without one.
+  const art = await loadCardArt(cardArtUrl(invite?.background, url.origin));
 
   // A card still gets drawn for a link that did not decode. Falling back to no
   // image would show the site's generic preview, which would tell the guest
@@ -84,41 +89,63 @@ export async function GET(request: Request) {
             right half was the empty part of the card — putting the glow there
             fills it and leaves the copy on quiet ground, instead of making the
             title fight a gradient for contrast. */}
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `radial-gradient(760px 700px at 92% 12%, rgba(139,124,246,0.55) 0%, rgba(139,124,246,0.12) 45%, rgba(10,12,24,0) 72%)`,
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `radial-gradient(620px 420px at 78% 108%, rgba(255,247,214,0.20) 0%, rgba(255,247,214,0.04) 48%, rgba(10,12,24,0) 74%)`,
-          }}
-        />
-        {/* A wash back over the lower left, so the date and place keep their
-            contrast where the warm light reaches across. */}
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `radial-gradient(900px 560px at -8% 86%, rgba(10,12,24,0.92) 0%, rgba(10,12,24,0.45) 45%, rgba(10,12,24,0) 70%)`,
-          }}
-        />
+        {art ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={art} alt="" width={WIDTH} height={HEIGHT} style={{ position: "absolute", top: -76, left: -76, width: WIDTH, height: HEIGHT, objectFit: "cover" }} />
+            {/* Darker under the words, which are set flush left. Placed
+                against the card's edges, not the padded box the text sits in. */}
+            <div
+              style={{
+                display: "flex",
+                position: "absolute",
+                top: -76,
+                left: -76,
+                width: WIDTH,
+                height: HEIGHT,
+                backgroundImage: `linear-gradient(90deg, rgba(10,12,24,0.88) 0%, rgba(10,12,24,0.64) 55%, rgba(10,12,24,0.25) 100%)`,
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <div
+              style={{
+                display: "flex",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `radial-gradient(760px 700px at 92% 12%, rgba(139,124,246,0.55) 0%, rgba(139,124,246,0.12) 45%, rgba(10,12,24,0) 72%)`,
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `radial-gradient(620px 420px at 78% 108%, rgba(255,247,214,0.20) 0%, rgba(255,247,214,0.04) 48%, rgba(10,12,24,0) 74%)`,
+              }}
+            />
+            {/* A wash back over the lower left, so the date and place keep their
+                contrast where the warm light reaches across. */}
+            <div
+              style={{
+                display: "flex",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `radial-gradient(900px 560px at -8% 86%, rgba(10,12,24,0.92) 0%, rgba(10,12,24,0.45) 45%, rgba(10,12,24,0) 70%)`,
+              }}
+            />
+          </>
+        )}
         {/* An inset hairline. Message clients round and crop the card against
             their own bubble, and without an edge of its own the artwork simply
             stops. */}
