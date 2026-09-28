@@ -1,21 +1,19 @@
-MIT License
+Copyright (c) 2026 Devauntae Norman. All rights reserved.
 
-Copyright (c) 2026 Devauntae Norman
+This repository contains the source of the Aspect Niche(TM) website,
+aspectniche.com. It is public so the site's invitation and date-plan link
+pages can be read, not so that it can be reused.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+No licence is granted. You may view the source on GitHub under GitHub's Terms
+of Service, but you may not copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works from it, in whole or in part,
+including its text, design, artwork, icon sets and themes, without prior
+written permission from the copyright holder.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Third-party open-source components used by the site remain under their own
+licences, as recorded in their own packages.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+"Aspect Niche" and the rabbit constellation mark are trademarks of
+Devauntae Norman.
+
+Contact: devauntaenorman@gmail.com

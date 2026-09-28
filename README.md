@@ -1,6 +1,6 @@
 # Aspect Niche — Website
 
-[![Live](https://img.shields.io/badge/live-aspectniche.com-brightgreen)](https://aspectniche.com) [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
+[![Live](https://img.shields.io/badge/live-aspectniche.com-brightgreen)](https://aspectniche.com)
 
 The marketing site for Aspect Niche, a graph-based hobby discovery app: pick a few
 interests, explore a constellation of activities, and follow a connection into
@@ -11,10 +11,7 @@ describes it, plus the pages that open the invitations the app generates.
 Built with Next.js + TypeScript + Tailwind CSS v4. No database, no cookies, and
 no third-party requests — fonts included.
 
-> **The interactive web demo has been removed.** It used to live at `/demo` and
-> carried the graph canvas, onboarding, rabbit hole, and date planner. All of it
-> is recoverable from git history at commit `9b86bc5` if a web app version gets
-> built later.
+> **The interactive web demo has been removed.** It used to live at `/demo`.
 
 ## Routes
 
@@ -81,3 +78,8 @@ npm run test
 
 `docs/` and `MOBILE-PARITY.md` are a record of the removed web demo and of what
 the mobile app became. They describe history, not the current site.
+
+## Licence
+
+Copyright (c) 2026 Devauntae Norman. All rights reserved. This repository is
+public to be read, not reused; see [LICENSE](./LICENSE).

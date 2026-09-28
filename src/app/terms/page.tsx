@@ -23,7 +23,7 @@ export default function Terms() {
   return (
     <LegalPage
       title="Terms of Use"
-      updated="26 September 2026"
+      updated="28 September 2026"
       lede="Aspect Niche is free to use and complete without an account. An
             optional account carries your things between phones, and an
             optional membership adds room. These terms explain what you can
@@ -57,13 +57,18 @@ export default function Terms() {
 
       <Section title="Using it">
         <p>
-          You may use Aspect Niche for your own personal, non-commercial
-          purposes. Every hobby in it is free, with or without an account.
+          We give you a personal, non-exclusive, non-transferable licence to
+          use Aspect Niche for your own personal, non-commercial purposes, on
+          devices you own or control, as long as you follow these terms. Every
+          hobby in it is free, with or without an account. Everything not
+          expressly given to you here is kept by us.
         </p>
         <List
           items={[
             "Do not attempt to break, overload, or gain unauthorised access to the website, the app or the services behind them.",
             "Do not scrape or bulk-download the hobby catalogue or the place data for republication.",
+            "Do not copy, decompile, reverse engineer or disassemble the app or the website, or reproduce how they rank places, except where the law allows it despite this term.",
+            "Do not use Aspect Niche, its content or its design to build a competing product.",
             "Do not use invitations, clubs or anything else in the app to harass, threaten or deceive anyone.",
             "Do not try to get around the limits on free use, or use the AI features to produce anything unlawful or harmful.",
           ]}
@@ -306,11 +311,16 @@ export default function Terms() {
 
       <Section title="Our own material">
         <p>
-          The name Aspect Niche, the rabbit mark, the icon sets, the written
-          hobby catalogue and the design of the app and site belong to us.
-          Please do not copy them for your own product. The photographs used on
-          this site are illustrative samples created for it, and are labelled as
-          samples where they appear.
+          Aspect Niche is original work by Devauntae Norman, who owns the
+          copyright in it: the app and website and their source code, the way
+          places are ranked, the written hobby catalogue, the icon sets, themes
+          and artwork, and the design of the app and site. &ldquo;Aspect
+          Niche&rdquo; and the rabbit constellation mark are trademarks of
+          Devauntae Norman. None of this may be copied, adapted or used for
+          another product without written permission. Open-source components
+          and map data used by the app keep their own licences. The photographs
+          used on this site are illustrative samples created for it, and are
+          labelled as samples where they appear.
         </p>
       </Section>
 

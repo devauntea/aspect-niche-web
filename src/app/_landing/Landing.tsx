@@ -149,7 +149,7 @@ export default function Landing() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>
-          <span>© 2026 Aspect Niche · Built by Devauntae Norman</span>
+          <span>Aspect Niche™ · © 2026 Devauntae Norman. All rights reserved.</span>
         </footer>
 
         <button
