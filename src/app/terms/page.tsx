@@ -146,6 +146,18 @@ export default function Terms() {
         </p>
       </Section>
 
+      <Section title="Links to shops and classes">
+        <p>
+          Some links to gear and classes are affiliate links: if you buy
+          through one we may earn a commission, at no cost to you. We choose
+          what is listed for someone starting out, and a commission never
+          decides what appears or where. Purchases and bookings are between you
+          and that shop or organiser, under their terms; we are not responsible
+          for what they sell. As an Amazon Associate, Aspect Niche earns from
+          qualifying purchases.
+        </p>
+      </Section>
+
       <Section title="Help from AI">
         <p>
           When you are signed in, the app can write a plan for your first time

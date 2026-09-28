@@ -196,6 +196,17 @@ export default function PrivacyPolicy() {
         </p>
       </Section>
 
+      <Section title="Links to shops and classes">
+        <p>
+          A hobby&rsquo;s plan can link to starter gear (REI, Amazon) and to
+          classes (Eventbrite, Cozymeal). Some of these may be affiliate links,
+          which earn us a commission if you buy, at no cost to you. Tapping one
+          opens that site in your browser; the app sends it nothing about you,
+          and the link says only which search to show. What you do there is
+          covered by that site&rsquo;s own privacy policy.
+        </p>
+      </Section>
+
       <Section title="Permissions, and why">
         <List
           items={[
