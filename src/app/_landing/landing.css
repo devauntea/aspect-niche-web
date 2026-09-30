@@ -1225,6 +1225,43 @@
   margin: 30px 0 0;
   line-height: 1.7;
 }
+.anl .walkthrough {
+  background: var(--paper);
+  color: var(--ink);
+  text-align: center;
+  padding-top: 125px;
+  padding-bottom: 130px;
+}
+.anl .walkthrough .eyebrow {
+  color: #656962;
+}
+.anl .walkthrough h2 em {
+  color: #7b648e;
+}
+.anl .walkthrough-copy {
+  color: #686b65;
+  font-size: 18px;
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.anl .walkthrough-frame {
+  max-width: 1100px;
+  margin: 56px auto 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #1c2740;
+  box-shadow:
+    0 0 0 1px rgba(23, 27, 28, 0.08),
+    0 30px 80px rgba(23, 27, 28, 0.22);
+}
+.anl .walkthrough-frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: #1c2740;
+}
 .anl .closing {
   position: relative;
   overflow: hidden;
@@ -1628,6 +1665,17 @@
   }
   .anl .statement-copy br {
     display: none;
+  }
+  .anl .walkthrough {
+    padding-top: 85px;
+    padding-bottom: 85px;
+  }
+  .anl .walkthrough-copy {
+    font-size: 16px;
+  }
+  .anl .walkthrough-frame {
+    margin-top: 40px;
+    border-radius: 14px;
   }
   .anl .discovery-story {
     height: auto;

@@ -10,6 +10,7 @@ import Hero from "./Hero";
 import DiscoveryStory from "./DiscoveryStory";
 import ThemeStudio from "./ThemeStudio";
 import MemoryWalk from "./MemoryWalk";
+import Walkthrough from "./Walkthrough";
 
 // The landing page.
 //
@@ -67,9 +68,9 @@ function Closing() {
         <br />
         the <em>rabbit hole.</em>
       </h2>
-      {/* No CTA here yet. The web demo this used to point at is gone, and the
-          app is not on the App Store, so there is nowhere honest to send
-          someone. A demo-video gallery is meant to land in this spot. */}
+      {/* No CTA here yet: the app is not on the App Store, so there is
+          nowhere honest to send someone. The walkthrough video sits just
+          above this section. */}
       <p>A little curiosity looks good on you.</p>
     </section>
   );
@@ -127,6 +128,7 @@ export default function Landing() {
             <a href="#discover">Discover</a>
             <a href="#studio">Make it yours</a>
             <a href="#memories">Your story</a>
+            <a href="#watch">Watch</a>
           </nav>
         </header>
 
@@ -136,6 +138,7 @@ export default function Landing() {
           <DiscoveryStory />
           <ThemeStudio />
           <MemoryWalk />
+          <Walkthrough />
           <Closing />
         </main>
 
