@@ -103,8 +103,11 @@ export default function PrivacyPolicy() {
           see its schedule and the names of everyone who answered, and can add
           their own; the page says so above the name field. A name and its
           answers are deleted when the host removes them, when the host deletes
-          the series or their account, and automatically 90 days after the game
-          they answered. A series holds at most 40 names.
+          the series or their account, or when the guest withdraws them.
+          Answers for games more than 90 days past are cleared the next time
+          anyone answers in that series; an &ldquo;I&rsquo;m usually in&rdquo;
+          answer stays until the guest withdraws it or the host removes it. A
+          series holds at most 40 names.
         </p>
       </Section>
 
@@ -313,10 +316,16 @@ export default function PrivacyPolicy() {
       <Section title="This website">
         <p>
           This site sets <strong>no cookies</strong>, stores nothing in your
-          browser, and loads nothing from any other company — no analytics, no
+          browser beyond the one thing described below, and loads nothing from
+          any other company — no analytics, no
           advertising, no embedded video, no font service. That is why there is
           no cookie banner. It is a set of pages about the app, plus the pages
           the app&rsquo;s invitation and plan links open.
+        </p>
+        <p>
+          The repeating-plan page remembers the name you typed, in this browser
+          only, so you can answer in one tap. Clearing the site&rsquo;s data in
+          your browser removes it.
         </p>
         <p>
           Like any website, it is served by a hosting provider that keeps

@@ -58,15 +58,43 @@
   margin: 1px 0 0;
   accent-color: #fff7d6;
 }
+/* Both live regions stay in the page when empty, so a screen reader has them
+   registered before the first message; they are only hidden from the eye. */
+.series-status,
 .series-message {
   margin: 0;
-  min-height: 0;
   font-size: 0.9375rem;
   line-height: 1.5;
+}
+.series-status {
+  color: #8b93c9;
+}
+.series-message {
   color: #ffb3ad;
 }
+.series-status:empty,
 .series-message:empty {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Busy is aria-disabled rather than disabled, so the control a person just
+   pressed keeps focus; the clicks are ignored in the handler. */
+.series [aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+/* Roster headings and the name label are sentence case, not the invitation
+   facts' tracked capitals. */
+.series-roster dt,
+.series-form .invite-field span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9375rem;
 }
 .series-later {
   margin: 10px 0 0;

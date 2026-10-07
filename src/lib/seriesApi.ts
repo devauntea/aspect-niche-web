@@ -61,12 +61,21 @@ export async function sendAnswer(
   status: SeriesStatus | null,
 ): Promise<AnswerResult> {
   const r = await post(status ? { action: "answer", id, game, name, status } : { action: "clear", id, game, name });
-  if (r.status === 200) return { ok: true, name: typeof r.data?.name === "string" ? r.data.name : null };
+  const retry = { ok: false, message: "Could not save your answer. Try again." } as const;
+  // A 200 whose body cannot be read is not evidence the answer was kept.
+  if (r.status === 200) {
+    if (!r.data || r.data.ok !== true) return retry;
+    return { ok: true, name: typeof r.data.name === "string" ? r.data.name : null };
+  }
   if (r.status === 409 && r.data?.error === "this series has ended") {
     return { ok: false, message: "This series has ended." };
   }
   if (r.status === 409 && r.data?.full === true && typeof r.data.error === "string") {
     return { ok: false, message: r.data.error };
   }
-  return { ok: false, message: "Could not save your answer. Try again." };
+  if (r.status === 400) return { ok: false, message: "That game is no longer open for answers." };
+  if (r.status === 404 && r.data?.error === "unknown series") {
+    return { ok: false, message: "This plan no longer exists." };
+  }
+  return retry;
 }

@@ -52,4 +52,30 @@ describe("sendAnswer", () => {
     const r = await sendAnswer("abc", "2026-10-15", "Sam", "going");
     expect(r.ok).toBe(false);
   });
+
+  it("does not count a 200 with no readable body as saved", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>", { status: 200 })));
+    expect(await sendAnswer("abc", "2026-10-15", "Sam", "going")).toEqual({
+      ok: false,
+      message: "Could not save your answer. Try again.",
+    });
+  });
+
+  it("says when the game is no longer open", async () => {
+    reply(400, { error: "that game is not open for answers" });
+    expect(await sendAnswer("abc", "2026-10-15", "Sam", "going")).toEqual({
+      ok: false,
+      message: "That game is no longer open for answers.",
+    });
+  });
+
+  it("says when the plan is gone, and keeps the retry copy for an outage 404", async () => {
+    reply(404, { error: "unknown series" });
+    expect(await sendAnswer("abc", "2026-10-15", "Sam", "going")).toEqual({ ok: false, message: "This plan no longer exists." });
+    reply(404, { code: "NOT_FOUND" });
+    expect(await sendAnswer("abc", "2026-10-15", "Sam", "going")).toEqual({
+      ok: false,
+      message: "Could not save your answer. Try again.",
+    });
+  });
 });

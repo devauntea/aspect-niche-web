@@ -151,7 +151,7 @@ export default function SeriesView({
                 type="button"
                 aria-pressed={on}
                 className={`invite-choice${on ? " is-picked" : ""}`}
-                disabled={busy}
+                aria-disabled={busy}
                 onClick={() => answer(next.date, c.id)}
               >
                 {c.label}
@@ -164,11 +164,14 @@ export default function SeriesView({
           <input
             type="checkbox"
             checked={usual}
-            disabled={busy}
+            aria-disabled={busy}
             onChange={(e) => answer(USUAL, e.target.checked ? "going" : null)}
           />
-          <span>{"I’m usually in. Count me as going every game unless I say otherwise."}</span>
+          <span>{"I'm usually in. Count me as going every game unless I say otherwise."}</span>
         </label>
+        <p className="series-status" role="status">
+          {busy ? "Saving" : ""}
+        </p>
         <p className="series-message" role="alert">
           {message}
         </p>
@@ -192,7 +195,7 @@ export default function SeriesView({
                         type="button"
                         aria-pressed={mine === c.id}
                         className={`invite-choice${mine === c.id ? " is-picked" : ""}`}
-                        disabled={busy}
+                        aria-disabled={busy}
                         onClick={() => answer(g.date, c.id)}
                       >
                         {c.label}
