@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="27 September 2026"
+      updated="7 October 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -96,6 +96,15 @@ export default function PrivacyPolicy() {
           photo; nobody can find it without the link, and it carries nothing
           that identifies you. Signed out, the photo stays on your phone and
           your guest sees the invitation without it.
+        </p>
+        <p>
+          A repeating plan (a series) is stored on our servers, because its
+          link has to show this week&rsquo;s changes. Anyone with the link can
+          see its schedule and the names of everyone who answered, and can add
+          their own; the page says so above the name field. A name and its
+          answers are deleted when the host removes them, when the host deletes
+          the series or their account, and automatically 90 days after the game
+          they answered. A series holds at most 40 names.
         </p>
       </Section>
 
@@ -245,7 +254,7 @@ export default function PrivacyPolicy() {
         </p>
         <List
           items={[
-            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, membership status and AI usage counts.",
+            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, series, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
             "Apple — App Store purchases and payment.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
@@ -281,7 +290,7 @@ export default function PrivacyPolicy() {
           servers hold for it: the synced copy, backed-up photos, photos behind
           your invitations, clubs you made
           (their other members lose them too), your club memberships,
-          invitations and the replies to them, your membership record and AI
+          invitations and the replies to them, series you host and every answer to them, your membership record and AI
           usage counts, and your customer record with RevenueCat. Everything on
           your phone stays. Reports you made about a club are kept for the
           moderator, without your name on them.

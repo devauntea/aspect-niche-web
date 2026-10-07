@@ -1,0 +1,100 @@
+/* The series page. It is an invitation page with a roster, so it wears the
+   invitation's own classes (invite.css, imported by the page) and adds only
+   what that file has no name for. The colours below are that file's own
+   values -- it declares no custom properties to reference -- so the pairs it
+   measured still hold here.
+   The error colour is the one addition: #ffb3ad on the card's #131629 is
+   well past 4.5:1, and the message is words, not colour alone. */
+
+.series {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #2b2f52;
+  display: grid;
+  gap: 16px;
+}
+.series-next {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.series-place,
+.series-empty,
+.series-usual,
+.series-privacy {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #cfd3ee;
+}
+.series-privacy {
+  font-size: 0.875rem;
+  color: #8b93c9;
+}
+.series-roster {
+  margin-top: 0;
+}
+.series-form {
+  display: grid;
+  gap: 14px;
+}
+.series-form .invite-field {
+  margin-top: 6px;
+}
+.series-usual-toggle {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #cfd3ee;
+  cursor: pointer;
+}
+.series-usual-toggle input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: #fff7d6;
+}
+.series-message {
+  margin: 0;
+  min-height: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #ffb3ad;
+}
+.series-message:empty {
+  display: none;
+}
+.series-later {
+  margin: 10px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.series-games {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+.series-games li {
+  display: grid;
+  gap: 8px;
+  font-size: 1rem;
+}
+.series-count {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: #8b93c9;
+}
+.series-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.series-mini .invite-choice {
+  padding: 8px 16px;
+}
