@@ -17,8 +17,10 @@ export function afterTap(answers: SeriesAnswer[], name: string, game: string, ch
 /**
  * Every game this name has an answer for, "usual" first: what "Take back my
  * answers" sends a clear for once a series has ended. Only the answers the
- * page holds -- anything older is pruned 90 days after its game. The app
- * keeps the same function in its lib/seriesState.
+ * page holds. Answers to games more than 90 days past are cleared the next
+ * time anyone opens the series or changes an answer in it -- never on a
+ * timer -- and the host can remove a name from every game at any time. The
+ * app keeps the same function in its lib/seriesState.
  */
 export function answeredGames(answers: SeriesAnswer[], name: string): string[] {
   const me = cleanSeriesName(name);

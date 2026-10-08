@@ -5,8 +5,11 @@
 // outlives its games is exactly when somebody wants off it.
 //
 // It clears what this page holds: "usually in" and the games the series would
-// have listed next. Anything older is pruned 90 days after its game, as the
-// privacy page says. Nothing is claimed removed until the server says so.
+// have listed next. Answers to games more than 90 days past are cleared the
+// next time anyone opens the series or changes an answer in it, as the
+// privacy page says -- never on a timer -- and the host can remove a name
+// from every game at any time. Nothing is claimed removed until the server
+// says so.
 
 import { useState, useSyncExternalStore } from "react";
 import { type SeriesAnswer } from "@/lib/series";

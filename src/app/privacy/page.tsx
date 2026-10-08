@@ -104,10 +104,12 @@ export default function PrivacyPolicy() {
           their own; the page says so above the name field. A name and its
           answers are deleted when the host removes them, when the host deletes
           the series or their account, or when the guest withdraws them.
-          Answers for games more than 90 days past are cleared the next time
-          anyone answers in that series; an &ldquo;I&rsquo;m usually in&rdquo;
-          answer stays until the guest withdraws it or the host removes it. A
-          series holds at most 40 names.
+          Answers to games more than 90 days past are cleared the next time
+          anyone opens the series or changes an answer in it. The host can
+          remove a name from every game at any time, and deleting the series
+          removes everything. An &ldquo;I&rsquo;m usually in&rdquo; answer
+          stays until the guest withdraws it or the host removes it. A series
+          holds at most 40 names.
         </p>
       </Section>
 
