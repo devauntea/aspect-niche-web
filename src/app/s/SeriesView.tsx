@@ -20,26 +20,13 @@ import {
 } from "@/lib/series";
 import { sendAnswer } from "@/lib/seriesApi";
 import { afterTap } from "@/lib/seriesChoice";
+import { NAME_KEY, readSavedName, watchSavedName } from "./savedName";
 
-const NAME_KEY = "aspect-niche-series-name";
 const CHOICES: { id: SeriesStatus; label: string }[] = [
   { id: "going", label: "Going" },
   { id: "maybe", label: "Maybe" },
   { id: "out", label: "Out" },
 ];
-// The remembered name is browser storage, so the server render has none and
-// the client picks it up after hydrating, without a state-setting effect.
-function readSavedName(): string {
-  try {
-    return localStorage.getItem(NAME_KEY) ?? "";
-  } catch {
-    return ""; // Private mode: the name is simply typed again.
-  }
-}
-function watchSavedName(onChange: () => void): () => void {
-  window.addEventListener("storage", onChange);
-  return () => window.removeEventListener("storage", onChange);
-}
 
 const HEADINGS: Record<SeriesStatus, string> = { going: "Going", maybe: "Maybe", out: "Out" };
 

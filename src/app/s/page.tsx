@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatGameWhen, nextGames, repeatLabel, UPCOMING_GAMES, type Series } from "@/lib/series";
 import { getSeries } from "@/lib/seriesApi";
 import SeriesView from "./SeriesView";
+import SeriesTakeBack from "./SeriesTakeBack";
 import "../i/invite.css";
 import "./series.css";
 
@@ -78,7 +79,10 @@ export default async function SeriesPage({ searchParams }: Props) {
         {series.place ? <p className="series-place">{series.place}</p> : null}
         {series.note ? <p className="invite-note">{series.note}</p> : null}
         {series.ended ? (
-          <p className="invite-note">This series has ended.</p>
+          <>
+            <p className="invite-note">This series has ended.</p>
+            <SeriesTakeBack id={series.id} answers={page.answers} />
+          </>
         ) : games.length === 0 ? (
           <p className="invite-note">No games are scheduled.</p>
         ) : (
