@@ -53,6 +53,8 @@ export type SeriesDoc = {
   /** `packBackground()` output from lib/invite. */
   bg?: string;
   ended?: boolean;
+  /** False when the host turned off "Remind people who haven't answered". Absent means on. */
+  nudges?: false;
 };
 
 export type Series = SeriesDoc & { id: string };
@@ -442,6 +444,7 @@ export function validateSeriesDoc(raw: unknown): SeriesDoc | null {
   if (!repeat || !changes) return null;
   if (r.activityId !== undefined && (typeof r.activityId !== "string" || r.activityId.length > 64)) return null;
   if (r.bg !== undefined && (typeof r.bg !== "string" || r.bg.length > 200)) return null;
+  if (r.nudges !== undefined && typeof r.nudges !== "boolean") return null;
 
   const out: SeriesDoc = {
     host,
@@ -459,6 +462,7 @@ export function validateSeriesDoc(raw: unknown): SeriesDoc | null {
     changes,
     ...(typeof r.bg === "string" && r.bg ? { bg: r.bg } : {}),
     ...(r.ended === true ? { ended: true } : {}),
+    ...(r.nudges === false ? { nudges: false as const } : {}),
   };
   return utf8Length(JSON.stringify(out)) <= MAX_SERIES_BYTES ? out : null;
 }
