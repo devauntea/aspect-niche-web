@@ -315,7 +315,7 @@ export default function Terms() {
           copyright in it: the app and website and their source code, the way
           places are ranked, the written hobby catalogue, the icon sets, themes
           and artwork, and the design of the app and site. &ldquo;Aspect
-          Niche&rdquo; and the rabbit constellation mark are trademarks of
+          Niche&rdquo;, the N-and-rabbit logo and the rabbit constellation mark are trademarks of
           Devauntae Norman. None of this may be copied, adapted or used for
           another product without written permission. Open-source components
           and map data used by the app keep their own licences. The photographs

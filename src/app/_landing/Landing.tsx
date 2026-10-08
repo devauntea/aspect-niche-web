@@ -119,7 +119,7 @@ export default function Landing() {
 
         <header className="masthead">
           <a className="brand" href="#top" aria-label="Aspect Niche home">
-            <Image src="/landing/rabbit.svg" alt="" width={31} height={34} />
+            <Image className="brand-tile" src="/brand/logo-tile.png" alt="" width={32} height={32} priority />
             <span>
               aspect niche<span className="brand-dot">.</span>
             </span>
