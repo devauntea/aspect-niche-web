@@ -19,6 +19,7 @@ import {
   type SeriesStatus,
 } from "@/lib/series";
 import { sendAnswer } from "@/lib/seriesApi";
+import { afterTap } from "@/lib/seriesChoice";
 
 const NAME_KEY = "aspect-niche-series-name";
 const CHOICES: { id: SeriesStatus; label: string }[] = [
@@ -78,6 +79,7 @@ export default function SeriesView({
       return;
     }
     // The server may have kept an earlier spelling of the same name; use it.
+    // (A withdrawal returns none, so the typed name stands.)
     const kept = r.name ?? me;
     setName(kept);
     try {
@@ -90,6 +92,15 @@ export default function SeriesView({
       const rest = prev.filter((a) => !(a.game === game && a.name.toLowerCase() === key));
       return status ? [...rest, { game, name: kept, status }] : rest;
     });
+  };
+
+  // Pressing the answer you gave for a game takes it back.
+  const tap = (game: string, choice: SeriesStatus) => {
+    if (!me) {
+      setMessage("Add your name first.");
+      return;
+    }
+    return answer(game, afterTap(answers, me, game, choice));
   };
 
   const next = games[0];
@@ -152,7 +163,7 @@ export default function SeriesView({
                 aria-pressed={on}
                 className={`invite-choice${on ? " is-picked" : ""}`}
                 aria-disabled={busy}
-                onClick={() => answer(next.date, c.id)}
+                onClick={() => tap(next.date, c.id)}
               >
                 {c.label}
               </button>
@@ -196,7 +207,7 @@ export default function SeriesView({
                         aria-pressed={mine === c.id}
                         className={`invite-choice${mine === c.id ? " is-picked" : ""}`}
                         aria-disabled={busy}
-                        onClick={() => answer(g.date, c.id)}
+                        onClick={() => tap(g.date, c.id)}
                       >
                         {c.label}
                       </button>
