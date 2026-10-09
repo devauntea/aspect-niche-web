@@ -255,8 +255,11 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           A token is deleted when Apple says the phone no longer accepts
-          notifications, when it has not been used for 120 days and has no
-          account attached, and with the account when you delete it. You can
+          notifications, and with the account when you delete it. With no
+          account attached, it is deleted two days after the phone last used
+          the app if it follows nothing, and after 120 days unused whatever it
+          follows. An account keeps the tokens of its ten most recently used
+          phones; signing in on an eleventh deletes the oldest. You can
           turn notifications off, kind by kind, under{" "}
           <strong>Settings &rarr; Notifications</strong>, and mute a single
           event from the series screen or from the invitation in the Plans tab.
@@ -346,9 +349,10 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           Queued notifications are different: a sent one is deleted from the
-          queue 7 days after it goes, and one that is still waiting goes once
-          it has been sent. A push token with no account attached is deleted
-          after 120 days unused.
+          queue 7 days after it goes; one still waiting is sent first, then
+          deleted 7 days later. A push token with no account attached is
+          deleted two days after the phone last used the app if it follows
+          nothing, and after 120 days unused whatever it follows.
         </p>
         <p>
           You can delete your account from inside the app, under{" "}
