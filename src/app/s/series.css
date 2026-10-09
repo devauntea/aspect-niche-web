@@ -81,6 +81,22 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* Taking every answer back is a quiet text control, not a fourth choice: it
+   sits under the answers and must not read as one of them. #cfd3ee on the
+   card's #131629 is the page's body pair. */
+.series-leave {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: #cfd3ee;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 /* Busy is aria-disabled rather than disabled, so the control a person just
    pressed keeps focus; the clicks are ignored in the handler. */
 .series [aria-disabled="true"] {

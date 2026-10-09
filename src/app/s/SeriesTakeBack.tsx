@@ -1,24 +1,21 @@
 "use client";
 
-// An ended series takes no new answers, but a guest can still take back the
-// ones they gave. The privacy page promises it, and a list of names that
-// outlives its games is exactly when somebody wants off it.
+// A series with no game to answer -- ended, or nothing scheduled -- still
+// lets a guest take back the answers they gave. The privacy page promises
+// it, and a list of names that outlives its games is exactly when somebody
+// wants off it.
 //
-// It clears what this page holds: "usually in" and the games the series would
-// have listed next. Answers to games more than 90 days past are cleared the
-// next time anyone opens the series or changes an answer in it, as the
-// privacy page says -- never on a timer -- and the host can remove a name
-// from every game at any time. Nothing is claimed removed until the server
-// says so.
+// One `leave`, which removes every answer under the name, played games
+// included: this page shows none of those, and an answer to last week's game
+// is what keeps a name on the list. Nothing is claimed removed until the
+// server says so, and a name with nothing under it is told so.
 
 import { useState, useSyncExternalStore } from "react";
-import { type SeriesAnswer } from "@/lib/series";
-import { sendAnswer } from "@/lib/seriesApi";
-import { answeredGames } from "@/lib/seriesChoice";
+import { cleanSeriesName } from "@/lib/series";
+import { leaveSeries } from "@/lib/seriesApi";
 import { readSavedName, watchSavedName } from "./savedName";
 
-export default function SeriesTakeBack({ id, answers: initial }: { id: string; answers: SeriesAnswer[] }) {
-  const [answers, setAnswers] = useState(initial);
+export default function SeriesTakeBack({ id }: { id: string }) {
   const saved = useSyncExternalStore(watchSavedName, readSavedName, () => "");
   const [typed, setName] = useState<string | null>(null);
   const name = typed ?? saved;
@@ -30,29 +27,16 @@ export default function SeriesTakeBack({ id, answers: initial }: { id: string; a
     if (busy) return;
     setDone(null);
     setProblem(null);
-    const games = answeredGames(answers, name);
-    if (!name.trim()) {
+    const me = cleanSeriesName(name);
+    if (!me) {
       setProblem("Add your name first.");
       return;
     }
-    if (games.length === 0) {
-      setDone("There is nothing under that name.");
-      return;
-    }
     setBusy(true);
-    const key = name.trim().toLowerCase();
-    let failed = false;
-    for (const game of games) {
-      const r = await sendAnswer(id, game, name.trim(), null);
-      if (!r.ok) {
-        failed = true;
-        continue;
-      }
-      setAnswers((prev) => prev.filter((a) => !(a.game === game && a.name.toLowerCase() === key)));
-    }
+    const r = await leaveSeries(id, me);
     setBusy(false);
-    if (failed) setProblem("Could not remove your answers. Try again.");
-    else setDone("Your answers are removed.");
+    if (!r.ok) setProblem(r.message);
+    else setDone(r.removed > 0 ? "Your answers are removed." : "There is nothing under that name.");
   };
 
   return (

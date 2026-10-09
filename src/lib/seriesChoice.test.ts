@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { afterTap, answeredGames } from "@/lib/seriesChoice";
+import { afterTap } from "@/lib/seriesChoice";
 import type { SeriesAnswer } from "@/lib/series";
 
 const G = "2026-10-15";
@@ -32,21 +32,3 @@ describe("afterTap", () => {
   });
 });
 
-describe("answeredGames", () => {
-  const answers: SeriesAnswer[] = [
-    { game: "2026-10-22", name: "Sam", status: "out" },
-    { game: "usual", name: "sam", status: "going" },
-    { game: "2026-10-15", name: "Sam", status: "maybe" },
-    { game: "2026-10-15", name: "Bo", status: "going" },
-  ];
-
-  // What "Take back my answers" sends a clear for: every row that name has.
-  it("lists usual first, then each game the name answered, matched in any case", () => {
-    expect(answeredGames(answers, "SAM")).toEqual(["usual", "2026-10-15", "2026-10-22"]);
-  });
-
-  it("is empty for a name with nothing, or no name", () => {
-    expect(answeredGames(answers, "Cy")).toEqual([]);
-    expect(answeredGames(answers, "  ")).toEqual([]);
-  });
-});

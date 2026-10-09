@@ -81,10 +81,13 @@ export default async function SeriesPage({ searchParams }: Props) {
         {series.ended ? (
           <>
             <p className="invite-note">This series has ended.</p>
-            <SeriesTakeBack id={series.id} answers={page.answers} />
+            <SeriesTakeBack id={series.id} />
           </>
         ) : games.length === 0 ? (
-          <p className="invite-note">No games are scheduled.</p>
+          <>
+            <p className="invite-note">No games are scheduled.</p>
+            <SeriesTakeBack id={series.id} />
+          </>
         ) : (
           <SeriesView id={series.id} series={series} games={games} answers={page.answers} />
         )}

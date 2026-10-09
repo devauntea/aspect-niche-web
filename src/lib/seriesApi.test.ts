@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getSeries, sendAnswer } from "@/lib/seriesApi";
+import { getSeries, leaveSeries, sendAnswer } from "@/lib/seriesApi";
 
 function reply(status: number, body: unknown) {
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status })));
@@ -77,5 +77,30 @@ describe("sendAnswer", () => {
       ok: false,
       message: "Could not save your answer. Try again.",
     });
+  });
+});
+
+describe("leaveSeries", () => {
+  it("sends one leave for the name and reports how many answers went", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true, removed: 3 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await leaveSeries("abc", "Sam")).toEqual({ ok: true, removed: 3 });
+    const init = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1];
+    expect(JSON.parse(String(init.body))).toEqual({ action: "leave", id: "abc", name: "Sam" });
+  });
+
+  it("reads a name with nothing as none removed", async () => {
+    reply(200, { ok: true, removed: 0 });
+    expect(await leaveSeries("abc", "Cy")).toEqual({ ok: true, removed: 0 });
+  });
+
+  it("does not count a 200 with no readable body as removed", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>", { status: 200 })));
+    expect(await leaveSeries("abc", "Sam")).toEqual({ ok: false, message: "Could not remove your answers. Try again." });
+  });
+
+  it("says when the plan is gone", async () => {
+    reply(404, { error: "unknown series" });
+    expect(await leaveSeries("abc", "Sam")).toEqual({ ok: false, message: "This plan no longer exists." });
   });
 });

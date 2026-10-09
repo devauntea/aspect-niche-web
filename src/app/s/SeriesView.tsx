@@ -18,7 +18,7 @@ import {
   type SeriesAnswer,
   type SeriesStatus,
 } from "@/lib/series";
-import { sendAnswer } from "@/lib/seriesApi";
+import { leaveSeries, sendAnswer } from "@/lib/seriesApi";
 import { afterTap } from "@/lib/seriesChoice";
 import { NAME_KEY, readSavedName, watchSavedName } from "./savedName";
 
@@ -46,6 +46,8 @@ export default function SeriesView({
   const [typed, setName] = useState<string | null>(null);
   const name = typed ?? saved;
   const [message, setMessage] = useState<string | null>(null);
+  // A confirmation, not a problem: it goes in the status line, not the alert.
+  const [done, setDone] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const me = cleanSeriesName(name);
@@ -59,6 +61,7 @@ export default function SeriesView({
     }
     setBusy(true);
     setMessage(null);
+    setDone(null);
     const r = await sendAnswer(id, game, me, status);
     setBusy(false);
     if (!r.ok) {
@@ -79,6 +82,30 @@ export default function SeriesView({
       const rest = prev.filter((a) => !(a.game === game && a.name.toLowerCase() === key));
       return status ? [...rest, { game, name: kept, status }] : rest;
     });
+  };
+
+  // Every answer under this name, played games included: the page shows only
+  // the games still to come, and an answer to last week's game is what keeps
+  // a name on the list. One `leave`; what is left on screen is updated only
+  // once the server says it went.
+  const takeBack = async () => {
+    if (busy) return;
+    if (!me) {
+      setMessage("Add your name first.");
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    setDone(null);
+    const r = await leaveSeries(id, me);
+    setBusy(false);
+    if (!r.ok) {
+      setMessage(r.message);
+      return;
+    }
+    const key = me.toLowerCase();
+    setAnswers((prev) => prev.filter((a) => a.name.toLowerCase() !== key));
+    setDone(r.removed > 0 ? "Your answers are removed." : "There is nothing under that name.");
   };
 
   // Pressing the answer you gave for a game takes it back.
@@ -136,7 +163,10 @@ export default function SeriesView({
             maxLength={60}
             autoComplete="given-name"
             aria-describedby="series-privacy"
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setDone(null);
+            }}
           />
         </div>
 
@@ -167,8 +197,11 @@ export default function SeriesView({
           />
           <span>{"I'm usually in. Count me as going every game unless I say otherwise."}</span>
         </label>
+        <button type="button" className="series-leave" aria-disabled={busy} onClick={() => void takeBack()}>
+          Take back my answers
+        </button>
         <p className="series-status" role="status">
-          {busy ? "Saving" : ""}
+          {busy ? "Saving" : (done ?? "")}
         </p>
         <p className="series-message" role="alert">
           {message}

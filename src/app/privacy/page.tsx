@@ -103,7 +103,9 @@ export default function PrivacyPolicy() {
           see its schedule and the names of everyone who answered, and can add
           their own; the page says so above the name field. A name and its
           answers are deleted when the host removes them, when the host deletes
-          the series or their account, or when the guest withdraws them.
+          the series or their account, or when the guest takes them back:
+          &ldquo;Take back my answers&rdquo; on the series page removes every
+          answer under their name, including answers to games already played.
           Answers to games more than 90 days past are cleared the next time
           anyone opens the series or changes an answer in it. The host can
           remove a name from every game at any time, and deleting the series

@@ -79,3 +79,22 @@ export async function sendAnswer(
   }
   return retry;
 }
+
+export type LeaveResult = { ok: true; removed: number } | { ok: false; message: string };
+
+/**
+ * "Take back my answers": every answer under this name, played games
+ * included -- the page shows only the games still to come, and an answer to
+ * last week's game is what keeps a name on the list. `removed` is how many
+ * went, so the page can say when a name had none. Never refused for timing.
+ */
+export async function leaveSeries(id: string, name: string): Promise<LeaveResult> {
+  const r = await post({ action: "leave", id, name });
+  if (r.status === 200 && r.data?.ok === true) {
+    return { ok: true, removed: typeof r.data.removed === "number" ? r.data.removed : 0 };
+  }
+  if (r.status === 404 && r.data?.error === "unknown series") {
+    return { ok: false, message: "This plan no longer exists." };
+  }
+  return { ok: false, message: "Could not remove your answers. Try again." };
+}
