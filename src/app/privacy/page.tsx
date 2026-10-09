@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="7 October 2026"
+      updated="8 October 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -221,6 +221,41 @@ export default function PrivacyPolicy() {
         </p>
       </Section>
 
+      <Section title="Notifications">
+        <p>
+          Reminders for your own sessions are scheduled and sent by your phone.
+          Nothing else in this section applies to them.
+        </p>
+        <p>
+          If you allow notifications, the app also tells you when something
+          changes in an invitation or a series you follow: a guest answered, a
+          game moved or was cancelled, a host sent a message, or a game is
+          tomorrow and you have not answered. To do that, your phone stores a
+          push token with us, along with its time zone, its notification
+          switches, and each invitation or series it follows with the name you
+          answered under. You do not need an account for this, and the token is
+          attached to your account only if you are signed in.
+        </p>
+        <p>
+          To deliver a notification, its text &mdash; a name, an event title, a
+          time &mdash; passes through Expo&rsquo;s push service and Apple&rsquo;s
+          push service. Expo is a processor for this and receives nothing else
+          about you.
+        </p>
+        <p>
+          A token is deleted when Apple says the phone no longer accepts
+          notifications, when it has not been used for 120 days and has no
+          account attached, and with the account when you delete it. You can
+          turn notifications off, or mute one invitation or series, in the app
+          under <strong>Settings &rarr; Notifications</strong>.
+        </p>
+        <p>
+          When you text people about a plan, the contacts you pick stay on your
+          phone, and the message goes through your own messaging app. We never
+          receive their names or numbers.
+        </p>
+      </Section>
+
       <Section title="Permissions, and why">
         <List
           items={[
@@ -242,7 +277,15 @@ export default function PrivacyPolicy() {
             </>,
             <>
               <strong>Notifications</strong> — reminders are scheduled on your
-              phone and sent by your phone. Nothing about them reaches us.
+              phone and sent by your phone; nothing about them reaches us.
+              Notifications about an invitation or a series you follow come
+              from our servers, and only if you allow them, as described under
+              Notifications.
+            </>,
+            <>
+              <strong>Contacts</strong> — only when you choose people to text
+              about a plan. What you pick stays on your phone, as described
+              under Notifications.
             </>,
           ]}
         />
@@ -261,7 +304,8 @@ export default function PrivacyPolicy() {
           items={[
             "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, series, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
-            "Apple — App Store purchases and payment.",
+            "Apple — App Store purchases and payment, and delivery of notifications to iPhones.",
+            "Expo — passes notifications to Apple's push service.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
             "Groq — runs the AI model for AI answers.",
             "Google — serves the sponsored row to free users.",
