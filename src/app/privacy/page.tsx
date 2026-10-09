@@ -81,7 +81,10 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           If you are signed in when you send one, we record the
-          invitation&rsquo;s id against your account, so replies can reach you.
+          invitation&rsquo;s id against your account, so replies can reach you,
+          and its title and start time with it, so the notification that tells
+          you someone answered can name the invitation. Nothing else in the
+          invitation is stored.
           A guest&rsquo;s reply then stores the name they typed and their answer
           — going, maybe or out — and only the host can read it. A guest needs
           no account and gives nothing else. Signed out, replies travel as
@@ -239,15 +242,24 @@ export default function PrivacyPolicy() {
         <p>
           To deliver a notification, its text &mdash; a name, an event title, a
           time &mdash; passes through Expo&rsquo;s push service and Apple&rsquo;s
-          push service. Expo is a processor for this and receives nothing else
-          about you.
+          push service. They also receive which screen the notification opens,
+          an in-app route and the event&rsquo;s id, and nothing about you
+          beyond that.
+        </p>
+        <p>
+          Until a notification is sent, its words wait in a queue on our
+          servers: guest names and answers, a host&rsquo;s message, and a
+          series&rsquo; schedule before and after a change. Notifications held
+          for quiet hours (9pm to 8am on your phone&rsquo;s clock) wait there
+          until morning.
         </p>
         <p>
           A token is deleted when Apple says the phone no longer accepts
           notifications, when it has not been used for 120 days and has no
           account attached, and with the account when you delete it. You can
-          turn notifications off, or mute one invitation or series, in the app
-          under <strong>Settings &rarr; Notifications</strong>.
+          turn notifications off, kind by kind, under{" "}
+          <strong>Settings &rarr; Notifications</strong>, and mute a single
+          event from the series screen or from the invitation in the Plans tab.
         </p>
         <p>
           When you text people about a plan, the contacts you pick stay on your
@@ -331,6 +343,12 @@ export default function PrivacyPolicy() {
         <p>
           On your phone, data stays until you erase it or delete the app. On our
           servers, your account&rsquo;s data stays while the account exists.
+        </p>
+        <p>
+          Queued notifications are different: a sent one is deleted from the
+          queue 7 days after it goes, and one that is still waiting goes once
+          it has been sent. A push token with no account attached is deleted
+          after 120 days unused.
         </p>
         <p>
           You can delete your account from inside the app, under{" "}
