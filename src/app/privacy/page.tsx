@@ -142,8 +142,9 @@ export default function PrivacyPolicy() {
             </>,
             <>
               <strong>Your location.</strong> Only when you tap &ldquo;Use my
-              location&rdquo; or &ldquo;Suggest places near me&rdquo;, and only
-              after iOS asks your permission. The coordinates are used for that
+              location&rdquo;, &ldquo;Suggest places near me&rdquo; or
+              &ldquo;Find events near me&rdquo;, and only after iOS asks your
+              permission. The coordinates are used for that
               one search and are not stored against your account, except as the
               last place you searched near, described above.
             </>,
@@ -156,6 +157,24 @@ export default function PrivacyPolicy() {
               another request. Your IP address is used to limit how many
               searches can come from one connection, in a counter that only
               covers the current short window.
+            </>,
+            <>
+              <strong>Upcoming events.</strong> For some hobbies, such as
+              music, the planner can list upcoming events. Only when you open
+              that list, our server asks{" "}
+              <a
+                href="https://www.ticketmaster.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ticketmaster
+              </a>{" "}
+              about events near the area you searched. Ticketmaster is told a
+              rounded area about five kilometres across, never your exact
+              location, and nothing about you. The answer is kept for an hour
+              against that area, so the next person nearby is not another
+              request. Tapping &ldquo;See tickets&rdquo; opens Ticketmaster&rsquo;s
+              own page, under its own privacy policy.
             </>,
           ]}
         />
@@ -269,6 +288,7 @@ export default function PrivacyPolicy() {
             "Google — serves the sponsored row to free users.",
             "komoot (Photon) — address suggestions while you type.",
             "OpenStreetMap — place data, where our own copy has none.",
+            "Ticketmaster — upcoming event listings, when you open them.",
             "Vercel — hosts this website.",
           ]}
         />
