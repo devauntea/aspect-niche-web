@@ -1,34 +1,548 @@
 @import "tailwindcss";
 
-/* Base styles for the marketing site and the invitation pages.
-   The landing (src/app/_landing/landing.css) and the invitation
-   (src/app/i/invite.css) each scope their own design under a root class, so
-   what lives here is only what every page shares. */
+/* The design system for every page on aspectniche.com.
+ *
+ * The palette is the app's Midnight theme, the same one the launch film is
+ * graded in (aspect-launch-film/src/theme.ts), so the site, the film and the
+ * app read as one thing. Nothing here is invented: each hue is one the app
+ * already draws.
+ *
+ * Type follows the app too: Space Grotesk is its display face, Inter its body
+ * face, and Instrument Serif italic is reserved for one voice — the film's
+ * narrator and the names of hobbies. That rule is what keeps the serif from
+ * becoming decoration.
+ *
+ * Pages that need their own layout (the landing, the legal pages, the
+ * invitation pages) scope it under a root class and build on these tokens. */
 
 :root {
-  --background: #faf8f2;
-  --foreground: #1a1916;
+  /* Night, darkest to lightest. */
+  --void: #05070f;
+  --night: #0a0e1c;
+  --deep: #121a30;
+  --surface: #1c2740;
+  --raised: #273350;
+
+  /* Text. Each clears WCAG AA on --night and --deep. */
+  --text: #f3effa;
+  --dim: #a9b2d6;
+  --muted: #8a93b8;
+
+  /* The one accent, and the glow it sits in. */
+  --lavender: #d9c7ef;
+  --lavender-strong: #ece1fa;
+  --glow: #8b7cf6;
+  --on-lavender: #15122a;
+  --starlight: #efede8;
+  --rose: #edb0c5;
+
+  /* Edges are lavender-tinted hairlines rather than grey. */
+  --edge: rgba(169, 178, 214, 0.14);
+  --edge-strong: rgba(169, 178, 214, 0.32);
+
+  --font-display: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-voice: var(--font-serif), "Instrument Serif", Georgia, serif;
+
+  /* A modular scale on 1.25, opened up at the display end. */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: clamp(1.4rem, 1.15rem + 0.9vw, 1.75rem);
+  --step-3: clamp(1.9rem, 1.35rem + 2.1vw, 3rem);
+  --step-4: clamp(2.5rem, 1.5rem + 4vw, 4.75rem);
+  --step-5: clamp(2.9rem, 1.4rem + 6vw, 6.75rem);
+
+  --gutter: clamp(20px, 4.5vw, 64px);
+  --max: 1280px;
+  --section: clamp(96px, 13vw, 184px);
+
+  --radius-s: 10px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+
+  /* Arrive fast, land soft: the film's own rule for motion. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --fast: 160ms;
+  --medium: 320ms;
+  --slow: 700ms;
+
+  color-scheme: dark;
 }
 
 @theme {
-  --color-background: var(--background); /* #faf8f2 — landing surface */
-  --color-foreground: var(--foreground); /* #1a1916 — landing text */
+  --color-background: var(--night);
+  --color-foreground: var(--text);
   --font-sans: var(--font-inter);
   --font-display: var(--font-grotesk);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+html {
+  background: var(--night);
+  scroll-padding-top: 84px;
 }
 
-/* Keyboard focus is always visible. The landing and the invitation override
-   this with an outline tuned to their own surface; this is the fallback the
-   legal pages get. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--night);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(139, 124, 246, 0.45);
+  color: #fff;
+}
+
+a {
+  color: inherit;
+}
+
+/* Keyboard focus is always visible, and always the accent. */
 :focus-visible {
-  outline: 2px solid #8c71c6;
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid var(--lavender);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Shared pieces ---------- */
+
+.container {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.voice {
+  font-family: var(--font-voice);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--lavender);
+  color: var(--on-lavender);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--medium) var(--ease-out);
+}
+.skip-link:focus {
+  transform: none;
+}
+
+/* Buttons. One filled style for the single most important action in a view,
+ * one quiet style for everything beside it. Both are 48px tall so they are
+ * comfortable to tap. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--fast) ease,
+    border-color var(--fast) ease,
+    color var(--fast) ease,
+    transform var(--fast) var(--ease-out);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: var(--lavender);
+  color: var(--on-lavender);
+}
+.btn-primary:hover {
+  background: var(--lavender-strong);
+}
+.btn-quiet {
+  border-color: var(--edge-strong);
+  color: var(--text);
+  background: rgba(18, 26, 48, 0.4);
+}
+.btn-quiet:hover {
+  border-color: var(--lavender);
+  background: rgba(28, 39, 64, 0.7);
+}
+.btn svg {
+  flex: none;
+}
+
+/* A text link that looks like one. */
+.text-link {
+  color: var(--lavender);
+  text-decoration: underline;
+  text-decoration-color: rgba(217, 199, 239, 0.4);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--fast) ease;
+}
+.text-link:hover {
+  text-decoration-color: var(--lavender);
+}
+
+/* ---------- Site header ---------- */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  transition:
+    background-color var(--medium) ease,
+    border-color var(--medium) ease,
+    backdrop-filter var(--medium) ease;
+  border-bottom: 1px solid transparent;
+}
+.site-header[data-solid="true"] {
+  background: rgba(10, 14, 28, 0.9);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom-color: var(--edge);
+}
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 72px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.12rem;
+  letter-spacing: -0.01em;
+}
+.brand img {
+  border-radius: 8px;
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.site-nav a {
+  position: relative;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--dim);
+  font-size: 0.94rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    color var(--fast) ease,
+    background-color var(--fast) ease;
+}
+.site-nav a:hover {
+  color: var(--text);
+  background: rgba(169, 178, 214, 0.08);
+}
+.site-nav a[aria-current] {
+  color: var(--text);
+}
+.site-nav a[aria-current]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--lavender);
+  box-shadow: 0 0 8px var(--glow);
+}
+.site-header .btn {
+  min-height: 42px;
+  padding: 0 18px;
+  font-size: 0.92rem;
+}
+.menu-button {
+  display: none;
+  margin-left: auto;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--edge-strong);
+  background: rgba(18, 26, 48, 0.5);
+  color: var(--text);
+  cursor: pointer;
+}
+.menu-button span {
+  position: relative;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  transition: background-color var(--fast) ease;
+}
+.menu-button span::before,
+.menu-button span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform var(--medium) var(--ease-out);
+}
+.menu-button span::before {
+  transform: translateY(-6px);
+}
+.menu-button span::after {
+  transform: translateY(6px);
+}
+.menu-button[aria-expanded="true"] span {
+  background: transparent;
+}
+.menu-button[aria-expanded="true"] span::before {
+  transform: rotate(45deg);
+}
+.menu-button[aria-expanded="true"] span::after {
+  transform: rotate(-45deg);
+}
+
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .site-nav,
+  .site-header .header-cta {
+    display: none;
+  }
+  .menu-button {
+    display: inline-flex;
+  }
+  .mobile-menu {
+    display: block;
+    position: fixed;
+    inset: 72px 0 auto;
+    z-index: 49;
+    padding: 12px var(--gutter) 28px;
+    background: rgba(10, 14, 28, 0.97);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--edge);
+    transform: translateY(-8px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--medium) var(--ease-out),
+      transform var(--medium) var(--ease-out),
+      visibility 0s linear var(--medium);
+  }
+  .mobile-menu[data-open="true"] {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition:
+      opacity var(--medium) var(--ease-out),
+      transform var(--medium) var(--ease-out);
+  }
+  .mobile-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mobile-menu li a {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    border-bottom: 1px solid var(--edge);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .mobile-menu .btn {
+    width: 100%;
+    margin-top: 22px;
+  }
+}
+
+/* ---------- Site footer ---------- */
+
+.site-footer {
+  position: relative;
+  border-top: 1px solid var(--edge);
+  background: var(--void);
+  color: var(--dim);
+  font-size: 0.94rem;
+}
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  padding-block: 72px 48px;
+}
+.site-footer .brand {
+  margin-bottom: 14px;
+}
+.site-footer-tagline {
+  margin: 0;
+  max-width: 30ch;
+  color: var(--dim);
+}
+.site-footer-status {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.site-footer h2 {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+.site-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.site-footer li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color var(--fast) ease;
+}
+.site-footer li a:hover {
+  color: var(--text);
+}
+.site-footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-block: 22px 32px;
+  border-top: 1px solid var(--edge);
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+.site-footer-legal p {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .site-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 24px;
+  }
+  .site-footer-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Pages a shared link opens ---------- */
+
+/* Invitations, date plans, series and replies keep their own measured
+ * palettes (see their stylesheets); what they share with the site is the name
+ * above the card. */
+.invite-page,
+.date-page {
+  flex-direction: column;
+  gap: 18px;
+}
+.guest-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 6px;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity var(--fast) ease;
+}
+.guest-brand:hover {
+  opacity: 1;
+}
+.guest-brand img {
+  border-radius: 6px;
+}
+
+/* ---------- Not found ---------- */
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+  padding-top: clamp(130px, 18vh, 200px);
+  padding-bottom: var(--section);
+  text-align: center;
+}
+.not-found h1 {
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.not-found p {
+  max-width: 48ch;
+  margin: 18px 0 0;
+  color: var(--dim);
+  font-size: var(--step-1);
+}
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
 }

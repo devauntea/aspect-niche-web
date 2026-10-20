@@ -3,6 +3,7 @@ import { decodeInvite, formatInviteWhen } from "@/lib/invite";
 import InviteView from "./InviteView";
 import { artUrl } from "./art";
 import "./invite.css";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 // The page an invitation link opens.
 //
@@ -80,6 +81,7 @@ export default async function InvitePage({
   if (!invite) {
     return (
       <main className="invite-page">
+        <GuestBrand />
         <div className="invite-shell">
           <h1 className="invite-broken-title">This invitation did not open</h1>
           <p className="invite-broken-body">

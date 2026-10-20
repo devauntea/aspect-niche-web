@@ -1,169 +1,44 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import "./landing.css";
-import { MotionContext } from "./useMotion";
-import { useReveal } from "./useReveal";
+import SiteHeader from "../_site/SiteHeader";
+import SiteFooter from "../_site/SiteFooter";
 import Hero from "./Hero";
-import DiscoveryStory from "./DiscoveryStory";
-import ThemeStudio from "./ThemeStudio";
-import MemoryWalk from "./MemoryWalk";
-import Walkthrough from "./Walkthrough";
+import FilmWindow from "./FilmWindow";
+import FilmTheater from "./FilmTheater";
+import Stall from "./Stall";
+import HobbyMap from "./HobbyMap";
+import Tour from "./Tour";
+import MakeItYours from "./MakeItYours";
+import Questions from "./Questions";
+import Closer from "./Closer";
 
-// The landing page.
+// The landing page, in the order the launch film tells it:
 //
-// Everything is scoped under `.anl` — the reference ships a buildless
-// stylesheet with bare `body`, `*` and `h2` rules, and dropping those into a
-// site that also serves a privacy page and the invitation pages would restyle
-// those too. The scope keeps the design intact without letting it leak.
+//   the hook and the film       Hero, FilmWindow
+//   the stall                   Stall
+//   the map, and forty-seven    HobbyMap
+//   what it takes, to memories  Tour
+//   make it yours               MakeItYours
+//   the closer                  Questions, Closer
 //
-// `js-motion` goes on the same element and is added only once this component
-// has mounted, which is what makes the entrance animations safe: the hidden
-// state is written against that class, so copy stays readable if the script
-// never runs.
-
-function Statement() {
-  const eyebrow = useReveal<HTMLParagraphElement>();
-  const heading = useReveal<HTMLHeadingElement>();
-  const copy = useReveal<HTMLParagraphElement>();
-  return (
-    <section className="statement section-pad">
-      <p className="eyebrow reveal" ref={eyebrow}>
-        A DIFFERENT KIND OF DISCOVERY
-      </p>
-      <h2 className="reveal" ref={heading}>
-        Your next obsession
-        <br />
-        is <em>one connection away.</em>
-      </h2>
-      <p className="statement-copy reveal" ref={copy}>
-        Not another feed to get lost in. A living map of things to get into.
-        <br />
-        Start with what you love. Wander into what you might.
-      </p>
-    </section>
-  );
-}
-
-function Closing() {
-  const eyebrow = useReveal<HTMLParagraphElement>();
-  const heading = useReveal<HTMLHeadingElement>();
-  return (
-    <section className="closing section-pad" aria-labelledby="closing-title">
-      <div className="closing-orbit" aria-hidden="true" />
-      <Image
-        className="closing-rabbit"
-        src="/landing/rabbit.svg"
-        alt=""
-        width={95}
-        height={100}
-      />
-      <p className="eyebrow reveal" ref={eyebrow}>
-        THERE&rsquo;S MORE TO YOU THAN YOU KNOW.
-      </p>
-      <h2 id="closing-title" className="reveal" ref={heading}>
-        Go down
-        <br />
-        the <em>rabbit hole.</em>
-      </h2>
-      {/* No CTA here yet: the app is not on the App Store, so there is
-          nowhere honest to send someone. The walkthrough video sits just
-          above this section. */}
-      <p>A little curiosity looks good on you.</p>
-    </section>
-  );
-}
-
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-function subscribeToMotionPreference(onChange: () => void) {
-  const query = window.matchMedia(REDUCED_MOTION);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
+// A server component: each section that needs the browser opts in on its own,
+// so the questions, the footer and the page's frame ship no script.
 
 export default function Landing() {
-  // The OS preference is external state, so it is read rather than copied into
-  // an effect — that way a change to it re-renders on its own and there is no
-  // moment where the two disagree. The server snapshot is `false`, which is the
-  // only honest answer before there is a window to ask.
-  const prefersReduced = useSyncExternalStore(
-    subscribeToMotionPreference,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false,
-  );
-
-  // The pause control overrides the preference in either direction. Null means
-  // nobody has touched it, so the OS still decides.
-  const [override, setOverride] = useState<boolean | null>(null);
-  const paused = override ?? prefersReduced;
-  const setPaused = useCallback((next: boolean) => setOverride(next), []);
-
-  // `js-motion` is what the entrance animations hang their hidden state on, so
-  // it must appear only once this is running in a browser. Added to the node
-  // directly rather than held in state: it is a fact about the DOM, and routing
-  // it through a render would mean a second pass on every load.
-  const rootRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    rootRef.current?.classList.add("js-motion");
-  }, []);
-
   return (
-    <MotionContext.Provider value={{ paused, setPaused }}>
-      <div ref={rootRef} className={`anl${paused ? " motion-paused" : ""}`}>
-        <a className="skip" href="#discover">
-          Skip to the interactive graph
-        </a>
-
-        <header className="masthead">
-          <a className="brand" href="#top" aria-label="Aspect Niche home">
-            <Image className="brand-tile" src="/brand/logo-tile.png" alt="" width={32} height={32} priority />
-            <span>
-              aspect niche<span className="brand-dot">.</span>
-            </span>
-          </a>
-          <nav aria-label="Main navigation">
-            <a href="#discover">Discover</a>
-            <a href="#studio">Make it yours</a>
-            <a href="#memories">Your story</a>
-            <a href="#watch">Watch</a>
-          </nav>
-        </header>
-
-        <main>
-          <Hero />
-          <Statement />
-          <DiscoveryStory />
-          <ThemeStudio />
-          <MemoryWalk />
-          <Walkthrough />
-          <Closing />
-        </main>
-
-        <footer>
-          <a className="brand" href="#top">
-            aspect niche<span className="brand-dot">.</span>
-          </a>
-          <p>Follow your curiosity.</p>
-          {/* Kept from the previous site: the store requires a reachable
-              privacy policy and the footer is where a reviewer looks. */}
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-          <Link href="/support">Support</Link>
-          <span>Aspect Niche™ · © 2026 Devauntae Norman. All rights reserved.</span>
-        </footer>
-
-        <button
-          className="motion-toggle"
-          aria-pressed={paused}
-          aria-label={paused ? "Enable decorative motion" : "Pause decorative motion"}
-          onClick={() => setPaused(!paused)}
-        >
-          ◫ <span>{paused ? "Motion paused" : "Pause motion"}</span>
-        </button>
-      </div>
-    </MotionContext.Provider>
+    <div className="landing">
+      <SiteHeader onLanding />
+      <main id="main">
+        <Hero />
+        <FilmWindow />
+        <Stall />
+        <HobbyMap />
+        <Tour />
+        <MakeItYours />
+        <Questions />
+        <Closer />
+      </main>
+      <SiteFooter onLanding />
+      <FilmTheater />
+    </div>
   );
 }

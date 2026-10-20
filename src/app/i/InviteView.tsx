@@ -17,6 +17,7 @@ import {
   type Invite,
   type RsvpStatus,
 } from "@/lib/invite";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 const APP_SCHEME = "aspectniche://";
 
@@ -66,12 +67,21 @@ export default function InviteView({
 
   return (
     <main className="invite-page">
+      <GuestBrand />
       <article
         className={`invite-shell${layout === "full" ? " has-art-full" : ""}${layout === "banner" ? " has-art-banner" : ""}`}
-        style={layout === "full" ? ({ "--invite-art": `url("${art}")` } as React.CSSProperties) : undefined}
+        style={
+          layout === "full"
+            ? ({ "--invite-art": `url("${art}")` } as React.CSSProperties)
+            : undefined
+        }
       >
         {layout === "banner" && (
-          <div className="invite-banner" aria-hidden="true" style={{ backgroundImage: `url("${art}")` }} />
+          <div
+            className="invite-banner"
+            aria-hidden="true"
+            style={{ backgroundImage: `url("${art}")` }}
+          />
         )}
         <p className="invite-kicker">{invite.host} invited you to</p>
         <h1 className="invite-title">{invite.title}</h1>
@@ -97,7 +107,7 @@ export default function InviteView({
           )}
           <div>
             <dt>How long</dt>
-            <dd>{Math.round(invite.durationMinutes / 60 * 10) / 10} hours</dd>
+            <dd>{Math.round((invite.durationMinutes / 60) * 10) / 10} hours</dd>
           </div>
         </dl>
 
@@ -155,7 +165,10 @@ export default function InviteView({
         </section>
 
         <footer className="invite-foot">
-          <a className="invite-open-app" href={`${APP_SCHEME}i?d=${encodeURIComponent(encoded)}`}>
+          <a
+            className="invite-open-app"
+            href={`${APP_SCHEME}i?d=${encodeURIComponent(encoded)}`}
+          >
             Open in the app
           </a>
           <Link href="/">What is Aspect Niche?</Link>

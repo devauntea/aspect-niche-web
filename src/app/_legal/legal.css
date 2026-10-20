@@ -1,0 +1,182 @@
+/* Privacy, Terms and Support: the site's night, set for reading.
+ *
+ * Body text is 1.0625rem on a 1.7 leading at no more than 68 characters, in
+ * --dim on --night (8.6:1). Headings are the display face; links are the
+ * accent, always underlined, because in a policy a link is load-bearing. */
+
+.legal-layout {
+  display: grid;
+  grid-template-columns: minmax(12.5rem, 1fr) minmax(0, 46rem) minmax(0, 1fr);
+  column-gap: 48px;
+  padding-top: clamp(120px, 14vw, 168px);
+  padding-bottom: var(--section);
+}
+
+.legal-head,
+.legal-article {
+  grid-column: 2;
+}
+
+.legal-crumbs {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.legal-crumbs a {
+  color: var(--dim);
+  text-decoration: none;
+}
+.legal-crumbs a:hover {
+  color: var(--text);
+}
+
+.legal-head h1 {
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+.legal-updated {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.legal-lede {
+  margin: 30px 0 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--edge);
+  color: var(--text);
+  font-size: var(--step-1);
+  line-height: 1.6;
+}
+
+/* The contents list sits in the left margin on wide screens and starts level
+ * with the first section; it scrolls with you. */
+.legal-contents {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: end;
+  align-self: start;
+  position: sticky;
+  top: 104px;
+  width: min(100%, 15rem);
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  margin-top: 56px;
+  font-size: 0.88rem;
+}
+.legal-contents p {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.legal-contents ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--edge);
+}
+.legal-contents a {
+  display: block;
+  padding: 6px 0 6px 14px;
+  margin-left: -1px;
+  border-left: 1px solid transparent;
+  color: var(--muted);
+  line-height: 1.35;
+  text-decoration: none;
+  transition:
+    color var(--fast) ease,
+    border-color var(--fast) ease;
+}
+.legal-contents a:hover {
+  color: var(--text);
+}
+.legal-contents a[aria-current] {
+  border-left-color: var(--lavender);
+  color: var(--text);
+}
+
+.legal-article {
+  grid-row: 2;
+}
+
+.legal-section {
+  margin-top: 56px;
+}
+.legal-section h2 {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.legal-section h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+.legal-section h2 a:hover {
+  color: var(--lavender);
+}
+
+.legal-body {
+  display: grid;
+  gap: 16px;
+  color: var(--dim);
+  font-size: var(--step-0);
+  line-height: 1.7;
+}
+.legal-body p {
+  margin: 0;
+  max-width: 68ch;
+}
+.legal-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.legal-body a {
+  color: var(--lavender);
+  text-decoration: underline;
+  text-decoration-color: rgba(217, 199, 239, 0.45);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.legal-body a:hover {
+  text-decoration-color: var(--lavender);
+}
+.legal-list {
+  margin: 0;
+  padding-left: 22px;
+  max-width: 66ch;
+  list-style: disc outside;
+}
+.legal-list li {
+  margin-top: 8px;
+}
+.legal-list li:first-child {
+  margin-top: 0;
+}
+.legal-list li::marker {
+  color: var(--lavender);
+}
+
+@media (max-width: 1100px) {
+  .legal-layout {
+    grid-template-columns: minmax(0, 46rem);
+    justify-content: center;
+  }
+  .legal-head,
+  .legal-article {
+    grid-column: 1;
+  }
+  .legal-head {
+    grid-row: 1;
+  }
+  .legal-contents {
+    display: none;
+  }
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { decodePlanReply } from "@/lib/planLink";
 import "../i/invite.css";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 // The page a date-plan ANSWER opens, for the person who sent the plan.
 //
@@ -29,6 +30,7 @@ export default async function PlanReplyPage({
   if (!reply) {
     return (
       <main className="invite-page">
+        <GuestBrand />
         <article className="invite-shell">
           <h1 className="invite-broken-title">This answer did not open</h1>
           <p className="invite-broken-body">
@@ -51,6 +53,7 @@ export default async function PlanReplyPage({
 
   return (
     <main className="invite-page">
+      <GuestBrand />
       <article className="invite-shell">
         <p className="invite-kicker">Plan a date</p>
         <h1 className="invite-title">{guest} answered</h1>

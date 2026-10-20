@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { decodeReply, rsvpLabel } from "@/lib/invite";
 import "../i/invite.css";
 import Link from "next/link";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 // The page a reply link opens, for the host.
 //
@@ -25,6 +26,7 @@ export default async function ReplyPage({
 
   return (
     <main className="invite-page">
+      <GuestBrand />
       <article className="invite-shell">
         {reply ? (
           <>

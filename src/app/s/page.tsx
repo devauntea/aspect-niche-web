@@ -1,12 +1,19 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { formatGameWhen, nextGames, repeatLabel, UPCOMING_GAMES, type Series } from "@/lib/series";
+import {
+  formatGameWhen,
+  nextGames,
+  repeatLabel,
+  UPCOMING_GAMES,
+  type Series,
+} from "@/lib/series";
 import { getSeries } from "@/lib/seriesApi";
 import SeriesView from "./SeriesView";
 import SeriesTakeBack from "./SeriesTakeBack";
 import "../i/invite.css";
 import "./series.css";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 // A series link: one link pinned in a group chat for a game that repeats.
 // Unlike /i, the event is not in the link -- it is fetched, so this week's
@@ -27,13 +34,18 @@ const load = cache(getSeries);
 
 // Games are relative to the moment of the request; a function outside the
 // component keeps that impurity out of render.
-const upcoming = (series: Series, count: number) => nextGames(series, Date.now(), count);
+const upcoming = (series: Series, count: number) =>
+  nextGames(series, Date.now(), count);
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
   const { id } = await searchParams;
   const page = id ? await load(id) : "missing";
   const found = typeof page === "object" ? page : null;
-  const title = found ? `${found.series.title}, hosted by ${found.series.host}` : "A repeating plan on Aspect Niche";
+  const title = found
+    ? `${found.series.title}, hosted by ${found.series.host}`
+    : "A repeating plan on Aspect Niche";
   const next = found ? upcoming(found.series, 1)[0] : undefined;
   const description = found
     ? next
@@ -42,7 +54,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         ? "This series has ended."
         : "No games are scheduled."
     : "Say if you're in.";
-  return { title, description, robots: { index: false, follow: false }, openGraph: { title, description } };
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: { title, description },
+  };
 }
 
 export default async function SeriesPage({ searchParams }: Props) {
@@ -52,9 +69,12 @@ export default async function SeriesPage({ searchParams }: Props) {
   if (typeof page !== "object") {
     return (
       <main className="invite-page">
+        <GuestBrand />
         <article className="invite-shell">
           <h1 className="invite-broken-title">
-            {page === "missing" ? "This plan no longer exists" : "This plan did not load"}
+            {page === "missing"
+              ? "This plan no longer exists"
+              : "This plan did not load"}
           </h1>
           <p className="invite-broken-body">
             {page === "missing"
@@ -73,6 +93,7 @@ export default async function SeriesPage({ searchParams }: Props) {
   const games = upcoming(series, UPCOMING_GAMES);
   return (
     <main className="invite-page">
+      <GuestBrand />
       <article className="invite-shell">
         <p className="invite-kicker">{`${series.host} · ${repeatLabel(series.repeat)}`}</p>
         <h1 className="invite-title">{series.title}</h1>
@@ -86,7 +107,12 @@ export default async function SeriesPage({ searchParams }: Props) {
         ) : games.length === 0 ? (
           <p className="invite-note">No games are scheduled.</p>
         ) : (
-          <SeriesView id={series.id} series={series} games={games} answers={page.answers} />
+          <SeriesView
+            id={series.id}
+            series={series}
+            games={games}
+            answers={page.answers}
+          />
         )}
         <footer className="invite-foot">
           <Link href="/">What is Aspect Niche?</Link>

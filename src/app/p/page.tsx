@@ -5,6 +5,7 @@ import { datePreview, posterQuery } from "./preview";
 import DateView from "./DateView";
 import { artUrl } from "../i/art";
 import "./date.css";
+import GuestBrand from "@/app/_site/GuestBrand";
 
 // A date invitation, for somebody who may not have the app.
 //
@@ -40,7 +41,12 @@ export async function generateMetadata({
       description: preview.description,
       images: [{ url: card, width: 1200, height: 630, alt: preview.headline }],
     },
-    twitter: { card: "summary_large_image", title: preview.headline, description: preview.description, images: [card] },
+    twitter: {
+      card: "summary_large_image",
+      title: preview.headline,
+      description: preview.description,
+      images: [card],
+    },
   };
 }
 
@@ -55,6 +61,7 @@ export default async function DatePage({
   if (!plan) {
     return (
       <main className="date-page">
+        <GuestBrand />
         <article className="date-shell">
           <h1 className="date-title">This invitation did not open</h1>
           <p className="date-quiet">
@@ -69,5 +76,11 @@ export default async function DatePage({
     );
   }
 
-  return <DateView plan={plan} encoded={d ?? ""} art={artUrl(plan.extras?.background)} />;
+  return (
+    <DateView
+      plan={plan}
+      encoded={d ?? ""}
+      art={artUrl(plan.extras?.background)}
+    />
+  );
 }
