@@ -23,7 +23,7 @@ export default function Terms() {
   return (
     <LegalPage
       title="Terms of Use"
-      updated="28 September 2026"
+      updated="29 October 2026"
       lede="Aspect Niche is free to use and complete without an account. An
             optional account carries your things between phones, and an
             optional membership adds room. These terms explain what you can
@@ -77,11 +77,12 @@ export default function Terms() {
 
       <Section title="Accounts">
         <p>
-          An account is optional. Signing in uses a six-digit code sent to your
-          email address; there is no password. With an account, your hobbies,
-          notes and plans are copied to our servers so they can reach another
-          phone you sign in on. You are responsible for keeping access to your
-          email address, since that is how you get back in.
+          An account is optional. Signing in uses your email address and a
+          password, or a six-digit code sent to that address. With an account,
+          your hobbies, notes and plans are copied to our servers so they can
+          reach another phone you sign in on. Keep your password to yourself,
+          and keep access to your email address, since that is how you reset
+          a forgotten password.
         </p>
         <p>
           You can sign out at any time, and you can delete the account&rsquo;s

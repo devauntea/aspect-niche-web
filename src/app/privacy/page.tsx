@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="8 October 2026"
+      updated="29 October 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -57,12 +57,14 @@ export default function PrivacyPolicy() {
 
       <Section title="If you make an account">
         <p>
-          Signing in needs only an email address. We send it a six-digit code;
-          there is no password, name or phone number. With an account, we store:
+          Signing in needs an email address and a password you choose, or a
+          six-digit code we email you instead. We never ask for a name or phone
+          number. With an account, we store:
         </p>
         <List
           items={[
             "Your email address, to sign you in.",
+            "Your password, if you set one, only as a one-way hash held by our sign-in provider (Supabase). Nobody, including us, can read it back.",
             "A copy of your collection, pinned notes, sessions, plans, hobbies you made yourself, settings, and the last place you searched near — so they reach another phone you sign in on.",
             "Photos you add, up to your backup limit: a reduced copy (at most 1600 pixels on the long side), in a private folder only your account can read. The original stays on the phone that took it.",
           ]}
