@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { decodeInvite, formatInviteWhen } from "@/lib/invite";
 import { cardArtUrl, loadCardArt } from "../cardArt";
+import { fitCard } from "./fit";
 
 // The picture a messaging app shows instead of a link.
 //
@@ -29,19 +30,15 @@ const ALPHA = "#fff7d6";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-/**
+/*
  * Everything on this card is set far larger than a 1200px canvas suggests,
  * and the reason is where it is actually looked at. iMessage draws this at
  * roughly a third of its native width inside a chat bubble, so the old 36px
  * date landed at about 12pt on the glass — legible in a design tool, squinting
  * on a phone. The type scale here is chosen for the rendered size, not the
- * drawn one: the date is now the size a headline would be on the page.
+ * drawn one: the date is now the size a headline would be on the page. The
+ * title starts at 116px and comes down only as far as it must to fit (./fit).
  */
-function titleSize(title: string): number {
-  if (title.length > 46) return 74;
-  if (title.length > 30) return 92;
-  return 116;
-}
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -55,10 +52,13 @@ export async function GET(request: Request) {
   // image would show the site's generic preview, which would tell the guest
   // this is an ordinary page rather than an invitation that arrived broken.
   const host = invite?.host?.trim() || "Someone";
-  const title = invite?.title?.trim() || "An invitation";
   const when = invite ? formatInviteWhen(invite.startsAt, invite.tzOffset) : "";
   const place = invite?.place?.trim() ?? "";
-  const note = invite?.note?.trim() ?? "";
+  const { titleSize, title, note } = fitCard({
+    title: invite?.title?.trim() || "An invitation",
+    note: invite?.note?.trim() ?? "",
+    place,
+  });
 
   return new ImageResponse(
     (
@@ -177,7 +177,7 @@ export async function GET(request: Request) {
             style={{
               display: "flex",
               marginTop: 18,
-              fontSize: titleSize(title),
+              fontSize: titleSize,
               lineHeight: 1.05,
               letterSpacing: -1.5,
               color: TEXT,
@@ -195,10 +195,10 @@ export async function GET(request: Request) {
                 color: DIM,
               }}
             >
-              {/* Cut shorter than before. The note is the personal line, not
+              {/* Already cut by fitCard. The note is the personal line, not
                   the content — at bubble size a long one crowds out the date,
                   which is the thing a guest actually needs off this card. */}
-              {note.length > 84 ? `${note.slice(0, 81)}...` : note}
+              {note}
             </div>
           ) : null}
         </div>
