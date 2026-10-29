@@ -179,6 +179,9 @@ export async function GET(request: Request) {
               marginTop: 18,
               fontSize: titleSize,
               lineHeight: 1.05,
+              // A word too long for a line breaks rather than running off
+              // the edge; fit.ts counts lines the same way.
+              wordBreak: "break-word",
               letterSpacing: -1.5,
               color: TEXT,
             }}

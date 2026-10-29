@@ -6,21 +6,16 @@
 // it would take -- "Morning photo walk" is only 18 characters, wrapped onto a
 // second line at 116px, and pushed the place off the bottom edge. Satori
 // cannot measure text for us before it draws, so this estimates the wrap from
-// an average glyph width and picks the largest size where everything fits.
+// the glyphs' widths and picks the largest size where everything fits.
 //
-// Pure on purpose, so the arithmetic is testable without rendering a PNG.
+// The measuring is shared with the plan card, in ../../cardText.
 
-/** The width the copy is set in: the card less its 76px padding each side. */
-export const TEXT_WIDTH = 1200 - 76 * 2;
-/** The height the two groups share: the card less its 76px padding. */
-export const TEXT_HEIGHT = 630 - 76 * 2;
-
-/**
- * Average advance of a glyph, as a fraction of the font size. Measured at
- * about 0.50 on the card's own font; set higher so an estimate errs toward a
- * line too many (a size smaller than needed) rather than one too few (clipped).
- */
-const EM = 0.55;
+import {
+  clampToLines,
+  lineCount,
+  NORMAL_LEADING,
+  TEXT_HEIGHT,
+} from "../../cardText";
 
 /** The title sizes to try, largest first. */
 export const TITLE_SIZES = [116, 104, 92, 82, 74, 66, 60] as const;
@@ -31,54 +26,8 @@ const NOTE_SIZE = 38;
 const NOTE_LEADING = 1.3;
 const NOTE_MAX = 84;
 
-/** Satori's line height for text that sets none. */
-const NORMAL_LEADING = 1.2;
-
 /** Space the two groups keep between them at the tightest. */
 const MIN_GAP = 20;
-
-function charsPerLine(size: number): number {
-  return Math.max(1, Math.floor(TEXT_WIDTH / (size * EM)));
-}
-
-/** How many lines `text` wraps to at `size`, breaking between words. */
-export function lineCount(text: string, size: number): number {
-  const per = charsPerLine(size);
-  let lines = 1;
-  let used = 0;
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    // A word longer than a line breaks mid-word, as Satori does.
-    const len = word.length;
-    const need = used === 0 ? len : used + 1 + len;
-    if (need <= per) {
-      used = need;
-      continue;
-    }
-    if (used > 0) lines += 1;
-    lines += Math.floor(Math.max(0, len - 1) / per);
-    used = len % per || per;
-  }
-  return lines;
-}
-
-/** Cuts `text` with "..." so it wraps to no more than `lines` at `size`. */
-function clampToLines(text: string, size: number, lines: number): string {
-  if (lineCount(text, size) <= lines) return text;
-  let cut = Math.min(text.length, charsPerLine(size) * lines);
-  while (
-    cut > 1 &&
-    lineCount(`${text.slice(0, cut).trimEnd()}...`, size) > lines
-  )
-    cut -= 1;
-  // End on a whole word when there is one to end on: "throwing..." can be
-  // read back, "throwi..." cannot.
-  const space = text.lastIndexOf(" ", cut);
-  if (space > cut / 2) cut = space;
-  return `${text
-    .slice(0, cut)
-    .trimEnd()
-    .replace(/[,;:.-]+$/, "")}...`;
-}
 
 function shorten(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 3)}...` : text;

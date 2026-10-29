@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { previewFromQuery } from "../preview";
 import { cardArtUrl, loadCardArt } from "../../i/cardArt";
+import { fitPoster } from "./fit";
 
 // The link preview's poster for a date invitation.
 //
@@ -15,11 +16,6 @@ const ROSE = "#efb1c5";
 const TEXT = "#f6eee6";
 const DIM = "#d6c6ce";
 
-function titleSize(title: string): number {
-  if (title.length > 40) return 76;
-  if (title.length > 24) return 96;
-  return 120;
-}
 
 export async function GET(request: Request) {
   // The preview fields arrive as their own query (`posterQuery`); the
@@ -27,6 +23,9 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const p = previewFromQuery(url.searchParams);
   const art = await loadCardArt(cardArtUrl(p.background, url.origin));
+  // The title size, and the cut if one is needed, so the day stays on the
+  // poster and the headline stays clear of "Aspect Niche".
+  const { titleSize, title, headline } = fitPoster(p);
   return new ImageResponse(
     (
       <div
@@ -77,8 +76,8 @@ export async function GET(request: Request) {
         )}
         <div style={{ display: "flex", fontSize: 30, color: DIM, letterSpacing: 1 }}>Aspect Niche</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ display: "flex", fontSize: 40, color: ROSE }}>{p.headline}</div>
-          <div style={{ display: "flex", fontSize: titleSize(p.title), color: TEXT, lineHeight: 1.05, fontStyle: "italic" }}>{p.title}</div>
+          <div style={{ display: "flex", fontSize: 40, color: ROSE, wordBreak: "break-word" }}>{headline}</div>
+          <div style={{ display: "flex", fontSize: titleSize, color: TEXT, lineHeight: 1.05, fontStyle: "italic", wordBreak: "break-word" }}>{title}</div>
           {p.day ? <div style={{ display: "flex", fontSize: 44, color: DIM }}>{p.day}</div> : null}
         </div>
       </div>
