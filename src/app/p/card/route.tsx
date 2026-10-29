@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { previewFromQuery } from "../preview";
 import { cardArtUrl, loadCardArt } from "../../i/cardArt";
-import { fitPoster } from "./fit";
+import { fitPoster, MOON } from "./fit";
 
 // The link preview's poster for a date invitation.
 //
@@ -71,7 +71,19 @@ export async function GET(request: Request) {
                 backgroundImage: `radial-gradient(720px 620px at 88% 10%, rgba(239,177,197,0.42) 0%, rgba(239,177,197,0.10) 46%, rgba(33,25,31,0) 72%)`,
               }}
             />
-            <div style={{ display: "flex", position: "absolute", right: 150, top: 90, width: 90, height: 90, borderRadius: 45, boxShadow: `-22px 14px 0 0 ${ROSE}` }} />
+            {/* Above the highest the words can reach; see MOON in ./fit. */}
+            <div
+              style={{
+                display: "flex",
+                position: "absolute",
+                right: MOON.right,
+                top: MOON.top,
+                width: MOON.size,
+                height: MOON.size,
+                borderRadius: MOON.size / 2,
+                boxShadow: `${MOON.dx}px ${MOON.dy}px 0 0 ${ROSE}`,
+              }}
+            />
           </>
         )}
         <div style={{ display: "flex", fontSize: 30, color: DIM, letterSpacing: 1 }}>Aspect Niche</div>

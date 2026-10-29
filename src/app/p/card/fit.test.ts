@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { lineCount, NORMAL_LEADING, TEXT_HEIGHT } from "../../cardText";
-import { fitPoster, TITLE_SIZES } from "./fit";
+import { BLOCK_TOP_MIN, fitPoster, MOON, TITLE_SIZES } from "./fit";
 
 const LARGEST = TITLE_SIZES[0];
 const SMALLEST = TITLE_SIZES[TITLE_SIZES.length - 1];
@@ -73,5 +73,34 @@ describe("fitPoster", () => {
     });
     if (f.title.endsWith("...")) expect(f.titleSize).toBe(SMALLEST);
     expect(height(f, DAY)).toBeLessThanOrEqual(TEXT_HEIGHT);
+  });
+});
+
+describe("the moon", () => {
+  // Content-box coordinates: (0, 0) is inside the 76px padding.
+  const PAD = 76;
+  const crescentTop = MOON.top + MOON.dy;
+  const crescentBottom = crescentTop + MOON.size;
+
+  it("sits wholly above the highest the words can reach", () => {
+    expect(crescentBottom).toBeLessThan(BLOCK_TOP_MIN);
+  });
+
+  it("never rises above a block that fitPoster has filled to the limit", () => {
+    const f = fitPoster({
+      headline: LONG_HOST,
+      title: "W".repeat(80),
+      day: DAY,
+    });
+    const blockTop = TEXT_HEIGHT - (height(f, DAY) - 30 * NORMAL_LEADING - 20);
+    expect(crescentBottom).toBeLessThan(blockTop);
+  });
+
+  it("stays on the card", () => {
+    const right = 1200 - PAD - MOON.right;
+    const left = right - MOON.size + MOON.dx;
+    expect(PAD + crescentTop).toBeGreaterThanOrEqual(0);
+    expect(left).toBeGreaterThan(PAD + 400);
+    expect(right).toBeLessThanOrEqual(1200);
   });
 });
