@@ -31,6 +31,24 @@ const GAP = 18;
 /** Space kept between "Aspect Niche" and the block at the tightest. */
 const MIN_GAP = 20;
 
+/**
+ * The highest the bottom block can reach, in the content box (inside the
+ * 76px padding): "Aspect Niche" and the gap below it. fitPoster never lets
+ * the block grow past this.
+ */
+export const BLOCK_TOP_MIN = BRAND_SIZE * NORMAL_LEADING + MIN_GAP;
+
+/**
+ * The crescent moon, in the content box as Satori positions it. A circle
+ * with no fill of its own and a rose shadow offset by (dx, dy); only the
+ * shadow shows, minus the circle, which is the crescent. It used to sit at
+ * right 150, top 90, which is where a long headline or a two-line title
+ * runs, so it drew over them. Up here it sits in the corner the rose glow
+ * is centred on (88%, 10%), wholly above BLOCK_TOP_MIN, and right of
+ * "Aspect Niche" -- so no text can reach it.
+ */
+export const MOON = { size: 72, top: -40, right: -6, dx: -18, dy: 11 } as const;
+
 export type PosterFit = { titleSize: number; title: string; headline: string };
 
 export function fitPoster({
