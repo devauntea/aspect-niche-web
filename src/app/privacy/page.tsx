@@ -57,14 +57,16 @@ export default function PrivacyPolicy() {
 
       <Section title="If you make an account">
         <p>
-          Signing in needs an email address and a password you choose, or a
-          six-digit code we email you instead. We never ask for a name or phone
-          number. With an account, we store:
+          You can sign in with an email address and a password you choose, a
+          six-digit code we email you, Sign in with Apple, or your Google
+          account. We never ask for a phone number. With an account, we store:
         </p>
         <List
           items={[
-            "Your email address, to sign you in.",
-            "Your password, if you set one, only as a one-way hash held by our sign-in provider (Supabase). Nobody, including us, can read it back.",
+            "Your email address, to sign you in. With Sign in with Apple you can choose to hide it, and we receive a private relay address from Apple instead.",
+            "Your password, if you set one, only as a one-way hash held by our sign-in provider (Supabase). Nobody, including us, can read it back. Signing in with Apple or Google involves no password of ours at all.",
+            "If you sign in with Apple: an identifier Apple gives us for your account, and your name if you choose to share it the first time you sign in.",
+            "If you sign in with Google: an identifier Google gives us for your account, and what Google includes in its sign-in: your name and a link to your Google profile picture. The app does not show or use either.",
             "A copy of your collection, pinned notes, sessions, plans, hobbies you made yourself, settings, and the last place you searched near — so they reach another phone you sign in on.",
             "Photos you add, up to your backup limit: a reduced copy (at most 1600 pixels on the long side), in a private folder only your account can read. The original stays on the phone that took it.",
           ]}
@@ -72,6 +74,11 @@ export default function PrivacyPolicy() {
         <p>
           Some things never leave the phone, even with an account: unfinished
           draft notes, vision boards, and photos beyond your backup limit.
+        </p>
+        <p>
+          Signing in with Apple or Google means Apple or Google knows you
+          signed in to Aspect Niche. We get nothing else from them: not your
+          contacts, your other apps or your Google data.
         </p>
       </Section>
 
@@ -321,11 +328,11 @@ export default function PrivacyPolicy() {
           items={[
             "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, series, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
-            "Apple — App Store purchases and payment, and delivery of notifications to iPhones.",
+            "Apple — App Store purchases and payment, delivery of notifications to iPhones, and Sign in with Apple if you use it.",
             "Expo — passes notifications to Apple's push service.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
             "Groq — runs the AI model for AI answers.",
-            "Google — serves the sponsored row to free users.",
+            "Google — signs you in, if you choose your Google account, and serves the sponsored row to free users. The two are not linked.",
             "komoot (Photon) — address suggestions while you type.",
             "OpenStreetMap — place data, where our own copy has none.",
             "Vercel — hosts this website.",
@@ -371,8 +378,11 @@ export default function PrivacyPolicy() {
         <p>
           If you only want the synced copy gone, choose{" "}
           <strong>Sign out and delete the copy</strong> when you sign out
-          instead. Deleting an account does not cancel a membership bought
-          through Apple; cancel that in your Apple ID settings. Apple keeps its
+          instead. If you signed in with Apple or Google, you can also remove
+          Aspect Niche from the apps that use your Apple ID or Google account,
+          in Apple&rsquo;s or Google&rsquo;s own settings. Deleting an account
+          does not cancel a membership bought through Apple; cancel that in
+          your Apple ID settings. Apple keeps its
           own purchase records as its policies and the law require. If you
           cannot use the app, email{" "}
           <a href="mailto:devauntaenorman@gmail.com">
