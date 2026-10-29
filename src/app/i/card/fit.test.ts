@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { fitCard, lineCount, TITLE_SIZES } from "./fit";
+import { lineCount } from "../../cardText";
+import { fitCard, TITLE_SIZES } from "./fit";
 
 const LARGEST = TITLE_SIZES[0];
 const SMALLEST = TITLE_SIZES[TITLE_SIZES.length - 1];
