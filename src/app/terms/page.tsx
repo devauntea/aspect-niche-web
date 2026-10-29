@@ -78,11 +78,14 @@ export default function Terms() {
       <Section title="Accounts">
         <p>
           An account is optional. Signing in uses your email address and a
-          password, or a six-digit code sent to that address. With an account,
+          password, a six-digit code sent to that address, Sign in with Apple,
+          or your Google account. With an account,
           your hobbies, notes and plans are copied to our servers so they can
           reach another phone you sign in on. Keep your password to yourself,
           and keep access to your email address, since that is how you reset
-          a forgotten password.
+          a forgotten password. If you sign in with Apple or Google, your use
+          of that sign-in is also covered by Apple&rsquo;s or Google&rsquo;s
+          own terms.
         </p>
         <p>
           You can sign out at any time, and you can delete the account&rsquo;s
