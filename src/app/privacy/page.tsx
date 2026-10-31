@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="29 October 2026"
+      updated="30 October 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -89,15 +89,21 @@ export default function PrivacyPolicy() {
           messaging app you choose.
         </p>
         <p>
-          If you are signed in when you send one, we record the
-          invitation&rsquo;s id against your account, so replies can reach you,
-          and its title and start time with it, so the notification that tells
-          you someone answered can name the invitation. Nothing else in the
-          invitation is stored.
-          A guest&rsquo;s reply then stores the name they typed and their answer
-          — going, maybe or out — and only the host can read it. A guest needs
-          no account and gives nothing else. Signed out, replies travel as
-          links, and nothing passes through us.
+          When you send one, we record the invitation&rsquo;s id so replies
+          can reach you: against your account if you are signed in, and
+          otherwise against a random key that only your phone holds (we keep
+          a one-way hash of it), with your phone&rsquo;s notification address
+          if you allowed notifications. We keep its title and start time with
+          it, so the notification that tells you someone answered can name the
+          invitation. Nothing else in the invitation is stored.
+          A guest&rsquo;s reply, from the app or from the invitation&rsquo;s
+          web page, then stores the name they typed and their answer — going,
+          maybe or out — and only the host can read it. A guest needs no
+          account and gives nothing else; the page may remember the name in
+          that browser so it is not typed twice. An invitation sent without an
+          account is deleted, with its replies, 30 days after it started. When
+          we cannot be reached, replies travel as links, and nothing passes
+          through us.
         </p>
         <p>
           You can put one of the app&rsquo;s own pictures behind an invitation,

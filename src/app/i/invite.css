@@ -208,6 +208,41 @@
   cursor: not-allowed;
 }
 
+/* What happened to the answer. Always in the page, empty until there is
+   something to say, so a screen reader hears it arrive. */
+.invite-status {
+  margin: 16px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #cfd3ee;
+}
+.invite-status:empty {
+  margin: 0;
+}
+
+/* The reply link, offered when the server path could not take the answer.
+   Outlined: the filled button above is still the one next action. */
+.invite-message {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border: 1px solid #2b2f52;
+  border-radius: 12px;
+  background: transparent;
+  color: #f0eeff;
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.invite-message:hover:not(:disabled) {
+  border-color: #8b93c9;
+}
+.invite-message:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .invite-copied {
   margin: 16px 0 0;
   font-size: 0.9375rem;
