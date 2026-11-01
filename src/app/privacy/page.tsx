@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="30 October 2026"
+      updated="1 November 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -107,13 +107,15 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           You can put one of the app&rsquo;s own pictures behind an invitation,
-          which sends nothing but its name. If you choose a photo of your own
-          and are signed in, we store a reduced copy (at most 1600 pixels on the
-          long side) under a long random name, so your guest&rsquo;s phone or
-          browser can show it. Anyone with the invitation link can see that
-          photo; nobody can find it without the link, and it carries nothing
-          that identifies you. Signed out, the photo stays on your phone and
-          your guest sees the invitation without it.
+          which sends nothing but its name. If you choose a photo of your own,
+          we store a reduced copy (at most 1600 pixels on the long side) under
+          a long random name when you share the invitation, so your
+          guest&rsquo;s phone or browser can show it. Anyone with the invitation
+          link can see that photo; nobody can find it without the link, and it
+          carries nothing that identifies you. With an account, it is deleted
+          with your account; without one, it is deleted 30 days after the
+          invitation started. If the photo cannot be uploaded, the app asks
+          before sending the invitation without it.
         </p>
         <p>
           A repeating plan (a series) is stored on our servers, because its
