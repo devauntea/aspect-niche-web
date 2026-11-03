@@ -416,7 +416,7 @@ export default function DiscoveryStory() {
                 <div className="progress-nodes">
                   <div className="progress-photo">
                     <Image
-                      src="/landing/pottery.webp"
+                      src="/landing/pottery-studio.webp"
                       alt="Sample pottery progress"
                       width={150}
                       height={110}

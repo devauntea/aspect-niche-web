@@ -232,8 +232,8 @@ export default function MemoryWalk() {
               onClick={() => show(0)}
             >
               <Image
-                src="/landing/pottery.webp"
-                alt="Hands shaping a ceramic bowl on a pottery wheel"
+                src="/landing/pottery-studio.webp"
+                alt="Clay-dusted hands shaping a small cup on a studio workbench"
                 width={370}
                 height={330}
               />
@@ -249,8 +249,8 @@ export default function MemoryWalk() {
               onClick={() => show(1)}
             >
               <Image
-                src="/landing/hiking.webp"
-                alt="An alpine ridge with a hiker in a yellow jacket"
+                src="/landing/hiking-forest.webp"
+                alt="A hiker with a brown backpack walking through a sunlit forest"
                 width={450}
                 height={320}
               />
