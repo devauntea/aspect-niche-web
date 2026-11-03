@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Aspect Niche — Navigate the Hobby Verse",
   description:
     "A graph-based hobby discovery app. Pick your interests, explore connections, and find your next obsession.",
+  verification: {
+    google: "1nckGrUiOr3RnFW-mKpxgNgifxwrO6Z9DUL2GQjFdJQ",
+  },
   openGraph: {
     title: "Aspect Niche — Navigate the Hobby Verse",
     description:
