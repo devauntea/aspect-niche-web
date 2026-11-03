@@ -54,7 +54,9 @@ export default function PrivacyPolicy() {
       </Section>
 
       <Section title="If you make an account">
-        <p>Sign in with an email address and password, or an email code. Apple and Google sign-in are not offered in this release. Supabase stores your email, account identifier and a password hash if you set a password.</p>
+        <p>Sign in with an email address and password, or an email code. Supported app builds also offer Sign in with Apple and Google. Supabase stores your email, account identifier and a password hash if you set a password.</p>
+        <p>If you choose Apple or Google, that provider authenticates you and shares an account identifier, your email address, and your name or profile picture when provided. Apple lets you share a private relay email instead of your personal address. We use these details to create or sign in to your account; we do not receive your Apple or Google password or request access to your mail, contacts or files.</p>
+        <p>For Apple sign-in, our server exchanges a one-time authorization code and stores an encrypted refresh token so it can revoke the Apple authorization when you delete your account. The encryption key is stored separately from the database, and app clients cannot read the token. Google sign-in credentials are managed by its native SDK; we do not request offline access to Google APIs.</p>
         <p>Your account stores a synced copy of your collection, pinned notes, sessions, plans, custom hobbies, settings and last searched location. The last searched location can include precise latitude and longitude. Eligible photo backups include a reduced image and the date and location metadata saved with it, which can also contain precise coordinates.</p>
         <p>Draft notes, vision boards, selected contacts and photos beyond your backup limit remain on the device. Keep an independent copy of anything important.</p>
       </Section>
@@ -249,11 +251,11 @@ export default function PrivacyPolicy() {
           items={[
             "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, replies, series, moderation records, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
-            "Apple — App Store purchases and payment, delivery of notifications to iPhones.",
+            "Apple — optional Sign in with Apple, App Store purchases and payment, delivery of notifications to iPhones.",
             "Expo — passes notifications to Apple's push service.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
             "Groq — runs the AI model for AI answers.",
-            "Google — handles ad consent and serves the sponsored row where enabled.",
+            "Google — optional Google sign-in, ad consent and the sponsored row where enabled. Google sign-in requests only basic identity, email and profile information.",
             "komoot (Photon) — address suggestions while you type.",
             "OpenStreetMap — place data, where our own copy has none.",
             "Vercel — hosts this website.",
@@ -295,6 +297,7 @@ export default function PrivacyPolicy() {
           usage counts, and your customer record with RevenueCat when configured. Everything on
           your phone stays. Moderation reports may be retained with account identifiers detached; details you typed may still identify you.
         </p>
+        <p>Deleting an Apple-linked account also revokes its stored Apple authorization and deletes its encrypted token. If an older account has no stored token, deletion still completes and the app explains how to remove the authorization in your Apple Account settings. For Google, the app attempts to disconnect the matching Google account on the device before signing out. If it cannot, it explains how to remove the connection in your Google Account settings. Account deletion does not delete your Apple or Google account.</p>
         <p>
           If you only want the synced copy gone, choose{" "}
           <strong>Sign out and delete the copy</strong> when you sign out
