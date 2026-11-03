@@ -1,0 +1,914 @@
+/* A refinement of the existing identity. Kept local to the marketing page. */
+.anl .immersive-hero {
+  overflow: clip;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 2vw;
+  height: 100svh;
+  min-height: 790px;
+  max-height: 1150px;
+  padding: 145px 7% 125px;
+}
+.anl .immersive-hero .hero-copy {
+  width: 100%;
+}
+.anl .immersive-hero h1 {
+  font-size: clamp(72px, 7.3vw, 116px);
+}
+.anl .hobby-exhibit {
+  position: relative;
+  min-width: 0;
+  z-index: 2;
+}
+.anl .exhibit-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  color: #b7b9b1;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+}
+.anl .exhibit-label img {
+  height: auto;
+  opacity: 0.75;
+}
+.anl .hobby-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 34vw, 510px);
+  touch-action: pan-y;
+  cursor: grab;
+  isolation: isolate;
+}
+.anl .hobby-stage:active {
+  cursor: grabbing;
+}
+.anl .hobby-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+.anl .exhibit-fallback {
+  position: absolute;
+  width: 100%;
+  object-fit: cover;
+  max-height: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  mask-image: radial-gradient(ellipse, #000 55%, transparent 74%);
+}
+.anl .hobby-stage:not([data-scene="ready"]) .exhibit-orbit {
+  visibility: hidden;
+}
+.anl .hobby-stage:not([data-scene="ready"]) {
+  cursor: default;
+}
+.anl .hobby-stage[data-scene="ready"] .exhibit-fallback {
+  visibility: hidden;
+}
+.anl .exhibit-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 92%;
+  height: 62%;
+  border: 1px solid #d4bcff20;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  pointer-events: none;
+}
+.anl .exhibit-orbit::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d0b3f7;
+  top: 16%;
+  left: 13%;
+  box-shadow: 0 0 16px #d0b3f770;
+}
+.anl .exhibit-orbit.orbit-two {
+  width: 80%;
+  height: 80%;
+  transform: translate(-50%, -50%) rotate(38deg);
+  opacity: 0.38;
+}
+.anl .orbit-two::after {
+  left: auto;
+  right: 12%;
+  top: 84%;
+  width: 4px;
+  height: 4px;
+}
+.anl .exhibit-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4%;
+  font-size: 12px;
+}
+.anl .exhibit-caption p {
+  font-family: var(--anl-serif), Georgia, serif;
+  font-size: 25px;
+  margin: 0;
+  color: #d9d4e0;
+}
+.anl .exhibit-caption button {
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  color: #bcc0bc;
+  min-height: 44px;
+}
+.anl .exhibit-caption button span {
+  margin-left: 8px;
+  font-size: 18px;
+}
+.anl .exhibit-choices {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 22px;
+}
+.anl .exhibit-choices button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  background: none;
+  color: #b5b9b6;
+  font-size: 12px;
+  border-radius: 30px;
+  padding: 10px 12px;
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+.anl .exhibit-choices button[aria-pressed="true"] {
+  background: #ffffff0c;
+  border-color: #d4bcff38;
+  color: var(--paper);
+}
+.anl .choice-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #bca4f2;
+}
+.anl .exhibit-choices button:nth-child(2) .choice-dot {
+  background: #c6bea7;
+}
+.anl .exhibit-choices button:nth-child(3) .choice-dot {
+  background: #b2bb8b;
+}
+.anl .hero-bottom {
+  bottom: 62px;
+}
+.anl .hero-bottom .hero-index {
+  font-size: 12px;
+  color: #b8a4d3;
+  letter-spacing: 0.12em;
+}
+
+/* A paper world enters the dark opening, then follows three connected nodes. */
+.anl .app-journey {
+  --journey-p: 0;
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+  height: 235svh;
+  border-radius: 50% 50% 0 0 / 30px 30px 0 0;
+  margin-top: -30px;
+}
+.anl .app-journey-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 740px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 8vw;
+  padding: 68px 10% 94px 8%;
+  overflow: clip;
+  isolation: isolate;
+}
+.anl .app-constellation {
+  position: absolute;
+  inset: -6% -10%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.75;
+  transform: translate3d(
+      calc(var(--journey-p) * -60px),
+      calc(var(--journey-p) * -60px),
+      0
+    )
+    scale(calc(1 + var(--journey-p) * 0.1));
+}
+.anl .app-constellation svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.anl .app-constellation path {
+  stroke: #b9adc4;
+  stroke-width: 1;
+  stroke-opacity: 0.32;
+}
+.anl .app-constellation circle {
+  fill: #ab91c6;
+  stroke: var(--paper);
+  stroke-width: 5;
+}
+.anl .app-constellation .app-route {
+  stroke: #a68dbb;
+  stroke-opacity: 0.35;
+}
+.anl .app-constellation .app-traveler {
+  fill: #9472ae;
+  stroke-width: 5;
+  filter: drop-shadow(0 0 12px #ab91c680);
+}
+.anl .app-journey-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 510px;
+}
+.anl .app-journey .eyebrow {
+  font-size: 10px;
+  color: #656c64;
+  letter-spacing: 0.15em;
+  margin-bottom: 36px;
+}
+.anl .app-journey h2 {
+  font-size: clamp(52px, 6.1vw, 90px);
+  margin-bottom: 24px;
+}
+.anl .app-journey h2 em {
+  color: #756080;
+}
+.anl .app-scene-title {
+  animation: app-title-enter 0.55s var(--ease) both;
+}
+@keyframes app-title-enter {
+  from {
+    opacity: 0.2;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anl .mobile-device-action {
+  display: none;
+}
+.anl.motion-paused .app-scene-title {
+  animation: none;
+}
+.anl .app-intro {
+  color: #62685e;
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: 350px;
+  min-height: 85px;
+  margin-bottom: 26px;
+}
+.anl .app-chapters {
+  display: flex;
+  flex-direction: column;
+  max-width: 350px;
+  border-top: 1px solid #222a2424;
+}
+.anl .app-chapters button {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid #222a2424;
+  color: #676a63;
+  font-size: 14px;
+  padding: 14px 0;
+  min-height: 48px;
+}
+.anl .app-chapters button span {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #777470;
+}
+.anl .app-chapters button[aria-pressed="true"] {
+  color: #252a26;
+  font-weight: 600;
+}
+.anl .app-chapters button[aria-pressed="true"] span {
+  color: #76578c;
+}
+.anl .app-step-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  min-height: 46px;
+}
+.anl .app-try {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  background: #272d28;
+  color: #f3eee4;
+  border: 0;
+  border-radius: 6px;
+  padding: 14px 18px;
+  font-size: 13px;
+  min-height: 46px;
+}
+.anl .app-try:hover {
+  background: #465044;
+}
+.anl .follow-scroll {
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  color: #67635d;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  min-height: 44px;
+}
+.anl .app-preview-note {
+  color: #74736c;
+  font-size: 10px;
+  line-height: 1.7;
+  margin: 18px 0 0;
+}
+.anl .app-device-scene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-width: 0;
+  perspective: 1500px;
+}
+.anl .device-coordinate {
+  position: absolute;
+  top: 12%;
+  right: -36px;
+  writing-mode: vertical-rl;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: #77776c;
+}
+.anl .device-travel {
+  position: relative;
+  transform: translate3d(
+      calc((var(--journey-p) - 0.5) * -24px),
+      calc((var(--journey-p) - 0.5) * -24px),
+      0
+    )
+    rotate(calc((var(--journey-p) - 0.5) * -5deg));
+}
+.anl .app-device {
+  position: relative;
+  width: clamp(240px, 29svh, 340px);
+  padding: 7px;
+  background: linear-gradient(
+    125deg,
+    #aaa7a3,
+    #3f3f41 19%,
+    #171819 75%,
+    #b6b3af
+  );
+  border: 1px solid #777877;
+  border-radius: 44px;
+  box-shadow:
+    0 1px 1px #ffffffaa inset,
+    0 0 0 2px #d4d0c9,
+    12px 28px 42px -15px #262b2840,
+    3px 7px 10px #20232125;
+}
+.anl .device-edge {
+  position: absolute;
+  top: 22%;
+  left: -4px;
+  width: 3px;
+  height: 43px;
+  border-radius: 3px 0 0 3px;
+  background: #777774;
+}
+.anl .device-edge::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 53px;
+  width: 3px;
+  height: 34px;
+  background: #777774;
+  border-radius: 3px 0 0 3px;
+}
+.anl .device-screen {
+  position: relative;
+  border-radius: 36px;
+  overflow: hidden;
+  background: #060717;
+  aspect-ratio: 804 / 1748;
+}
+.anl .native-screen {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.anl .device-orbit {
+  position: absolute;
+  left: -17%;
+  width: 135%;
+  height: 30%;
+  top: 37%;
+  border: 1px solid #9785aa3d;
+  border-radius: 50%;
+  transform: rotate(-29deg);
+  pointer-events: none;
+}
+.anl .device-orbit::before {
+  content: "";
+  position: absolute;
+  right: 7%;
+  top: 16%;
+  width: 11px;
+  height: 11px;
+  background: #b19bc5;
+  border-radius: 50%;
+  border: 3px solid #f1eee7;
+  box-shadow: 0 0 0 1px #b19bc555;
+}
+.anl .orbit-front {
+  transform: rotate(30deg);
+  opacity: 0.5;
+  width: 114%;
+  left: -6%;
+  height: 56%;
+  top: 20%;
+}
+.anl .device-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  font-size: 11px;
+  color: #62675f;
+  margin-top: 24px;
+  position: relative;
+  z-index: 3;
+}
+.anl .device-caption button {
+  background: none;
+  border: 0;
+  border-bottom: 1px solid #99948a;
+  min-height: 40px;
+  padding: 4px 0;
+  font-size: 11px;
+  color: #4b5148;
+}
+.anl .device-caption button span {
+  margin-left: 5px;
+}
+.anl .screen-hotspot {
+  position: absolute;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  min-height: 0;
+}
+.anl .screen-hotspot:hover {
+  box-shadow: 0 0 0 2px #bca4f2 inset;
+  background: #bca4f20c;
+}
+.anl .screen-hotspot:focus-visible {
+  outline-offset: -3px;
+  outline-color: #d8bbff;
+}
+.anl .hotspot-collect {
+  top: 26.8%;
+  left: 5%;
+  width: 90%;
+  height: 4.5%;
+}
+.anl .hotspot-plan {
+  top: 35.8%;
+  left: 5%;
+  width: 90%;
+  height: 5.5%;
+}
+.anl .hotspot-progress {
+  top: 15.5%;
+  left: 65%;
+  width: 30%;
+  height: 4.5%;
+}
+.anl .hotspot-tab-plan {
+  top: 15.5%;
+  left: 5%;
+  width: 30%;
+  height: 4.5%;
+}
+.anl .hotspot-cancel {
+  top: 9%;
+  left: 2%;
+  width: 25%;
+  height: 5%;
+}
+.anl .app-next-node {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: absolute;
+  bottom: 27px;
+  left: 8%;
+  font-size: 11px;
+  color: #68705f;
+}
+.anl .journey-bead {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #9585a7;
+  background: #c1add8;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px #bca4f217;
+}
+.anl .discovery-story {
+  height: auto;
+  min-height: 0;
+}
+.anl .story-sticky {
+  position: relative;
+  height: auto;
+  min-height: 800px;
+  padding: 110px 7%;
+}
+.anl .studio {
+  position: relative;
+  border-radius: 50% 50% 0 0 / 24px 24px 0 0;
+}
+.anl .closing .button {
+  margin-bottom: 26px;
+}
+
+/* A small, traversable constellation keeps the long-form story oriented. */
+.anl .journey-rail {
+  --route-p: 0;
+  position: fixed;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 25;
+  color: #cfbfdc;
+  display: flex;
+  flex-direction: column;
+}
+.anl .journey-rail[data-light="true"] {
+  color: #6b587b;
+}
+.anl .journey-rail a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 44px;
+}
+.anl .rail-track {
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  width: 1px;
+  left: 19px;
+  background: currentColor;
+  opacity: 0.5;
+}
+.anl .rail-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: calc(var(--route-p) * 100%);
+  background: currentColor;
+}
+.anl .rail-traveler {
+  position: absolute;
+  top: calc(var(--route-p) * 100%);
+  left: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+.anl .rail-node {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+.anl .journey-rail a[aria-current] .rail-node {
+  opacity: 1;
+  box-shadow: 0 0 0 4px #ae91ca20;
+  width: 8px;
+  height: 8px;
+}
+.anl .rail-label {
+  position: absolute;
+  right: 36px;
+  white-space: nowrap;
+  padding: 6px 9px;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0;
+  visibility: hidden;
+  background: var(--ink);
+  color: var(--paper);
+}
+.anl .journey-rail[data-light="true"] .rail-label {
+  background: var(--paper);
+  color: var(--ink);
+}
+.anl .journey-rail a:hover .rail-label,
+.anl .journey-rail a:focus-visible .rail-label {
+  opacity: 1;
+  visibility: visible;
+}
+.anl.motion-paused .device-travel,
+.anl.motion-paused .app-constellation {
+  transform: none;
+}
+
+@media (max-width: 1200px) {
+  .anl .journey-rail {
+    display: none;
+  }
+  .anl .immersive-hero {
+    padding-left: 6%;
+    padding-right: 5%;
+  }
+  .anl .exhibit-choices {
+    gap: 0;
+  }
+  .anl .exhibit-choices button {
+    padding: 9px;
+    font-size: 11px;
+  }
+  .anl .app-journey-sticky {
+    padding-left: 7%;
+    padding-right: 8%;
+    gap: 5vw;
+  }
+}
+@media (max-width: 900px), (max-height: 739px) {
+  .anl .app-journey {
+    height: auto;
+  }
+  .anl .app-journey-sticky {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    padding-top: 90px;
+    padding-bottom: 100px;
+  }
+  .anl .app-device {
+    width: 270px;
+  }
+  .anl .device-travel {
+    transform: none;
+  }
+  .anl .app-journey h2 {
+    font-size: 60px;
+  }
+}
+@media (max-width: 760px) {
+  .anl .masthead {
+    height: 74px;
+    padding: 0 6%;
+  }
+  .anl .masthead .brand {
+    font-size: 19px;
+    gap: 8px;
+  }
+  .anl .masthead .brand-tile {
+    width: 27px;
+    height: 27px;
+  }
+  .anl .masthead nav {
+    display: flex;
+    gap: 18px;
+    font-size: 12px;
+  }
+  .anl .masthead nav a[href="#studio"],
+  .anl .masthead nav a[href="#memories"],
+  .anl .masthead nav a[href="#discover"] {
+    display: none;
+  }
+  .anl .immersive-hero {
+    display: block;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 132px 7% 122px;
+  }
+  .anl .immersive-hero .hero-copy {
+    width: 100%;
+  }
+  .anl .immersive-hero h1 {
+    font-size: clamp(61px, 12vw, 86px);
+    margin-bottom: 22px;
+  }
+  .anl .hero-description {
+    font-size: 15px;
+    margin-bottom: 26px;
+  }
+  .anl .hero .eyebrow {
+    font-size: 9px;
+    margin-bottom: 22px;
+  }
+  .anl .hero .button {
+    font-size: 13px;
+    padding: 12px 18px;
+  }
+  .anl .hobby-exhibit {
+    margin-top: 52px;
+  }
+  .anl .exhibit-label {
+    font-size: 9px;
+  }
+  .anl .exhibit-label img {
+    width: 18px;
+    height: 20px;
+  }
+  .anl .hobby-stage {
+    height: min(86vw, 380px);
+  }
+  .anl .exhibit-caption {
+    padding: 0;
+  }
+  .anl .exhibit-caption p {
+    font-size: 23px;
+  }
+  .anl .exhibit-caption button {
+    font-size: 11px;
+  }
+  .anl .exhibit-choices {
+    margin-top: 17px;
+    gap: 3px;
+  }
+  .anl .exhibit-choices button {
+    padding: 9px 10px;
+  }
+  .anl .hero-bottom {
+    bottom: 59px;
+    left: 7%;
+    right: 7%;
+  }
+  .anl .hero-bottom > span:first-child {
+    display: none;
+  }
+  .anl .hero-bottom a {
+    font-size: 10px;
+  }
+  .anl .hero-bottom .hero-index {
+    display: block;
+    font-size: 10px;
+  }
+  .anl .app-journey {
+    border-radius: 50% 50% 0 0 / 18px 18px 0 0;
+    margin-top: -18px;
+  }
+  .anl .app-journey-sticky {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 78px 7% 92px;
+    gap: 48px;
+  }
+  .anl .app-journey-copy {
+    max-width: none;
+  }
+  .anl .app-journey .eyebrow {
+    font-size: 9px;
+    margin-bottom: 25px;
+  }
+  .anl .app-journey h2 {
+    font-size: clamp(54px, 12vw, 72px);
+    margin-bottom: 20px;
+  }
+  .anl .app-intro {
+    min-height: 0;
+    max-width: 400px;
+    font-size: 15px;
+    margin-bottom: 25px;
+  }
+  .anl .app-chapters {
+    max-width: none;
+    flex-direction: row;
+    border: 0;
+    gap: 8px;
+  }
+  .anl .app-chapters button {
+    flex: 1;
+    display: block;
+    padding: 12px 0;
+    font-size: 11px;
+    line-height: 1.5;
+    border-top: 1px solid #222a2424;
+  }
+  .anl .app-chapters button span {
+    display: block;
+    margin-bottom: 5px;
+  }
+  .anl .app-preview-note {
+    font-size: 10px;
+  }
+  .anl .follow-scroll {
+    display: none;
+  }
+  .anl .app-step-actions {
+    display: none;
+  }
+  .anl .mobile-device-action {
+    display: block;
+    margin-top: 18px;
+  }
+  .anl .app-device-scene {
+    width: 100%;
+    max-width: 430px;
+    align-self: center;
+    padding-top: 6px;
+  }
+  .anl .app-device {
+    width: 265px;
+  }
+  .anl .device-orbit {
+    width: 112%;
+    left: -6%;
+  }
+  .anl .device-coordinate {
+    right: 0;
+  }
+  .anl .device-caption {
+    font-size: 10px;
+    gap: 14px;
+  }
+  .anl .device-caption button {
+    font-size: 10px;
+  }
+  .anl .app-next-node {
+    left: 7%;
+    bottom: 30px;
+    font-size: 10px;
+  }
+  .anl .app-constellation {
+    inset: 0 -55%;
+    opacity: 0.5;
+  }
+  .anl .story-sticky {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 85px 6%;
+    gap: 42px;
+  }
+  .anl .studio {
+    border-radius: 50% 50% 0 0 / 15px 15px 0 0;
+  }
+  .anl .motion-toggle {
+    font-size: 10px;
+    padding: 8px 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anl .app-journey {
+    height: auto;
+  }
+  .anl .app-journey-sticky {
+    position: relative;
+  }
+  .anl .device-travel,
+  .anl .app-constellation {
+    transform: none;
+  }
+}

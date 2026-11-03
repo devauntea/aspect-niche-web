@@ -176,7 +176,7 @@ export default function MemoryWalk() {
   return (
     <section className="memories section-pad" id="memories" aria-labelledby="memory-title">
       <div className="memory-heading reveal" ref={headingRef}>
-        <p className="eyebrow">03 / MORE THAN A COLLECTION</p>
+        <p className="eyebrow">04 / MORE THAN A COLLECTION</p>
         <h2 id="memory-title">
           You found a hobby.
           <br />

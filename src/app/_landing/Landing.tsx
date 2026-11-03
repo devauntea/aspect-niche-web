@@ -2,11 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import "./landing.css";
+import "./immersive.css";
 import { MotionContext } from "./useMotion";
 import { useReveal } from "./useReveal";
 import Hero from "./Hero";
+import AppJourney from "./AppJourney";
+import JourneyRail from "./JourneyRail";
 import DiscoveryStory from "./DiscoveryStory";
 import ThemeStudio from "./ThemeStudio";
 import MemoryWalk from "./MemoryWalk";
@@ -23,29 +32,6 @@ import Walkthrough from "./Walkthrough";
 // has mounted, which is what makes the entrance animations safe: the hidden
 // state is written against that class, so copy stays readable if the script
 // never runs.
-
-function Statement() {
-  const eyebrow = useReveal<HTMLParagraphElement>();
-  const heading = useReveal<HTMLHeadingElement>();
-  const copy = useReveal<HTMLParagraphElement>();
-  return (
-    <section className="statement section-pad">
-      <p className="eyebrow reveal" ref={eyebrow}>
-        A DIFFERENT KIND OF DISCOVERY
-      </p>
-      <h2 className="reveal" ref={heading}>
-        Your next obsession
-        <br />
-        is <em>one connection away.</em>
-      </h2>
-      <p className="statement-copy reveal" ref={copy}>
-        Not another feed to get lost in. A living map of things to get into.
-        <br />
-        Start with what you love. Wander into what you might.
-      </p>
-    </section>
-  );
-}
 
 function Closing() {
   const eyebrow = useReveal<HTMLParagraphElement>();
@@ -68,9 +54,9 @@ function Closing() {
         <br />
         the <em>rabbit hole.</em>
       </h2>
-      {/* No CTA here yet: the app is not on the App Store, so there is
-          nowhere honest to send someone. The walkthrough video sits just
-          above this section. */}
+      <a className="button light" href="#app">
+        Explore the app <span aria-hidden="true">↗</span>
+      </a>
       <p>A little curiosity looks good on you.</p>
     </section>
   );
@@ -119,12 +105,20 @@ export default function Landing() {
 
         <header className="masthead">
           <a className="brand" href="#top" aria-label="Aspect Niche home">
-            <Image className="brand-tile" src="/brand/logo-tile.png" alt="" width={32} height={32} priority />
+            <Image
+              className="brand-tile"
+              src="/brand/logo-tile.png"
+              alt=""
+              width={32}
+              height={32}
+              priority
+            />
             <span>
               aspect niche<span className="brand-dot">.</span>
             </span>
           </a>
           <nav aria-label="Main navigation">
+            <a href="#app">The app</a>
             <a href="#discover">Discover</a>
             <a href="#studio">Make it yours</a>
             <a href="#memories">Your story</a>
@@ -134,13 +128,15 @@ export default function Landing() {
 
         <main>
           <Hero />
-          <Statement />
+          <AppJourney />
           <DiscoveryStory />
           <ThemeStudio />
           <MemoryWalk />
           <Walkthrough />
           <Closing />
         </main>
+
+        <JourneyRail />
 
         <footer>
           <a className="brand" href="#top">
@@ -152,16 +148,18 @@ export default function Landing() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>
-          <span>Aspect Niche™ · © 2026 Devauntae Norman. All rights reserved.</span>
+          <span>
+            Aspect Niche™ · © 2026 Devauntae Norman. All rights reserved.
+          </span>
         </footer>
 
         <button
           className="motion-toggle"
           aria-pressed={paused}
-          aria-label={paused ? "Enable decorative motion" : "Pause decorative motion"}
+          aria-label={paused ? "Resume motion" : "Pause motion"}
           onClick={() => setPaused(!paused)}
         >
-          ◫ <span>{paused ? "Motion paused" : "Pause motion"}</span>
+          ◫ <span>{paused ? "Resume motion" : "Pause motion"}</span>
         </button>
       </div>
     </MotionContext.Provider>

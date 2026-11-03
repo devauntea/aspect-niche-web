@@ -108,20 +108,34 @@ export default function DiscoveryStory() {
 
   const shellRef = useRef<HTMLDivElement>(null);
   const streakRef = useRef<SVGPathElement>(null);
-  const storyRef = useRef<HTMLElement>(null);
-  const lastBand = useRef(-1);
+  const paintAnimation = useRef<Animation | null>(null);
+  const flipAnimation = useRef<Animation | null>(null);
+  useEffect(() => {
+    if (paused) {
+      paintAnimation.current?.cancel();
+      flipAnimation.current?.cancel();
+    }
+    return () => {
+      paintAnimation.current?.cancel();
+      flipAnimation.current?.cancel();
+    };
+  }, [paused]);
 
   const paint = useCallback(
     (path: string, colour?: string) => {
       const streak = streakRef.current;
       if (!streak || paused) return;
-      streak.classList.remove("run");
+      paintAnimation.current?.cancel();
       streak.setAttribute("d", path);
       streak.style.stroke = colour ?? "#b8a0dc";
-      // Force a reflow so removing and re-adding the class restarts the
-      // animation rather than being collapsed into no change at all.
-      void streak.getBoundingClientRect();
-      streak.classList.add("run");
+      paintAnimation.current = streak.animate(
+        [
+          { strokeDashoffset: 1, opacity: 0 },
+          { strokeDashoffset: 0.7, opacity: 1, offset: 0.2 },
+          { strokeDashoffset: -1, opacity: 0 },
+        ],
+        { duration: 1000, easing: "cubic-bezier(.22,1,.36,1)" },
+      );
     },
     [paused],
   );
@@ -161,47 +175,6 @@ export default function DiscoveryStory() {
     [paint],
   );
 
-  // Scroll changes which chapter is showing and nothing else. The listener is
-  // passive and the work happens in a frame callback, so native scrolling is
-  // never intercepted or delayed.
-  useEffect(() => {
-    const story = storyRef.current;
-    if (!story || paused) return;
-
-    let pending = false;
-    const update = () => {
-      pending = false;
-      // Mirrors the stylesheet: no pin, no scroll-driven chapters. Below 760px
-      // wide or 760px tall the scene is in normal flow and the buttons are the
-      // only thing that should move it.
-      if (window.innerWidth <= 760 || window.innerHeight <= 760) return;
-      const rect = story.getBoundingClientRect();
-      const travel = story.offsetHeight - window.innerHeight;
-      const progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, travel)));
-      const band = Math.min(2, Math.floor(progress * 3));
-      if (
-        rect.top <= 80 &&
-        rect.bottom >= window.innerHeight * 0.7 &&
-        band !== lastBand.current
-      ) {
-        lastBand.current = band;
-        applyChapter(band);
-      }
-    };
-    const onScroll = () => {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(update);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [applyChapter, paused]);
-
   const toggleFlip = () => {
     const next = !flipped;
     setFlipped(next);
@@ -212,7 +185,8 @@ export default function DiscoveryStory() {
     if (!paused && shellRef.current) {
       // The scene turns, not the page. A short perspective nudge rather than a
       // 180° flip, which would leave the labels mirrored and unreadable.
-      shellRef.current.animate(
+      flipAnimation.current?.cancel();
+      flipAnimation.current = shellRef.current.animate(
         [
           { transform: "perspective(1300px) rotateY(-5deg)", opacity: 0.6 },
           { transform: "perspective(1300px) rotateY(0)", opacity: 1 },
@@ -242,7 +216,8 @@ export default function DiscoveryStory() {
   const selectedHobby = selected
     ? HOBBIES.find((h) => h.key === selected)!
     : null;
-  const focusValid = selectedHobby && (!flipped || collected.has(selectedHobby.key));
+  const focusValid =
+    selectedHobby && (!flipped || collected.has(selectedHobby.key));
 
   const detailTitle = focusValid
     ? selectedHobby.title
@@ -269,24 +244,27 @@ export default function DiscoveryStory() {
       className="discovery-story"
       id="discover"
       aria-labelledby="discovery-title"
-      ref={storyRef}
+      data-journey-scene
     >
       <div className="story-sticky">
         <div className="story-copy">
-          <p className="eyebrow">01 / FOLLOW THE THREAD</p>
+          <p className="eyebrow">02 / FOLLOW THE THREAD</p>
           <h2 id="discovery-title">
             Little paths.
             <br />
             <em>Big possibilities.</em>
           </h2>
-          <div className="chapter-buttons" role="group" aria-label="Graph story chapters">
+          <div
+            className="chapter-buttons"
+            role="group"
+            aria-label="Graph story chapters"
+          >
             {CHAPTERS.map((c, i) => (
               <button
                 key={c.strong}
                 className={`chapter${chapter === i ? " active" : ""}`}
                 aria-pressed={chapter === i}
                 onClick={() => {
-                  lastBand.current = i;
                   applyChapter(i);
                   setAnnouncement(c.announce);
                 }}
@@ -309,8 +287,17 @@ export default function DiscoveryStory() {
         >
           <div className="graph-toolbar">
             <span className="graph-wordmark">Your little universe</span>
-            <button className="icon-text" aria-pressed={flipped} onClick={toggleFlip}>
-              <Image src="/landing/flip-graph.svg" alt="" width={18} height={18} />
+            <button
+              className="icon-text"
+              aria-pressed={flipped}
+              onClick={toggleFlip}
+            >
+              <Image
+                src="/landing/flip-graph.svg"
+                alt=""
+                width={18}
+                height={18}
+              />
               {flipped ? "Discover" : "Flip graph"}
             </button>
           </div>
@@ -343,10 +330,18 @@ export default function DiscoveryStory() {
                   style={flipped ? { opacity: 0 } : undefined}
                 />
               </g>
-              <path ref={streakRef} id="paint-streak" pathLength={1} d={HOBBIES[0].path} />
+              <path
+                ref={streakRef}
+                id="paint-streak"
+                pathLength={1}
+                d={HOBBIES[0].path}
+              />
             </svg>
 
-            <div className="graph-hub" style={{ "--x": "49.4%", "--y": "46.8%" } as React.CSSProperties}>
+            <div
+              className="graph-hub"
+              style={{ "--x": "49.4%", "--y": "46.8%" } as React.CSSProperties}
+            >
               <Image src="/landing/rabbit.svg" alt="" width={38} height={40} />
               <span>You</span>
             </div>
@@ -365,22 +360,37 @@ export default function DiscoveryStory() {
                 data-hobby={h.key}
                 aria-label={`${h.title}${collected.has(h.key) ? ", collected" : ""}`}
                 style={
-                  { "--x": h.x, "--y": h.y, "--pigment": h.pigment } as React.CSSProperties
+                  {
+                    "--x": h.x,
+                    "--y": h.y,
+                    "--pigment": h.pigment,
+                  } as React.CSSProperties
                 }
                 onClick={() => selectHobby(h.key)}
               >
                 <span className="node-orb">
-                  <Image src={`/landing/${h.icon}`} alt="" width={30} height={30} />
+                  <Image
+                    src={`/landing/${h.icon}`}
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
                   <i className="collected-check">✓</i>
                 </span>
                 <span>{h.title}</span>
               </button>
             ))}
 
-            <span className="minor-node mn-one" style={{ "--x": "13.1%", "--y": "53.2%" } as React.CSSProperties}>
+            <span
+              className="minor-node mn-one"
+              style={{ "--x": "13.1%", "--y": "53.2%" } as React.CSSProperties}
+            >
               Raku firing
             </span>
-            <span className="minor-node mn-two" style={{ "--x": "88.5%", "--y": "44.4%" } as React.CSSProperties}>
+            <span
+              className="minor-node mn-two"
+              style={{ "--x": "88.5%", "--y": "44.4%" } as React.CSSProperties}
+            >
               Generative art
             </span>
 
@@ -417,8 +427,7 @@ export default function DiscoveryStory() {
                   </div>
                   <div className="progress-note">
                     A little wonky.
-                    <br />
-                    A lot more mine.
+                    <br />A lot more mine.
                     <small>Note · 07 Sep · sample</small>
                   </div>
                 </div>
@@ -438,18 +447,26 @@ export default function DiscoveryStory() {
                 onClick={collect}
                 disabled={collected.has(selectedHobby.key)}
               >
-                {collected.has(selectedHobby.key) ? "Collected ✓" : "Collect hobby +"}
+                {collected.has(selectedHobby.key)
+                  ? "Collected ✓"
+                  : "Collect hobby +"}
               </button>
             )}
           </div>
 
           <div className="graph-bottom">
             <span>
-              {collected.size} {collected.size === 1 ? "hobby" : "hobbies"} collected
+              {collected.size} {collected.size === 1 ? "hobby" : "hobbies"}{" "}
+              collected
             </span>
             {!flipped && (
               <button className="icon-text" onClick={surprise}>
-                <Image src="/landing/random-hobby.svg" alt="" width={18} height={18} />
+                <Image
+                  src="/landing/random-hobby.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                />
                 Surprise me
               </button>
             )}

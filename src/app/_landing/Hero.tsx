@@ -1,64 +1,113 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMotion } from "./useMotion";
+import type { HobbyModel, HobbyScene } from "./hobbyScene";
 
-// The opening: oversized type beside the constellation rabbit and the hobbies
-// orbiting it.
-//
-// The parallax is desktop-only and reads scroll on a passive listener into a
-// requestAnimationFrame, so it never blocks the scroll it is following. It
-// moves a transform and nothing else — no layout property is animated, which
-// is what keeps it off the main thread's critical path.
-
-const SATELLITES = [
-  { className: "sat-one", icon: "gallery-craft.svg", label: "Pottery" },
-  { className: "sat-two", icon: "pocket-tech.svg", label: "Creative coding" },
-  { className: "sat-three", icon: "gallery-nature.svg", label: "Foraging" },
-  { className: "sat-four", icon: "gallery-creative.svg", label: "Film photography" },
+const HOBBIES: {
+  id: HobbyModel;
+  name: string;
+  line: string;
+  number: string;
+}[] = [
+  {
+    id: "pottery",
+    name: "Pottery",
+    line: "A feeling, taking shape.",
+    number: "01",
+  },
+  {
+    id: "photography",
+    name: "Film photography",
+    line: "A moment, worth keeping.",
+    number: "02",
+  },
+  {
+    id: "foraging",
+    name: "Foraging",
+    line: "A familiar path, rediscovered.",
+    number: "03",
+  },
 ];
 
 export default function Hero() {
   const { paused } = useMotion();
-  const universeRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<HobbyModel>("pottery");
+  const [ready, setReady] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const api = useRef<HobbyScene | null>(null);
+  const latest = useRef({ selected, paused });
+  useEffect(() => {
+    latest.current = { selected, paused };
+    api.current?.select(selected);
+    api.current?.pause(paused);
+  }, [selected, paused]);
 
   useEffect(() => {
-    const universe = universeRef.current;
-    const hero = heroRef.current;
-    if (!universe || !hero) return;
-
-    // Paused, or a narrow screen: put the scene back where the stylesheet
-    // wants it and stop listening entirely.
-    if (paused || window.innerWidth <= 760) {
-      universe.style.transform = "";
-      return;
-    }
-
-    let pending = false;
-    const update = () => {
-      pending = false;
-      const y = Math.max(0, Math.min(window.scrollY, hero.offsetHeight));
-      universe.style.transform = `translateY(calc(-44% + ${y * 0.12}px)) rotate(${y * 0.0025}deg)`;
+    const host = stageRef.current;
+    if (!host || !enabled) return;
+    let cancelled = false,
+      started = false;
+    const load = async () => {
+      if (started || cancelled) return;
+      started = true;
+      try {
+        const { mountHobbyScene } = await import("./hobbyScene");
+        if (cancelled) return;
+        api.current = mountHobbyScene(
+          host,
+          latest.current.selected,
+          latest.current.paused,
+        );
+        setReady(true);
+      } catch {
+        host.dataset.scene = "fallback";
+        if (!cancelled) setUnavailable(true);
+      }
     };
-    const onScroll = () => {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    // A matching rendered poster loads first; WebGL is an explicit enhancement.
+    // Importing only on intent keeps shader setup out of the initial mobile load.
+    void load();
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      cancelled = true;
+      api.current?.dispose();
+      api.current = null;
+    };
+  }, [enabled]);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero || paused) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rect = hero.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > innerHeight) return;
+      api.current?.travel(-rect.top / Math.max(1, rect.height));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
     };
   }, [paused]);
+  const hobby = HOBBIES.find((item) => item.id === selected)!;
 
   return (
-    <section className="hero" id="top" aria-labelledby="hero-title" ref={heroRef}>
+    <section
+      className="hero immersive-hero"
+      id="top"
+      aria-labelledby="hero-title"
+      ref={heroRef}
+      data-journey-scene
+    >
       <div className="hero-aura" aria-hidden="true" />
       <div className="hero-copy">
         <p className="eyebrow">
@@ -76,44 +125,83 @@ export default function Hero() {
           <br />
           Then see where it takes you.
         </p>
-        <a className="button light" href="#discover">
+        <a className="button light" href="#app">
           Down the rabbit hole <span aria-hidden="true">↘</span>
         </a>
       </div>
-
-      <div className="hero-universe" aria-hidden="true" ref={universeRef}>
-        <svg className="hero-lines" viewBox="0 0 700 690" fill="none">
-          <path d="M360 310Q270 155 170 125M360 310Q550 200 580 110M360 310Q590 380 602 465M360 310Q280 480 290 575M360 310Q185 390 85 420M170 125L83 65M580 110L675 230M602 465L535 625M85 420L65 575" />
-          <g>
-            <circle cx="83" cy="65" r="3" />
-            <circle cx="675" cy="230" r="3" />
-            <circle cx="535" cy="625" r="3" />
-            <circle cx="65" cy="575" r="3" />
-          </g>
-        </svg>
-        <div className="rabbit-orbit">
-          <div className="orbit-ring" />
-          <Image src="/landing/rabbit.svg" alt="" width={270} height={278} priority />
-          <span className="orbit-caption">a world waiting to unfold</span>
+      <div className="hobby-exhibit">
+        <div className="exhibit-label">
+          <Image
+            src="/landing/rabbit.svg"
+            alt=""
+            width={24}
+            height={26}
+            style={{ height: "auto" }}
+          />
+          <span>a world waiting to unfold</span>
         </div>
-        {SATELLITES.map((s) => (
-          <div className={`satellite ${s.className}`} key={s.className}>
-            <Image src={`/landing/${s.icon}`} alt="" width={44} height={44} />
-            <span>{s.label}</span>
-          </div>
-        ))}
-        <div className="satellite sat-five">
-          <span className="little-planet" />
-          <span>Something unexpected</span>
+        <div
+          className="hobby-stage"
+          ref={stageRef}
+          aria-label={`${hobby.name} sculpture`}
+          role="img"
+        >
+          <div className="exhibit-orbit" aria-hidden="true" />
+          <div className="exhibit-orbit orbit-two" aria-hidden="true" />
+          <Image
+            className="exhibit-fallback"
+            src={`/landing/app-preview/${selected}-poster.webp`}
+            alt=""
+            width={524}
+            height={435}
+            unoptimized
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+          />
+        </div>
+        <div className="exhibit-caption">
+          <p aria-live="polite">{hobby.line}</p>
+          <button
+            type="button"
+            onClick={() => (ready ? api.current?.rotate() : setEnabled(true))}
+            disabled={unavailable || (enabled && !ready)}
+            aria-live="polite"
+          >
+            {unavailable
+              ? "3D unavailable"
+              : ready
+                ? "Turn the object"
+                : enabled
+                  ? "Loading 3D…"
+                  : "Explore in 3D"}{" "}
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
+        <div
+          className="exhibit-choices"
+          role="group"
+          aria-label="Choose a hobby sculpture"
+        >
+          {HOBBIES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={selected === item.id}
+              onClick={() => setSelected(item.id)}
+            >
+              <span className="choice-dot" />
+              {item.name}
+            </button>
+          ))}
         </div>
       </div>
-
       <div className="hero-bottom">
-        <span>HOBBIES CONNECT. SO DO YOU.</span>
-        <a href="#discover">
-          Scroll to explore <span aria-hidden="true">↓</span>
+        <span>SMALL SPARKS. UNEXPECTED CONNECTIONS.</span>
+        <a href="#app">
+          Follow the thread <span aria-hidden="true">↓</span>
         </a>
-        <span className="hero-index">01 — ∞</span>
+        <span className="hero-index">{hobby.number} — 03</span>
       </div>
     </section>
   );

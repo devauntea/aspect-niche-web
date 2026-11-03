@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMotion } from "./useMotion";
 import { useReveal } from "./useReveal";
 
@@ -16,7 +16,13 @@ type ThemeKey = "gallery" | "pocket" | "midnight";
 
 const THEMES: Record<
   ThemeKey,
-  { name: string; number: string; description: string; footer: string; prefix: string }
+  {
+    name: string;
+    number: string;
+    description: string;
+    footer: string;
+    prefix: string;
+  }
 > = {
   gallery: {
     name: "Gallery",
@@ -42,11 +48,36 @@ const THEMES: Record<
 };
 
 const NODES = [
-  { cls: "tn-hub", icon: "creative", label: "Create", path: "M555 255Q740 215 860 145" },
-  { cls: "tn-one", icon: "craft", label: "Pottery", path: "M555 255Q440 145 345 140" },
-  { cls: "tn-two", icon: "tech", label: "Creative coding", path: "M555 255Q740 215 860 145" },
-  { cls: "tn-three", icon: "nature", label: "Nature journaling", path: "M555 255Q670 330 800 365" },
-  { cls: "tn-four", icon: "creative", label: "Photography", path: "M555 255Q420 355 355 375" },
+  {
+    cls: "tn-hub",
+    icon: "creative",
+    label: "Create",
+    path: "M555 255Q740 215 860 145",
+  },
+  {
+    cls: "tn-one",
+    icon: "craft",
+    label: "Pottery",
+    path: "M555 255Q440 145 345 140",
+  },
+  {
+    cls: "tn-two",
+    icon: "tech",
+    label: "Creative coding",
+    path: "M555 255Q740 215 860 145",
+  },
+  {
+    cls: "tn-three",
+    icon: "nature",
+    label: "Nature journaling",
+    path: "M555 255Q670 330 800 365",
+  },
+  {
+    cls: "tn-four",
+    icon: "creative",
+    label: "Photography",
+    path: "M555 255Q420 355 355 375",
+  },
 ];
 
 export default function ThemeStudio() {
@@ -55,22 +86,38 @@ export default function ThemeStudio() {
   const brushRef = useRef<SVGPathElement>(null);
   const headingRef = useReveal<HTMLDivElement>();
   const active = THEMES[theme];
+  const animations = useRef<Animation[]>([]);
+  useEffect(() => {
+    if (paused) animations.current.forEach((animation) => animation.cancel());
+    return () => animations.current.forEach((animation) => animation.cancel());
+  }, [paused]);
 
   const stroke = (path: string, icon: HTMLElement | null) => {
     const brush = brushRef.current;
     if (!brush || paused) return;
-    brush.classList.remove("run");
+    animations.current.forEach((animation) => animation.cancel());
     brush.setAttribute("d", path);
-    void brush.getBoundingClientRect();
-    brush.classList.add("run");
-    icon?.animate(
-      [
-        { transform: "scale(.86)" },
-        { transform: "scale(1.13)" },
-        { transform: "scale(1)" },
-      ],
-      { duration: 700, easing: "cubic-bezier(.22,1,.36,1)" },
-    );
+    animations.current = [
+      brush.animate(
+        [
+          { strokeDashoffset: 1, opacity: 0 },
+          { strokeDashoffset: 0.7, opacity: 1, offset: 0.2 },
+          { strokeDashoffset: -1, opacity: 0 },
+        ],
+        { duration: 1100, easing: "cubic-bezier(.22,1,.36,1)" },
+      ),
+    ];
+    if (icon)
+      animations.current.push(
+        icon.animate(
+          [
+            { transform: "scale(.86)" },
+            { transform: "scale(1.13)" },
+            { transform: "scale(1)" },
+          ],
+          { duration: 700, easing: "cubic-bezier(.22,1,.36,1)" },
+        ),
+      );
   };
 
   return (
@@ -82,7 +129,7 @@ export default function ThemeStudio() {
     >
       <div className="studio-heading reveal" ref={headingRef}>
         <div>
-          <p className="eyebrow">02 / YOUR WORLD, YOUR WAY</p>
+          <p className="eyebrow">03 / YOUR WORLD, YOUR WAY</p>
           <h2 id="studio-title">
             Same curiosity.
             <br />
@@ -98,7 +145,11 @@ export default function ThemeStudio() {
         </p>
       </div>
 
-      <div className="theme-switch" role="group" aria-label="Choose a theme preview">
+      <div
+        className="theme-switch"
+        role="group"
+        aria-label="Choose a theme preview"
+      >
         {(Object.keys(THEMES) as ThemeKey[]).map((key) => (
           <button
             key={key}
@@ -141,7 +192,7 @@ export default function ThemeStudio() {
             className={`theme-node ${n.cls}`}
             aria-label={
               n.cls === "tn-hub"
-                ? "Replay this theme’s connection animation"
+                ? "Create: replay this theme’s connection animation"
                 : `Animate connection to ${n.label.toLowerCase()}`
             }
             onClick={(e) =>
