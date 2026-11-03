@@ -23,21 +23,19 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="1 November 2026"
+      updated="3 November 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
     >
       <Section title="The short version">
-        <List
-          items={[
-            "Without an account, what you make stays on your phone. The app still reaches the internet for a few things you ask it to do, listed below.",
-            "An account is optional. With one, your collection, notes, plans and some photos are stored so they can reach your other phones.",
-            "We do not sell personal information, and nothing in the app tracks you across other companies' apps or websites.",
-            "Free use shows one non-personalised sponsored row, from Google. Members see none.",
-            "This website sets no cookies and loads nothing from any other company.",
-          ]}
-        />
+        <List items={[
+          "Private hobby planning works without an account. An account enables sync, AI help and shared activities.",
+          "Signing in syncs your collection, pinned notes, plans, settings, last searched location and eligible photos with their date and location metadata.",
+          "Shared activities and replies are linked to accounts so reporting, blocking and moderation can work.",
+          "Ads, where configured, are requested as non-personalised and wait for Google's consent check. Members see no ads.",
+          "We do not sell your personal information. This website uses browser storage for sign-in and your saved reply name; shared activity pages contact Supabase.",
+        ]} />
       </Section>
 
       <Section title="On your phone">
@@ -50,97 +48,32 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           You can erase all of it at any time under{" "}
-          <strong>Settings &rarr; Erase my data</strong>, or by deleting the
+          <strong>Settings &rarr; Your data &rarr; Erase my data</strong>, or by deleting the
           app.
         </p>
       </Section>
 
       <Section title="If you make an account">
-        <p>
-          You can sign in with an email address and a password you choose, a
-          six-digit code we email you, Sign in with Apple, or your Google
-          account. We never ask for a phone number. With an account, we store:
-        </p>
-        <List
-          items={[
-            "Your email address, to sign you in. With Sign in with Apple you can choose to hide it, and we receive a private relay address from Apple instead.",
-            "Your password, if you set one, only as a one-way hash held by our sign-in provider (Supabase). Nobody, including us, can read it back. Signing in with Apple or Google involves no password of ours at all.",
-            "If you sign in with Apple: an identifier Apple gives us for your account, and your name if you choose to share it the first time you sign in.",
-            "If you sign in with Google: an identifier Google gives us for your account, and what Google includes in its sign-in: your name and a link to your Google profile picture. The app does not show or use either.",
-            "A copy of your collection, pinned notes, sessions, plans, hobbies you made yourself, settings, and the last place you searched near — so they reach another phone you sign in on.",
-            "Photos you add, up to your backup limit: a reduced copy (at most 1600 pixels on the long side), in a private folder only your account can read. The original stays on the phone that took it.",
-          ]}
-        />
-        <p>
-          Some things never leave the phone, even with an account: unfinished
-          draft notes, vision boards, and photos beyond your backup limit.
-        </p>
-        <p>
-          Signing in with Apple or Google means Apple or Google knows you
-          signed in to Aspect Niche. We get nothing else from them: not your
-          contacts, your other apps or your Google data.
-        </p>
+        <p>Sign in with an email address and password, or a six-digit email code. Apple and Google sign-in are not offered in this release. Supabase stores your email, account identifier and a password hash if you set a password.</p>
+        <p>Your account stores a synced copy of your collection, pinned notes, sessions, plans, custom hobbies, settings and last searched location. The last searched location can include precise latitude and longitude. Eligible photo backups include a reduced image and the date and location metadata saved with it, which can also contain precise coordinates.</p>
+        <p>Draft notes, vision boards, selected contacts and photos beyond your backup limit remain on the device. Keep an independent copy of anything important.</p>
       </Section>
 
       <Section title="Invitations and replies">
-        <p>
-          An invitation is a link that carries the event itself — what, when,
-          where, and whatever you wrote — and you send it through whichever
-          messaging app you choose.
-        </p>
-        <p>
-          When you send one, we record the invitation&rsquo;s id so replies
-          can reach you: against your account if you are signed in, and
-          otherwise against a random key that only your phone holds (we keep
-          a one-way hash of it), with your phone&rsquo;s notification address
-          if you allowed notifications. We keep its title and start time with
-          it, so the notification that tells you someone answered can name the
-          invitation. Nothing else in the invitation is stored.
-          A guest&rsquo;s reply, from the app or from the invitation&rsquo;s
-          web page, then stores the name they typed and their answer — going,
-          maybe or out — and only the host can read it. A guest needs no
-          account and gives nothing else; the page may remember the name in
-          that browser so it is not typed twice. An invitation sent without an
-          account is deleted, with its replies, 30 days after it started. When
-          we cannot be reached, replies travel as links, and nothing passes
-          through us.
-        </p>
-        <p>
-          You can put one of the app&rsquo;s own pictures behind an invitation,
-          which sends nothing but its name. If you choose a photo of your own,
-          we store a reduced copy (at most 1600 pixels on the long side) under
-          a long random name when you share the invitation, so your
-          guest&rsquo;s phone or browser can show it. Anyone with the invitation
-          link can see that photo; nobody can find it without the link, and it
-          carries nothing that identifies you. With an account, it is deleted
-          with your account; without one, it is deleted 30 days after the
-          invitation started. If the photo cannot be uploaded, the app asks
-          before sending the invitation without it.
-        </p>
-        <p>
-          A repeating plan (a series) is stored on our servers, because its
-          link has to show this week&rsquo;s changes. Anyone with the link can
-          see its schedule and the names of everyone who answered, and can add
-          their own; the page says so above the name field. A name and its
-          answers are deleted when the host removes them, when the host deletes
-          the series or their account, or when the guest withdraws them.
-          Answers to games more than 90 days past are cleared the next time
-          anyone opens the series or changes an answer in it. The host can
-          remove a name from every game at any time, and deleting the series
-          removes everything. An &ldquo;I&rsquo;m usually in&rdquo; answer
-          stays until the guest withdraws it or the host removes it. A series
-          holds at most 40 names.
-        </p>
+        <p>Hosting, opening and replying to shared activities in the current app requires an account. Your display name is shown to other participants; your email is not. Invitations store their event details, host account and replies on our servers. A link preview may show the event title, host, time and place, so share links only with people you intend to invite.</p>
+        <p>A repeating plan stores its schedule and the names and answers of participants. Signed-in people holding its link can see the roster, subject to blocks and moderation. Answers are linked to the account that submitted them; another account cannot take over a name. You can withdraw your own answers, and a host can remove replies or delete the series. Dated answers older than 90 days are cleared when the series is next opened or answered; an ongoing usual answer remains until withdrawn or removed.</p>
+        <p>New shared invitations use the app&rsquo;s curated artwork. Custom public photo backgrounds are unavailable in this release. Photos already shared using older versions may remain accessible to people holding their links until removed or expired; accountless invitation photos expire after the invitation&rsquo;s retention period. Private hobby photo backups are separate.</p>
+        <p>Reports store your account identifier, the activity, the reported account when known, a snapshot of the content, your reason and any details you submit. Moderators can read reports; participants cannot. Blocking records the two account identifiers and a display label. Reports may be retained for safety after account deletion, with account identifiers detached; avoid adding unnecessary personal information to a report.</p>
       </Section>
 
+      <Section title="Date planning"><p>Date plans stay on your device and sync to your own account when signed in. Legacy date proposal and reply links are unavailable in this release and do not import or change plans. Planning together on one phone remains available.</p></Section>
+
       <Section title="Clubs">
-        <p>
-          A club needs an account. We store the club&rsquo;s name, its hobby and
-          any place you gave it, and for each member the display name they
-          typed. Other members see those display names, never an email address.
-          If you report a club, we store the report for a moderator; nobody in
-          the club is told.
-        </p>
+        <p>Clubs are not available in this release. If you used an earlier test version, existing club records remain subject to account deletion and the support process.</p>
+      </Section>
+
+      <Section title="Photo locations">
+        <p>Selected photos can contain a capture date and GPS coordinates. The app reads those to organize memories and may send coordinates to Photon, operated by komoot, to look up a place label. Eligible backed-up photos include this metadata in your account&rsquo;s synced record. Choosing a photo with location metadata is separate from granting live location permission.</p>
       </Section>
 
       <Section title="Finding places">
@@ -161,9 +94,7 @@ export default function PrivacyPolicy() {
             <>
               <strong>Your location.</strong> Only when you tap &ldquo;Use my
               location&rdquo; or &ldquo;Suggest places near me&rdquo;, and only
-              after iOS asks your permission. The coordinates are used for that
-              one search and are not stored against your account, except as the
-              last place you searched near, described above.
+              after iOS asks your permission. The coordinates are sent for the search and saved as your last searched location on this device. That location syncs to your account when signed in; it is not background location tracking.
             </>,
             <>
               <strong>The search.</strong> Our server looks for places in its
@@ -197,7 +128,7 @@ export default function PrivacyPolicy() {
           ]}
         />
         <p>
-          We do not store the answers on our servers; they live on your phone
+          The app asks permission before sending relevant information to Groq. You can disable Help from AI in Settings. We do not store the answers on our servers; they live on your phone
           unless you keep one as a note. We store only how many answers you have
           used each month, to apply the monthly limit. Groq processes the
           request under its own privacy policy.
@@ -205,29 +136,12 @@ export default function PrivacyPolicy() {
       </Section>
 
       <Section title="The membership">
-        <p>
-          Memberships are bought through Apple. Apple handles the payment, and
-          we never see your card or billing details. Purchases are verified by
-          RevenueCat, which receives Apple&rsquo;s record of the purchase and an
-          id for you — your account&rsquo;s id if you are signed in, otherwise a
-          random one — along with basic device information.
-        </p>
-        <p>
-          For a signed-in account we store whether it has a membership, which
-          plan, and when it ends, so the membership works on your other phones.
-        </p>
+        <p>Membership is shown only where a purchasable plan is available, or for an existing member. If offered, Apple handles payment and RevenueCat verifies the purchase using an account or anonymous customer identifier, purchase history and basic device information. We do not receive card details. Signed-in membership status is stored so it can work on your other devices.</p>
       </Section>
 
       <Section title="The sponsored row">
-        <p>
-          Free use shows one sponsored row, served by the Google Mobile Ads SDK.
-          It is always requested as <strong>non-personalised</strong>: it is not
-          chosen from a profile of you, and the app never asks for permission to
-          track you, so Apple&rsquo;s advertising identifier is not available to
-          it. To show and measure the ad and to prevent fraud, Google receives
-          device and connection information such as your IP address, and whether
-          the ad was seen or tapped. For members the ad SDK never starts.
-        </p>
+        <p>When ads are configured, free use may show a sponsored row served by Google Mobile Ads. The app delays ad measurement until initialization and runs Google&rsquo;s consent process before requesting ads. If that check fails or does not permit ads, no ad is requested. You can revisit available consent choices under Settings → Ad privacy.</p>
+        <p>Ads are requested as non-personalised. The app does not request Apple&rsquo;s tracking permission. Non-personalised ads still involve data processing: Google may receive your IP address and approximate location derived from it, device identifiers and information, ad views and taps, and diagnostic data for serving, measurement and fraud prevention. These are not an upload of your hobby collection or photo locations. Existing members do not initialize the ad SDK.</p>
       </Section>
 
       <Section title="Links to shops and classes">
@@ -253,8 +167,7 @@ export default function PrivacyPolicy() {
           tomorrow and you have not answered. To do that, your phone stores a
           push token with us, along with its time zone, its notification
           switches, and each invitation or series it follows with the name you
-          answered under. You do not need an account for this, and the token is
-          attached to your account only if you are signed in.
+          answered under. Shared activity subscriptions require sign-in, and the token is attached to your account. Older signed-out device records may remain until their retention period expires.
         </p>
         <p>
           To deliver a notification, its text &mdash; a name, an event title, a
@@ -334,13 +247,13 @@ export default function PrivacyPolicy() {
         </p>
         <List
           items={[
-            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, clubs, replies, series, membership status and AI usage counts.",
+            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, replies, series, moderation records, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
-            "Apple — App Store purchases and payment, delivery of notifications to iPhones, and Sign in with Apple if you use it.",
+            "Apple — App Store purchases and payment, delivery of notifications to iPhones.",
             "Expo — passes notifications to Apple's push service.",
             "RevenueCat — verifies purchases and tells our servers when a membership starts or ends.",
             "Groq — runs the AI model for AI answers.",
-            "Google — signs you in, if you choose your Google account, and serves the sponsored row to free users. The two are not linked.",
+            "Google — handles ad consent and serves the sponsored row where enabled.",
             "komoot (Photon) — address suggestions while you type.",
             "OpenStreetMap — place data, where our own copy has none.",
             "Vercel — hosts this website.",
@@ -352,7 +265,7 @@ export default function PrivacyPolicy() {
         <List
           items={[
             "Sell or rent personal information.",
-            "Show personalised ads, or track you across other companies' apps and websites.",
+            "Use your hobby collection or private photo locations to target advertisements.",
             "Read your photo library, calendar or location beyond the moment you ask the app to use it.",
             "Show your email address to anyone else in the app.",
           ]}
@@ -373,22 +286,19 @@ export default function PrivacyPolicy() {
         </p>
         <p>
           You can delete your account from inside the app, under{" "}
-          <strong>You &rarr; Account &rarr; Delete my account</strong>. That
-          deletes, straight away and for good, your sign-in and everything our
+          <strong>Settings &rarr; Account &amp; sync &rarr; Delete my account</strong>. That
+          removes your sign-in and the account data our
           servers hold for it: the synced copy, backed-up photos, photos behind
           your invitations, clubs you made
           (their other members lose them too), your club memberships,
           invitations and the replies to them, series you host and every answer to them, your membership record and AI
-          usage counts, and your customer record with RevenueCat. Everything on
-          your phone stays. Reports you made about a club are kept for the
-          moderator, without your name on them.
+          usage counts, and your customer record with RevenueCat when configured. Everything on
+          your phone stays. Moderation reports may be retained with account identifiers detached; details you typed may still identify you.
         </p>
         <p>
           If you only want the synced copy gone, choose{" "}
           <strong>Sign out and delete the copy</strong> when you sign out
-          instead. If you signed in with Apple or Google, you can also remove
-          Aspect Niche from the apps that use your Apple ID or Google account,
-          in Apple&rsquo;s or Google&rsquo;s own settings. Deleting an account
+          instead. Deleting an account
           does not cancel a membership bought through Apple; cancel that in
           your Apple ID settings. Apple keeps its
           own purchase records as its policies and the law require. If you

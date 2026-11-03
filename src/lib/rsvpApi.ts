@@ -1,3 +1,4 @@
+import { sharedHeaders } from "./sharedAuth";
 import type { RsvpStatus } from "@/lib/invite";
 
 // The web side of the `rsvp` function: a guest's answer from the /i page.
@@ -20,7 +21,7 @@ export async function sendRsvp(inviteId: string, guestName: string, status: Rsvp
   try {
     const r = await fetch(endpoint(), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...await sharedHeaders() },
       body: JSON.stringify({ inviteId, guestName, status }),
       cache: "no-store",
       signal: AbortSignal.timeout(8000),

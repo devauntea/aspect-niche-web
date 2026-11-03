@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { decodeInvite, formatInviteWhen } from "@/lib/invite";
-import InviteView from "./InviteView";
-import { artUrl } from "./art";
+import SharedActivity from "@/app/_shared/SharedActivity";
+import { verifiedInvite } from "@/lib/invitePreview";
 import "./invite.css";
 
 // The page an invitation link opens.
@@ -11,9 +11,8 @@ import "./invite.css";
 // apps do not reliably make an unknown scheme tappable, and for anyone without
 // the app installed, tapping did nothing at all.
 //
-// Everything needed to render the invitation is inside the link, so this page
-// needs no database and no account — the same property that makes the feature
-// work with no backend also makes it work for a stranger on a browser.
+// The link identifies a registered invitation. Authenticated checks return
+// the canonical document; anonymous crawlers receive only preview fields.
 
 const ORIGIN = "https://aspectniche.com";
 
@@ -35,7 +34,7 @@ export async function generateMetadata({
   searchParams: Promise<{ d?: string }>;
 }): Promise<Metadata> {
   const { d } = await searchParams;
-  const invite = d ? decodeInvite(d) : null;
+  const invite = await verifiedInvite(d);
 
   const title = invite
     ? `${invite.host} invited you to ${invite.title}`
@@ -92,12 +91,5 @@ export default async function InvitePage({
     );
   }
 
-  return (
-    <InviteView
-      invite={invite}
-      when={formatInviteWhen(invite.startsAt, invite.tzOffset)}
-      art={artUrl(invite.background)}
-      encoded={d ?? ""}
-    />
-  );
+  return <SharedActivity kind="invite" id={invite.id} />;
 }

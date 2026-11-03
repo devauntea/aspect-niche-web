@@ -16,17 +16,16 @@ import { LegalPage, Section, List } from "@/app/_legal/LegalPage";
 export const metadata: Metadata = {
   title: "Terms of Use — Aspect Niche",
   description:
-    "The terms for using Aspect Niche, a hobby-discovery app and website: accounts, the membership subscription, AI help, clubs and your content.",
+    "The terms for using Aspect Niche, a hobby-discovery app and website: accounts, the membership subscription, AI help, shared activities and your content.",
 };
 
 export default function Terms() {
   return (
     <LegalPage
       title="Terms of Use"
-      updated="29 October 2026"
-      lede="Aspect Niche is free to use and complete without an account. An
-            optional account carries your things between phones, and an
-            optional membership adds room. These terms explain what you can
+      updated="3 November 2026"
+      lede="Aspect Niche offers private hobby planning without an account. An
+            account enables sync and shared activities, and membership may add room when offered. These terms explain what you can
             expect from it and what it expects from you."
     >
       <Section title="Who provides this">
@@ -76,27 +75,13 @@ export default function Terms() {
       </Section>
 
       <Section title="Accounts">
-        <p>
-          An account is optional. Signing in uses your email address and a
-          password, a six-digit code sent to that address, Sign in with Apple,
-          or your Google account. With an account,
-          your hobbies, notes and plans are copied to our servers so they can
-          reach another phone you sign in on. Keep your password to yourself,
-          and keep access to your email address, since that is how you reset
-          a forgotten password. If you sign in with Apple or Google, your use
-          of that sign-in is also covered by Apple&rsquo;s or Google&rsquo;s
-          own terms.
-        </p>
-        <p>
-          You can sign out at any time, and you can delete the account&rsquo;s
-          copy of your things from the app when you do. Signing out never
-          removes anything from the phone you are holding.
-        </p>
+        <p>Private planning is available without an account. Sync, AI help and shared activities require sign-in using your email and password or an emailed code. Keep access to your email and do not share your sign-in credentials. Apple and Google sign-in are not offered in this release.</p>
+        <p>Signing out leaves local data on your phone. To delete your account and its server data, use Settings → Account &amp; sync → Delete my account. To erase the device copy, use Settings → Your data. These are separate actions.</p>
       </Section>
 
       <Section title="The membership">
         <p>
-          A membership is an optional subscription that adds room. It does not
+          Where offered, a membership is an optional subscription that adds room. It does not
           unlock any hobby: the catalogue is free for everyone. While active, it
           includes:
         </p>
@@ -147,7 +132,7 @@ export default function Terms() {
 
       <Section title="The sponsored row">
         <p>
-          Free use shows one sponsored row, at the foot of the Discover and
+          Where configured and permitted after the consent check, free use may show one sponsored row, at the foot of the Discover and
           Plans lists, labelled &ldquo;Sponsored&rdquo;. It is served by
           Google&rsquo;s advertising service and is not personalised to you. A
           sponsored row is not a recommendation from us, and we are not
@@ -212,25 +197,9 @@ export default function Terms() {
       </Section>
 
       <Section title="Clubs, invitations and what other people see">
-        <p>
-          A club is shared with the people in it, and an invitation with the
-          people you send it to. What you write there — your name, a
-          club&rsquo;s name and description, the message on an invitation — is
-          seen by them, and you are responsible for it. Do not write anything
-          unlawful, abusive, or that you do not have the right to share.
-        </p>
-        <p>
-          Clubs are private: there is no public directory, and a club is reached
-          only through its link. You can report a club from inside the app. We
-          may remove a club or end access to clubs for anyone who breaks these
-          terms.
-        </p>
-        <p>
-          When a signed-in host sends an invitation, guests&rsquo; replies pass
-          through our servers so the host can see them. Otherwise an invitation
-          travels between you and the person you send it to, through whichever
-          messaging app you choose.
-        </p>
+        <p>Clubs are unavailable in this release. Shared invitations and repeating activities require an account. Names, event details and replies are visible to the relevant participants; invitation previews may also appear wherever you share a link. Do not publish unlawful, threatening, hateful, sexually exploitative, deceptive or abusive content, spam, or material you do not have the right to share.</p>
+        <p>Shared text is filtered and people can report content or block accounts from the activity. Reports are reviewed privately; we may remove content, suspend sharing or terminate accounts for abuse. Contact <a href="mailto:devauntaenorman@gmail.com">devauntaenorman@gmail.com</a> about safety concerns. Blocking stops shared activity access and updates between accounts; it does not remove messages already sent through outside messaging apps.</p>
+        <p>New public invitation backgrounds are limited to curated artwork while image moderation is unavailable. Private photo memories and backups remain available. Replies are recorded through the signed-in service; older reply links are not automatically added to guest lists.</p>
       </Section>
 
       <Section title="Places to go">
@@ -323,7 +292,7 @@ export default function Terms() {
           Devauntae Norman. None of this may be copied, adapted or used for
           another product without written permission. Open-source components
           and map data used by the app keep their own licences. The photographs
-          used on this site are illustrative samples created for it, and are
+          used on this site are sample images and licensed photography, and are
           labelled as samples where they appear.
         </p>
       </Section>

@@ -1,7 +1,8 @@
+import { sharedHeaders } from "./sharedAuth";
 import { validateSeriesDoc, type Series, type SeriesAnswer, type SeriesStatus } from "@/lib/series";
 
-// The web side of the `series` function. Deployed without JWT checks, so no
-// key travels from the browser; the function's own rules are the guard.
+// The function validates bearer sessions itself; public metadata requests
+// contain no roster, while answers require a verified account.
 
 export type SeriesPage = { series: Series; answers: SeriesAnswer[]; members: number };
 
@@ -11,7 +12,7 @@ async function post(body: Record<string, unknown>): Promise<{ status: number; da
   try {
     const r = await fetch(endpoint(), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...await sharedHeaders() },
       body: JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(8000),
@@ -73,6 +74,7 @@ export async function sendAnswer(
   if (r.status === 409 && r.data?.full === true && typeof r.data.error === "string") {
     return { ok: false, message: r.data.error };
   }
+  if ([401, 403, 409, 422].includes(r.status) && typeof r.data?.error === "string") return { ok: false, message: r.data.error };
   if (r.status === 400) return { ok: false, message: "That game is no longer open for answers." };
   if (r.status === 404 && r.data?.error === "unknown series") {
     return { ok: false, message: "This plan no longer exists." };

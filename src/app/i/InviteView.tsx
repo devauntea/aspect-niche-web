@@ -1,21 +1,11 @@
 "use client";
 
-// The invitation itself, and the answer.
-//
-// The answer goes to the server first: the `rsvp` function stores it and the
-// host's phone is told, so the guest is done the moment they press the
-// button -- no reply to send back. The reply link is the fallback, never the
-// failure: an invitation from an app too old to register it, a page with no
-// project behind it, or a bad connection all offer it, and say plainly that
-// the answer still has to be sent. A guest who thinks they have replied and
-// has not is worse off than one who knows they still have to press send.
+// Replies are accepted only through the authenticated, moderated server route.
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   RSVP_CHOICES,
-  replyLink,
-  rsvpLabel,
   type Invite,
   type RsvpStatus,
 } from "@/lib/invite";
@@ -51,7 +41,6 @@ export default function InviteView({
   const [sending, setSending] = useState(false);
   /** Why the answer has to travel as a message instead; null while the server path stands. */
   const [fallback, setFallback] = useState<"unknown" | "failed" | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const who = name.trim();
   const ready = who.length > 0 && status !== null;
@@ -75,26 +64,6 @@ export default function InviteView({
     setFallback(r.reason);
   }
 
-  async function sendAsMessage() {
-    if (!ready) return;
-    const text = `${who}: ${rsvpLabel(status!)} — ${invite.title}\n\n${replyLink(invite.id, who, status!)}`;
-    // The share sheet where there is one, the clipboard where there is not.
-    if (navigator.share) {
-      try {
-        await navigator.share({ text });
-        return;
-      } catch {
-        // Dismissed. Fall through to the clipboard so the answer is not lost.
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 4000);
-    } catch {
-      setCopied(false);
-    }
-  }
 
   return (
     <main className="invite-page">
@@ -164,52 +133,13 @@ export default function InviteView({
             />
           </label>
 
-          {fallback === "unknown" ? (
-            <button type="button" className="invite-send" disabled={!ready} onClick={sendAsMessage}>
-              Send your answer to {invite.host}
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="invite-send"
-              disabled={!ready || sending || unchanged}
-              onClick={send}
-            >
-              {sending ? "Sending…" : sent ? "Change your answer" : "Send your answer"}
-            </button>
-          )}
-
+          <button type="button" className="invite-send" disabled={!ready || sending || unchanged} onClick={send}>
+            {sending ? "Sending…" : sent ? "Change your answer" : "Send your answer"}
+          </button>
           <p className="invite-status" role="status">
-            {sent && !fallback
-              ? `Sent. ${invite.host} will see “${rsvpLabel(sent.status)}” on their guest list — there is nothing to send back.`
-              : fallback === "unknown"
-                ? `This invitation came from an older version of the app, so your answer goes back to ${invite.host} as a message.`
-                : fallback === "failed"
-                  ? `Could not reach Aspect Niche. Try again, or send your answer to ${invite.host} as a message.`
-                  : ""}
+            {sent && !fallback ? `Saved. ${invite.host} will see your answer.` : fallback ? "Could not save your answer. Check your sign-in and connection, or choose another display name if yours is already used." : ""}
           </p>
-
-          {fallback === "failed" && (
-            <button type="button" className="invite-message" disabled={!ready} onClick={sendAsMessage}>
-              Send it as a message instead
-            </button>
-          )}
-
-          {copied && (
-            <p className="invite-copied" role="status">
-              Copied. Paste it into your reply to {invite.host} — that is what
-              records your answer.
-            </p>
-          )}
-
-          {/* Only what is true of the path the answer is on: a reply link is
-              never stored anywhere, so this page does not say it is. */}
-          <p className="invite-caveat">
-            {fallback === "unknown"
-              ? `Your answer travels back to ${invite.host} as a message, and is not kept anywhere else.`
-              : `Your name and answer are kept so ${invite.host} can see who is coming, and nothing else about you is.`}{" "}
-            Nothing is sent until you press the button above.
-          </p>
+          <p className="invite-caveat">Your name and answer are shared with the host and linked to your account for reporting and blocking. Nothing is sent until you press the button.</p>
         </section>
 
         <footer className="invite-foot">

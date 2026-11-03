@@ -1,10 +1,8 @@
 import { cache } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { formatGameWhen, nextGames, repeatLabel, UPCOMING_GAMES, type Series } from "@/lib/series";
+import { formatGameWhen, nextGames, type Series } from "@/lib/series";
 import { getSeries } from "@/lib/seriesApi";
-import SeriesView from "./SeriesView";
-import SeriesTakeBack from "./SeriesTakeBack";
+import SharedActivity from "@/app/_shared/SharedActivity";
 import "../i/invite.css";
 import "./series.css";
 
@@ -46,52 +44,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function SeriesPage({ searchParams }: Props) {
-  const { id } = await searchParams;
-  const page = id ? await load(id) : "missing";
-
-  if (typeof page !== "object") {
-    return (
-      <main className="invite-page">
-        <article className="invite-shell">
-          <h1 className="invite-broken-title">
-            {page === "missing" ? "This plan no longer exists" : "This plan did not load"}
-          </h1>
-          <p className="invite-broken-body">
-            {page === "missing"
-              ? "The host may have deleted it. Ask them for the current link."
-              : "Check your connection and open the link again."}
-          </p>
-          <footer className="invite-foot">
-            <Link href="/">What is Aspect Niche?</Link>
-          </footer>
-        </article>
-      </main>
-    );
-  }
-
-  const { series } = page;
-  const games = upcoming(series, UPCOMING_GAMES);
-  return (
-    <main className="invite-page">
-      <article className="invite-shell">
-        <p className="invite-kicker">{`${series.host} · ${repeatLabel(series.repeat)}`}</p>
-        <h1 className="invite-title">{series.title}</h1>
-        {series.place ? <p className="series-place">{series.place}</p> : null}
-        {series.note ? <p className="invite-note">{series.note}</p> : null}
-        {series.ended ? (
-          <>
-            <p className="invite-note">This series has ended.</p>
-            <SeriesTakeBack id={series.id} answers={page.answers} />
-          </>
-        ) : games.length === 0 ? (
-          <p className="invite-note">No games are scheduled.</p>
-        ) : (
-          <SeriesView id={series.id} series={series} games={games} answers={page.answers} />
-        )}
-        <footer className="invite-foot">
-          <Link href="/">What is Aspect Niche?</Link>
-        </footer>
-      </article>
-    </main>
-  );
+  const { id = "" } = await searchParams;
+  return <SharedActivity kind="series" id={id} />;
 }

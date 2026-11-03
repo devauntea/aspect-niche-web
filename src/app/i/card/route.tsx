@@ -1,5 +1,6 @@
+import { verifiedInvite } from "@/lib/invitePreview";
 import { ImageResponse } from "next/og";
-import { decodeInvite, formatInviteWhen } from "@/lib/invite";
+import { formatInviteWhen } from "@/lib/invite";
 import { cardArtUrl, loadCardArt } from "../cardArt";
 import { fitCard } from "./fit";
 
@@ -10,8 +11,8 @@ import { fitCard } from "./fit";
 // whether to tap an opaque string before they know what it is. This draws the
 // invitation itself, so the message carries the event: who, what, when, where.
 //
-// It is generated per invitation and takes everything from the link, exactly
-// like the page does. No database, no stored images, nothing to keep in step.
+// Card fields come from the registered, moderated document. Free-form notes
+// and participant details are not included in an anonymous preview.
 //
 // The card does not print "aspectniche.com". Every messaging client draws the
 // domain in its own chrome directly beneath the image — it was there twice,
@@ -20,7 +21,6 @@ import { fitCard } from "./fit";
 export const runtime = "edge";
 
 const BG = "#0a0c18";
-const SURFACE = "#131629";
 const TEXT = "#f0eeff";
 const DIM = "#8b93c9";
 const GLOW = "#8b7cf6";
@@ -43,7 +43,7 @@ const HEIGHT = 630;
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const d = url.searchParams.get("d");
-  const invite = d ? decodeInvite(d) : null;
+  const invite = await verifiedInvite(d ?? undefined);
   // The background the host chose, drawn under the words; the two lights
   // below are the look without one.
   const art = await loadCardArt(cardArtUrl(invite?.background, url.origin));
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   const place = invite?.place?.trim() ?? "";
   const { titleSize, title, note } = fitCard({
     title: invite?.title?.trim() || "An invitation",
-    note: invite?.note?.trim() ?? "",
+    note: "",
     place,
   });
 

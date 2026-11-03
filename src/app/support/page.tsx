@@ -1,148 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalPage, Section, List } from "@/app/_legal/LegalPage";
-
-// App Store Connect requires a Support URL that actually resolves and offers a
-// way to get help. A page that only says "email me" technically satisfies it
-// and helps nobody, so this answers the questions the app can actually raise —
-// most of which are "where did my data go", and have real answers here because
-// the answer is always "on your device".
-
-export const metadata: Metadata = {
-  title: "Support — Aspect Niche",
-  description:
-    "Help with Aspect Niche: where your data lives, calendar and photo permissions, invitations, and how to get in touch.",
-};
-
+import { LegalPage, Section } from "@/app/_legal/LegalPage";
+export const metadata: Metadata = { title: "Support — Aspect Niche", description: "Help with your account, sync, shared activities, notifications and privacy." };
 export default function Support() {
-  return (
-    <LegalPage
-      title="Support"
-      updated="8 September 2026"
-      lede="Aspect Niche keeps everything on your device, which answers most
-            questions about it. Here are the ones that come up, and how to reach
-            a person if yours is not among them."
-    >
-      <Section title="Get in touch">
-        <p>
-          Email{" "}
-          <a href="mailto:devauntaenorman@gmail.com">
-            devauntaenorman@gmail.com
-          </a>
-          . It is one person reading, so please allow a few days.
-        </p>
-        <p>
-          If you are reporting something broken, it helps enormously to include
-          your device model, your iOS version, and what you were doing just
-          before it went wrong.
-        </p>
-      </Section>
-
-      <Section title="Where is my collection stored?">
-        <p>
-          On your phone, in the app&rsquo;s own storage. There is no account and
-          no server, so nothing syncs between devices and nothing is backed up
-          to us.
-        </p>
-        <p>
-          <strong>This means you should not rely on the app as the only copy of
-          a photo you care about.</strong> Deleting the app deletes what it
-          held, and we have no way to restore it.
-        </p>
-      </Section>
-
-      <Section title="I moved to a new phone and my hobbies are gone">
-        <p>
-          Because everything is on-device, a new phone starts empty. An
-          encrypted iPhone backup restored to the new device will bring the app
-          and its contents across; a fresh install will not.
-        </p>
-      </Section>
-
-      <Section title="Scheduling a session did not reach my calendar">
-        <p>
-          Aspect Niche opens your calendar&rsquo;s own new-event screen with the
-          details filled in. You still have to tap <strong>Add</strong> there —
-          if you tapped Cancel, nothing is saved.
-        </p>
-        <p>
-          If the screen never appears, calendar access is probably off. Open{" "}
-          <strong>Settings &rarr; Aspect Niche</strong> and turn on Calendars.
-          iOS asks for full access because that is the only level at which the
-          system event screen can be opened at all; the app adds the one event
-          you asked for and never reads your calendar.
-        </p>
-      </Section>
-
-      <Section title="Photos and the camera">
-        <p>
-          The app asks for these only when you add a photo to a hobby, and it
-          copies the image into its own storage rather than reading your library
-          afterwards. Declining leaves everything else working. You can change
-          your mind in <strong>Settings &rarr; Aspect Niche</strong>.
-        </p>
-      </Section>
-
-      <Section title="My friend replied to an invitation but I do not see it">
-        <p>
-          An invitation travels entirely inside a link, and so does the reply.
-          Their answer only appears on your side once you open the reply link
-          they sent back.
-        </p>
-        <p>
-          So the guest list is who has replied <em>and</em> whose reply you have
-          opened — not a live roster. There is no server keeping the two of you
-          in sync.
-        </p>
-      </Section>
-
-      <Section title="Address suggestions are not appearing">
-        <p>
-          The <strong>Where</strong> field looks addresses up over the internet
-          and needs a connection and at least three characters. If it stays
-          quiet, type the name of the place instead — anything you type is
-          accepted, and &ldquo;my flat&rdquo; is a perfectly good answer.
-        </p>
-      </Section>
-
-      <Section title="How do I delete everything?">
-        <p>
-          In the app, go to <strong>You &rarr; Erase my data</strong>. That
-          clears your collection, notes, photos, plans and settings from the
-          device. Deleting the app removes it all too.
-        </p>
-        <p>
-          There is nothing for us to delete on our side, because we never
-          received anything. The{" "}
-          <Link href="/privacy">Privacy Policy</Link> sets out exactly what
-          lives where.
-        </p>
-      </Section>
-
-      <Section title="Accessibility">
-        <p>
-          The app supports VoiceOver, Dynamic Type and Reduce Motion, and this
-          site is built to WCAG 2.1 AA. If something is hard to read, hard to
-          reach, or unusable with assistive technology, please tell us — that is
-          a bug and we would like to fix it.
-        </p>
-      </Section>
-
-      <Section title="Reporting a security or privacy issue">
-        <p>
-          Email the address above with &ldquo;security&rdquo; in the subject.
-          Please give us a reasonable chance to fix an issue before describing it
-          publicly.
-        </p>
-      </Section>
-
-      <Section title="What it costs">
-        <p>
-          Nothing. There are no purchases, subscriptions or adverts, so there is
-          nothing to cancel and nothing to refund. See the{" "}
-          <Link href="/terms">Terms of Use</Link>.
-        </p>
-      </Section>
-    </LegalPage>
-  );
+  return <LegalPage title="Support" updated="3 November 2026" lede="Help with your interests, your account and the people you plan with.">
+    <Section title="Get in touch"><p>Email <a href="mailto:devauntaenorman@gmail.com">devauntaenorman@gmail.com</a>. For a bug, include your device model, iOS version and the steps that led to it. Do not send passwords or sign-in codes.</p></Section>
+    <Section title="Accounts and moving to a new phone"><p>Private hobby planning works without an account. Sign in under Settings → Account &amp; sync to keep eligible data across devices. Use your email and password or request an email code. On a new phone, sign in to the same account and allow sync to finish.</p><p>Draft notes, vision boards, selected contacts and photos beyond your backup allowance remain on their original device. Use Settings → Your data to export a copy, and keep your original photos.</p></Section>
+    <Section title="Invitations and replies"><p>Sign in to host, open or answer a shared activity. The name you use is linked to your account so another person cannot overwrite your replies. If a name is already used, choose a different display name. The host sees replies in Plans → Invites; repeating plans keep their own roster.</p><p>If an older link cannot open, ask its host to open the latest app and share it again. Reply links from older versions no longer add people automatically. New shared backgrounds use the app&rsquo;s artwork; private photo memories remain available.</p></Section>
+    <Section title="Date planning"><p>Date proposal links are temporarily unavailable. Keep planning privately, and use Pass the phone to answer together in person. Older date links no longer import plans or apply replies.</p></Section>
+    <Section title="Report abuse or block contact"><p>Open the activity and choose Report or block. Hosts can also manage guest safety from the guest list. Choose a reason, describe what happened and send the report. Blocking stops shared activities and updates between your accounts; unblock under Settings → Blocked accounts.</p><p>For urgent safety or privacy concerns, email <a href="mailto:devauntaenorman@gmail.com?subject=Aspect%20Niche%20safety">devauntaenorman@gmail.com</a> with the activity link and relevant details. Contact local emergency services for immediate danger. The app is not an emergency response service.</p></Section>
+    <Section title="Calendar, photos and location"><p>Permissions are requested when you use the related feature. In Apple&rsquo;s calendar editor, tap Add to finish saving. Declining a permission leaves private planning available. Change permissions in iOS Settings → Apps → Aspect Niche.</p><p>Your last searched location is saved locally and syncs when signed in. Selected photos may include capture dates and coordinates. See the <Link href="/privacy">Privacy Policy</Link> for details.</p></Section>
+    <Section title="Notifications"><p>Use Settings → Notifications to choose reminders and activity updates, and iOS Settings to control system delivery. Shared updates require sign-in and an internet connection. Focus modes and notification summaries can delay delivery. Muting an activity quiets it on this phone; blocking applies between accounts.</p></Section>
+    <Section title="Delete device data or your account"><p>Settings → Your data → Erase my data clears the device copy. To delete server data and your sign-in, use Settings → Account &amp; sync → Delete my account. Account deletion leaves local data in place, so use both actions if you want both copies removed.</p><p>If deletion cannot finish, retry or contact support. Some server data may already have been removed. Deleting an account does not cancel an Apple subscription; manage that in your Apple subscription settings.</p></Section>
+    <Section title="Ads and membership"><p>Free use may show a non-personalised sponsored row after the ad consent check. Use Settings → Ad privacy to revisit available choices. Membership appears only when a plan is available for purchase or you already have one. Apple handles purchases, cancellations and refund requests. See the <Link href="/terms">Terms of Use</Link>.</p></Section>
+    <Section title="Accessibility"><p>Reduce Motion and text-size options are available. If a screen is difficult to read or use with VoiceOver, tell us the screen, device and setting so we can reproduce it.</p></Section>
+  </LegalPage>;
 }
