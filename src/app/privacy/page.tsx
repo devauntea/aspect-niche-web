@@ -54,7 +54,7 @@ export default function PrivacyPolicy() {
       </Section>
 
       <Section title="If you make an account">
-        <p>Sign in with an email address and password, or a six-digit email code. Apple and Google sign-in are not offered in this release. Supabase stores your email, account identifier and a password hash if you set a password.</p>
+        <p>Sign in with an email address and password, or an email code. Apple and Google sign-in are not offered in this release. Supabase stores your email, account identifier and a password hash if you set a password.</p>
         <p>Your account stores a synced copy of your collection, pinned notes, sessions, plans, custom hobbies, settings and last searched location. The last searched location can include precise latitude and longitude. Eligible photo backups include a reduced image and the date and location metadata saved with it, which can also contain precise coordinates.</p>
         <p>Draft notes, vision boards, selected contacts and photos beyond your backup limit remain on the device. Keep an independent copy of anything important.</p>
       </Section>
@@ -313,12 +313,10 @@ export default function PrivacyPolicy() {
 
       <Section title="This website">
         <p>
-          This site sets <strong>no cookies</strong>, stores nothing in your
-          browser beyond the one thing described below, and loads nothing from
-          any other company — no analytics, no
-          advertising, no embedded video, no font service. That is why there is
-          no cookie banner. It is a set of pages about the app, plus the pages
-          the app&rsquo;s invitation and plan links open.
+          Shared activity pages use browser storage to keep your sign-in session
+          and contact Supabase for authentication, activity details, replies,
+          reports and blocks. Signing out removes the saved session. The website
+          does not use advertising or analytics trackers.
         </p>
         <p>
           The repeating-plan page remembers the name you typed, in this browser
