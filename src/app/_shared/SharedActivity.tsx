@@ -49,7 +49,7 @@ function ActivitySession({ kind, id }: { kind: "invite" | "series"; id: string }
     try {
       const result = sent ? await sharedAuth.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" }) : await sharedAuth.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } });
       if (result.error) throw result.error;
-      if (!sent) { setSent(true); setMessage("Check your email for the six-digit code."); }
+      if (!sent) { setSent(true); setMessage("Enter the sign-in code from your email."); }
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not sign in. Try again."); }
     finally { setBusy(false); }
   };
@@ -68,7 +68,7 @@ function ActivitySession({ kind, id }: { kind: "invite" | "series"; id: string }
     {!sharedAuth ? <p>Sign-in is temporarily unavailable on this page. Please open the invitation in the Aspect Niche app or contact <a href="/support">support</a>.</p> : !ready ? <p>Checking your account…</p> : session ? <><p role="status">{message || "Checking this activity…"}</p><button className="invite-send" onClick={() => setAttempt((a) => a + 1)}>Try again</button></> : <form onSubmit={(e) => { e.preventDefault(); void signIn(); }}>
       <p>Sign in or create an account to reply and control who can contact you. Your email stays private.</p>
       <label className="invite-field">Email<input type="email" required value={email} autoComplete="email" disabled={sent || busy} onChange={(e) => setEmail(e.target.value)} /></label>
-      {sent && <label className="invite-field">Six-digit code<input required value={code} inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} onChange={(e) => setCode(e.target.value)} /></label>}
+      {sent && <label className="invite-field">Email code<input required value={code} inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,8}" maxLength={8} onChange={(e) => setCode(e.target.value)} /></label>}
       <p>By continuing, you confirm you are 18 or older and accept the <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
       <button className="invite-send" disabled={busy}>{busy ? "Please wait…" : sent ? "Verify code" : "Email me a code"}</button>
       {sent && <button type="button" disabled={busy} onClick={() => { setSent(false); setCode(""); }}>Use another email or resend</button>}
