@@ -75,7 +75,7 @@ export default function Terms() {
       </Section>
 
       <Section title="Accounts">
-        <p>Private planning is available without an account. Sync, AI help and shared activities require sign-in using your email and password or an emailed code. Keep access to your email and do not share your sign-in credentials. Apple and Google sign-in are not offered in this release.</p>
+        <p>Private planning is available without an account. Sync, AI help and shared activities require sign-in using your email and password, an emailed code, or Apple or Google on supported app builds. Keep access to your chosen sign-in method and do not share your sign-in credentials. If you use Apple or Google, their own account terms also apply.</p>
         <p>Signing out leaves local data on your phone. To delete your account and its server data, use Settings → Account &amp; sync → Delete my account. To erase the device copy, use Settings → Your data. These are separate actions.</p>
       </Section>
 
