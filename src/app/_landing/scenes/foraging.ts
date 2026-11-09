@@ -1465,7 +1465,7 @@ export function createForaging(context: ExhibitContext): Exhibit {
 
   /* -------------------------------------------------------------- hand */
   const gloves = gloveMaterials(env);
-  const hand = createHand(gloves.glove, gloves.arm);
+  const hand = createHand(gloves.glove);
   const handScale = 0.3;
   hand.root.scale.setScalar(handScale);
   hand.root.visible = false;

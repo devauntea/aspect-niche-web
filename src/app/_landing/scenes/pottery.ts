@@ -772,8 +772,8 @@ export function createPottery(context: ExhibitContext): Exhibit {
 
   /* -------------------------------------------------------------- hands */
   const handScale = 0.44;
-  const right = createHand(gloves.glove, gloves.arm, "clay");
-  const left = createHand(gloves.glove, gloves.arm, "clay");
+  const right = createHand(gloves.glove, "clay");
+  const left = createHand(gloves.glove, "clay");
   left.root.scale.set(-handScale, handScale, handScale);
   right.root.scale.setScalar(handScale);
   root.add(right.root, left.root);
