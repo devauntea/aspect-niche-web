@@ -6,3 +6,10 @@ These licensed photographs replace the original illustrative memory images. The 
 - `hiking-forest.webp`: **Peter Fowler**, [Back View of a Person Carrying a Leather Backpack at a Forest](https://www.pexels.com/photo/back-view-of-a-person-carrying-a-leather-backpack-at-a-forest-4823323/). Published July 7, 2020; source records capture January 26, 2020 on a Sony ILCE-7M3. Source: `https://images.pexels.com/photos/4823323/pexels-photo-4823323.jpeg`.
 
 Both downloaded November 2, 2026 under the [Pexels License](https://www.pexels.com/license/), which permits website use and modification without mandatory attribution. Photographer credits retained here. Images resized and encoded as WebP; no generative edits, filters or retouching applied. The existing card layout supplies the crop.
+
+## Instant-camera prints (`instant/`)
+
+The six prints the hero's instant camera develops are square crops of the two licensed photographs above, resized to 384 px and encoded as WebP (6–26 KB each). No other source, filter or generative edit is involved, and nothing is generated at runtime.
+
+- `instant/studio-hands.webp`, `instant/studio-shelves.webp`: crops of `pottery-studio.webp` (Yan Krukau).
+- `instant/forest-walker.webp`, `instant/forest-canopy.webp`, `instant/forest-roots.webp`, `instant/forest-moss.webp`: crops of `hiking-forest.webp` (Peter Fowler).
