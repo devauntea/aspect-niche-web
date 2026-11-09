@@ -11,6 +11,10 @@ import {
   lerp,
   mesh,
   noiseTexture,
+  pebbleTexture,
+  dialTexture,
+  bandTexture,
+  ribbonGeometry,
   type Phase,
   physical,
   type PointerInfo,
@@ -167,20 +171,71 @@ export function createPhotography(context: ExhibitContext): Exhibit {
 
   /* ------------------------------------------------------------ materials */
   const shell = physical(env, {
-    color: "#e9e1d2",
-    roughness: 0.46,
+    color: "#ebe3d4",
+    roughness: 0.5,
+    roughnessMap: noiseTexture(128, 23, 6, [3, 3]),
     clearcoat: 0.3,
-    clearcoatRoughness: 0.5,
+    clearcoatRoughness: 0.45,
     bumpMap: noiseTexture(128, 21, 2, [6, 6]),
-    bumpScale: 0.35,
+    bumpScale: 0.3,
   });
+  const grain = pebbleTexture(512, 7, [3.5, 3.5]);
   const leatherette = physical(env, {
-    color: "#1f2a44",
-    roughness: 0.82,
-    sheen: 0.4,
-    sheenColor: new THREE.Color("#6f7fae"),
-    bumpMap: noiseTexture(256, 7, 2.2, [5, 4]),
-    bumpScale: 1.6,
+    color: "#24304f",
+    roughness: 0.78,
+    roughnessMap: grain,
+    sheen: 0.45,
+    sheenColor: new THREE.Color("#7383b3"),
+    sheenRoughness: 0.6,
+    bumpMap: grain,
+    bumpScale: 2.2,
+  });
+  // Satin, brushed top and bottom plates, like a classic rangefinder.
+  const brushed = canvasTexture(512, 32, (g, w, h) => {
+    for (let x = 0; x < w; x++) {
+      const v = 118 + random() * 46;
+      g.fillStyle = `rgb(${v},${v},${v})`;
+      g.fillRect(x, 0, 1, h);
+    }
+  });
+  const satin = physical(env, {
+    color: "#d9d7d1",
+    metalness: 0.88,
+    roughness: 0.3,
+    roughnessMap: brushed,
+    bumpMap: brushed,
+    bumpScale: 0.25,
+    envMapIntensity: 1.1,
+  });
+  const strapLeather = physical(env, {
+    map: canvasTexture(
+      512,
+      64,
+      (g, w, h) => {
+        g.fillStyle = "#4e2d1a";
+        g.fillRect(0, 0, w, h);
+        for (let i = 0; i < 900; i++) {
+          g.fillStyle = `rgba(${40 + random() * 50},${20 + random() * 25},${10 + random() * 15},${0.15 + random() * 0.2})`;
+          g.fillRect(random() * w, random() * h, 2 + random() * 6, 1);
+        }
+        // Saddle stitching along both edges.
+        g.strokeStyle = "#e8dcc4";
+        g.lineWidth = 3;
+        g.setLineDash([10, 7]);
+        for (const y of [9, h - 9]) {
+          g.beginPath();
+          g.moveTo(0, y);
+          g.lineTo(w, y);
+          g.stroke();
+        }
+      },
+      { color: true, repeat: [1, 1] },
+    ),
+    roughness: 0.7,
+    sheen: 0.2,
+    sheenColor: new THREE.Color("#a5764c"),
+    bumpMap: pebbleTexture(256, 31, [1, 1]),
+    bumpScale: 0.8,
   });
   const aluminium = physical(env, {
     color: "#cfcdc6",
@@ -216,7 +271,6 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     clearcoat: 0.6,
     metalness: 0.1,
   });
-  const cream = physical(env, { color: "#efe6d4", roughness: 0.5 });
   const glass = (tint: string, opacity: number) =>
     physical(env, {
       color: tint,
@@ -271,12 +325,54 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     bumpScale: 0.8,
   });
   const frame = physical(env, { color: "#2b3446", roughness: 0.55 });
+  // A dark walnut desk: long flowing grain, a few knots, oiled sheen.
+  const walnut = canvasTexture(
+    1024,
+    512,
+    (g, w, h) => {
+      g.fillStyle = "#3a2618";
+      g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 260; i++) {
+        const y0 = random() * h;
+        const amp = 2 + random() * 9;
+        const freq = 0.004 + random() * 0.01;
+        const phase = random() * 10;
+        const light = random() > 0.5;
+        g.strokeStyle = light
+          ? `rgba(${120 + random() * 40},${80 + random() * 30},${50 + random() * 20},${0.12 + random() * 0.18})`
+          : `rgba(${18 + random() * 15},${10 + random() * 10},${6},${0.2 + random() * 0.25})`;
+        g.lineWidth = 0.6 + random() * 2.4;
+        g.beginPath();
+        for (let x = 0; x <= w; x += 8)
+          g.lineTo(
+            x,
+            y0 +
+              Math.sin(x * freq + phase) * amp +
+              Math.sin(x * freq * 3.1) * amp * 0.3,
+          );
+        g.stroke();
+      }
+      for (let k = 0; k < 3; k++) {
+        const x = random() * w,
+          y = random() * h;
+        for (let r = 4; r < 26; r += 3) {
+          g.strokeStyle = `rgba(20,10,5,${0.35 - r * 0.01})`;
+          g.beginPath();
+          g.ellipse(x, y, r * 2.2, r, 0, 0, Math.PI * 2);
+          g.stroke();
+        }
+      }
+    },
+    { color: true, repeat: [0.22, 0.3] },
+  );
   const table = physical(env, {
-    color: "#1c2333",
-    roughness: 0.6,
-    clearcoat: 0.2,
-    bumpMap: noiseTexture(256, 2, 12, [2, 2]),
-    bumpScale: 0.6,
+    map: walnut,
+    roughness: 0.42,
+    roughnessMap: noiseTexture(128, 2, 10, [3, 3]),
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.35,
+    bumpMap: walnut,
+    bumpScale: 0.35,
   });
   const paper = physical(env, {
     color: "#f4f1ea",
@@ -296,6 +392,65 @@ export function createPhotography(context: ExhibitContext): Exhibit {
   const shadow = contactShadow(2.6, 1.9, 0.6);
   shadow.position.set(-0.62, -0.785, 0.2);
   root.add(shadow);
+
+  // The lens cap, set down on the desk: knurled rim, ringed face, pinch tabs.
+  const cap = new THREE.Group();
+  cap.position.set(0.55, -0.765, 1.05);
+  cap.rotation.set(0, 0.4, 0);
+  root.add(cap);
+  const capBlack = physical(env, {
+    color: "#121418",
+    roughness: 0.55,
+    clearcoat: 0.25,
+    clearcoatRoughness: 0.5,
+  });
+  mesh(new THREE.CylinderGeometry(0.34, 0.35, 0.05, 56), capBlack, cap);
+  const capRidges = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(0.012, 0.044, 0.012),
+    capBlack,
+    72,
+  );
+  const capDummy = new THREE.Object3D();
+  for (let i = 0; i < 72; i++) {
+    const a = (i / 72) * Math.PI * 2;
+    capDummy.position.set(Math.cos(a) * 0.352, 0, Math.sin(a) * 0.352);
+    capDummy.rotation.y = -a;
+    capDummy.updateMatrix();
+    capRidges.setMatrixAt(i, capDummy.matrix);
+  }
+  cap.add(capRidges);
+  const capFace = mesh(
+    new THREE.CircleGeometry(0.3, 48),
+    physical(env, {
+      map: canvasTexture(
+        256,
+        256,
+        (g, w) => {
+          g.fillStyle = "#15171b";
+          g.fillRect(0, 0, w, w);
+          for (let r = 20; r < w / 2; r += 6) {
+            g.strokeStyle = `rgba(255,255,255,${0.03 + (r % 18 === 2 ? 0.04 : 0)})`;
+            g.beginPath();
+            g.arc(w / 2, w / 2, r, 0, Math.PI * 2);
+            g.stroke();
+          }
+        },
+        { color: true },
+      ),
+      roughness: 0.4,
+      metalness: 0.2,
+    }),
+    cap,
+  );
+  capFace.rotation.x = -Math.PI / 2;
+  capFace.position.y = 0.026;
+  for (const x of [-0.24, 0.24]) {
+    const tab = mesh(new THREE.BoxGeometry(0.05, 0.03, 0.16), capBlack, cap);
+    tab.position.set(x, 0.035, 0);
+  }
+  const capShadow = contactShadow(0.9, 0.9, 0.45);
+  capShadow.position.set(0.55, -0.787, 1.05);
+  root.add(capShadow);
 
   const pinboard = new THREE.Group();
   pinboard.position.set(1.5, 0.42, -0.85);
@@ -320,8 +475,48 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     camera,
   );
   front.position.set(0, -0.08, 0.53);
-  const topPlate = mesh(roundedBody(1.9, 0.08, 1.0, 0.04, 0.02), cream, camera);
+  const topPlate = mesh(roundedBody(1.9, 0.08, 1.0, 0.04, 0.02), satin, camera);
   topPlate.position.y = 0.65;
+  const bottomPlate = mesh(
+    roundedBody(1.9, 0.06, 1.0, 0.04, 0.015),
+    satin,
+    camera,
+  );
+  bottomPlate.position.y = -0.64;
+  // Trim lines where the leatherette meets the shell.
+  for (const y of [0.37, -0.53]) {
+    const trim = mesh(new THREE.BoxGeometry(1.8, 0.012, 0.012), satin, camera);
+    trim.position.set(0, y, 0.556);
+  }
+  // Screws: four on the front panel, four on the top plate.
+  const screwHead = new THREE.CylinderGeometry(0.022, 0.022, 0.012, 16);
+  const screws = new THREE.InstancedMesh(screwHead, satin, 8);
+  const slotMarks = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(0.03, 0.004, 0.006),
+    anodised,
+    8,
+  );
+  [
+    [-0.84, 0.3, 0.56, "z"],
+    [0.84, 0.3, 0.56, "z"],
+    [-0.84, -0.46, 0.56, "z"],
+    [0.84, -0.46, 0.56, "z"],
+    [-0.88, 0.695, 0.42, "y"],
+    [0.88, 0.695, 0.42, "y"],
+    [-0.88, 0.695, -0.42, "y"],
+    [0.88, 0.695, -0.42, "y"],
+  ].forEach(([x, y, z, axis], i) => {
+    const d = new THREE.Object3D();
+    d.position.set(x as number, y as number, z as number);
+    if (axis === "z") d.rotation.x = Math.PI / 2;
+    d.updateMatrix();
+    screws.setMatrixAt(i, d.matrix);
+    d.translateY(0.007);
+    d.rotateY(i * 0.7);
+    d.updateMatrix();
+    slotMarks.setMatrixAt(i, d.matrix);
+  });
+  camera.add(screws, slotMarks);
   for (const x of [-0.7, 0.7]) {
     const foot = mesh(
       new THREE.CylinderGeometry(0.08, 0.09, 0.05, 20),
@@ -405,7 +600,27 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     focusRing,
   );
   focusMark.position.set(0, 0.49, 0.06);
-  moving(0.43, 0.13, 0.25, aluminium);
+  const fStops = ["22", "16", "11", "8", "5.6", "4", "2.8"];
+  const apertureBand = physical(env, {
+    map: bandTexture(
+      fStops.map((text, i) => ({
+        text,
+        at: 0.36 + i * 0.047,
+        color: i === 6 ? "#b79be6" : "#23262c",
+      })),
+      {
+        base: "#c9c7c1",
+        ticks: fStops.map((_, i) => 0.36 + i * 0.047),
+        tickColor: "#2a2d33",
+        fontSize: 22,
+      },
+    ),
+    metalness: 0.75,
+    roughness: 0.32,
+    bumpMap: brushed,
+    bumpScale: 0.1,
+  });
+  moving(0.43, 0.13, 0.25, apertureBand);
   const apertureRing = new THREE.Group();
   apertureRing.position.z = 0.25;
   barrel.add(apertureRing);
@@ -422,8 +637,36 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     ticks.setMatrixAt(i, dummy.matrix);
   }
   apertureRing.add(ticks);
-  moving(0.4, 0.08, 0.35, anodised);
-  const bezel = mesh(new THREE.RingGeometry(0.255, 0.4, 72), anodised, barrel);
+  const distances = ["∞", "10", "5", "3", "2", "1.5", "1.2", "1m"];
+  const distanceBand = physical(env, {
+    map: bandTexture(
+      distances.map((text, i) => ({ text, at: 0.33 + i * 0.048 })),
+      {
+        base: "#16191e",
+        ticks: distances.map((_, i) => 0.33 + i * 0.048),
+        stripe: "#9c86c9",
+        fontSize: 24,
+      },
+    ),
+    metalness: 0.45,
+    roughness: 0.42,
+  });
+  moving(0.4, 0.08, 0.35, distanceBand);
+  // The front ring carries the optical spec (no brand), engraved in white.
+  const specText = "1:2.8   f = 60 mm   Ø 49   ·   MULTI-COATED   ·";
+  const bezelFace = physical(env, {
+    map: dialTexture(
+      [...specText].map((ch, i) => ({
+        text: ch,
+        angle: -100 + i * 4.7,
+        size: 0.036,
+      })),
+      { base: "#121418", radius: 0.82, size: 1024 },
+    ),
+    metalness: 0.4,
+    roughness: 0.45,
+  });
+  const bezel = mesh(new THREE.RingGeometry(0.255, 0.4, 72), bezelFace, barrel);
   bezel.position.z = 0.392;
   const bezelEdge = mesh(
     new THREE.TorusGeometry(0.4, 0.012, 8, 72),
@@ -594,6 +837,132 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     knurl.setMatrixAt(i, dummy.matrix);
   }
   dial.add(knurl);
+  const speeds = [
+    "B",
+    "1",
+    "2",
+    "4",
+    "8",
+    "15",
+    "30",
+    "60",
+    "125",
+    "250",
+    "500",
+  ];
+  const dialFace = mesh(
+    new THREE.CircleGeometry(0.15, 48),
+    physical(env, {
+      map: dialTexture(
+        speeds.map((text, i) => ({
+          text,
+          angle: -150 + i * 30,
+          size: 0.085,
+          color: text === "125" ? "#c4adf2" : "#ece7dc",
+        })),
+        {
+          base: "#16191e",
+          radius: 0.74,
+          ticks: speeds.map((_, i) => -150 + i * 30),
+        },
+      ),
+      metalness: 0.35,
+      roughness: 0.4,
+    }),
+    dial,
+  );
+  dialFace.rotation.x = -Math.PI / 2;
+  dialFace.position.y = 0.036;
+  // Accessory shoe, film-advance lever, meter cell and self-timer.
+  const shoe = new THREE.Group();
+  shoe.position.set(0.05, 0.695, -0.06);
+  camera.add(shoe);
+  mesh(new THREE.BoxGeometry(0.34, 0.02, 0.3), satin, shoe).position.y = 0.01;
+  for (const x of [-0.15, 0.15]) {
+    const rail = mesh(new THREE.BoxGeometry(0.04, 0.035, 0.3), satin, shoe);
+    rail.position.set(x, 0.035, 0);
+    const lipRail = mesh(new THREE.BoxGeometry(0.06, 0.008, 0.3), satin, shoe);
+    lipRail.position.set(x * 0.86, 0.05, 0);
+  }
+  mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16),
+    anodised,
+    shoe,
+  ).position.y = 0.024;
+  const lever = new THREE.Group();
+  lever.position.set(0.83, 0.715, -0.12);
+  camera.add(lever);
+  mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 24), satin, lever);
+  const leverArm = mesh(
+    roundedBody(0.36, 0.05, 0.018, 0.02, 0.006),
+    satin,
+    lever,
+  );
+  leverArm.rotation.x = -Math.PI / 2;
+  leverArm.position.set(-0.16, 0.022, 0.06);
+  leverArm.rotation.z = 0.35;
+  const leverTip = mesh(
+    new THREE.CapsuleGeometry(0.024, 0.06, 4, 10),
+    rubber,
+    lever,
+  );
+  leverTip.rotation.set(0, 0, Math.PI / 2);
+  leverTip.position.set(-0.33, 0.03, 0.12);
+  const meter = mesh(
+    new THREE.CircleGeometry(0.075, 32),
+    physical(env, {
+      map: canvasTexture(
+        128,
+        128,
+        (g, w) => {
+          g.fillStyle = "#3d3a52";
+          g.fillRect(0, 0, w, w);
+          g.strokeStyle = "#8f87b8";
+          g.lineWidth = 2;
+          const r = 9;
+          for (let y = 0; y < w + r; y += r * 1.5)
+            for (let x = 0; x < w + r; x += r * 1.732) {
+              const ox = (Math.round(y / (r * 1.5)) % 2) * r * 0.866;
+              g.beginPath();
+              for (let k = 0; k < 6; k++) {
+                const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
+                g.lineTo(x + ox + Math.cos(a) * r, y + Math.sin(a) * r);
+              }
+              g.closePath();
+              g.stroke();
+            }
+        },
+        { color: true },
+      ),
+      roughness: 0.15,
+      clearcoat: 1,
+      clearcoatRoughness: 0.05,
+      envMapIntensity: 1.6,
+    }),
+    camera,
+  );
+  meter.position.set(-0.24, 0.4, 0.556);
+  const meterRing = mesh(
+    new THREE.TorusGeometry(0.08, 0.012, 8, 32),
+    satin,
+    camera,
+  );
+  meterRing.position.set(-0.24, 0.4, 0.553);
+  const timer = new THREE.Group();
+  timer.position.set(-0.5, -0.32, 0.56);
+  timer.rotation.z = 0.55;
+  camera.add(timer);
+  mesh(
+    new THREE.CylinderGeometry(0.035, 0.035, 0.03, 16),
+    satin,
+    timer,
+  ).rotation.x = Math.PI / 2;
+  const timerArm = mesh(
+    roundedBody(0.05, 0.2, 0.02, 0.02, 0.006),
+    satin,
+    timer,
+  );
+  timerArm.position.set(0, -0.09, 0.012);
   const dialMark = mesh(
     new THREE.BoxGeometry(0.02, 0.01, 0.08),
     lavender,
@@ -608,6 +977,39 @@ export function createPhotography(context: ExhibitContext): Exhibit {
     );
     lug.position.set(x * 0.99, 0.42, 0);
     lug.rotation.y = Math.PI / 2;
+  }
+  // A stitched leather strap from the lugs, slumped across the desk.
+  const strapPath = new THREE.CatmullRomCurve3(
+    [
+      [-1.04, 0.42, 0.02],
+      [-1.2, 0.2, 0.12],
+      [-1.32, -0.35, 0.35],
+      [-1.3, -0.715, 0.7],
+      [-0.85, -0.725, 1.0],
+      [-0.1, -0.725, 1.12],
+      [0.7, -0.72, 1.02],
+      [1.25, -0.715, 0.72],
+      [1.34, -0.3, 0.32],
+      [1.2, 0.18, 0.1],
+      [1.04, 0.42, 0.02],
+    ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+    false,
+    "centripetal",
+  );
+  const strap = mesh(
+    ribbonGeometry(strapPath, 0.13, 0.022, 160),
+    strapLeather,
+    camera,
+  );
+  strap.name = "strap";
+  for (const x of [-1.07, 1.07]) {
+    const keeper = mesh(
+      new THREE.TorusGeometry(0.06, 0.012, 8, 20),
+      satin,
+      camera,
+    );
+    keeper.position.set(x, 0.36, 0.04);
+    keeper.rotation.set(0.2, Math.PI / 2, 0);
   }
   const counter = mesh(
     roundedBody(0.22, 0.12, 0.02, 0.03, 0.008),
@@ -990,7 +1392,7 @@ export function createPhotography(context: ExhibitContext): Exhibit {
       look.y = damp(look.y, lookTarget.y, 5, dt);
       camera.rotation.set(
         -look.y * 0.18 + Math.sin(clock * 0.8) * 0.006,
-        look.x * 0.32,
+        look.x * 0.2,
         Math.sin(clock * 0.6) * 0.004,
       );
       camera.position.y =

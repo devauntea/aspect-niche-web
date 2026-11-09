@@ -7,7 +7,10 @@ import type {
   Phase,
   PointerInfo,
 } from "./scenes/kit";
-import { clamp, damp, smooth } from "./scenes/kit";
+import { clamp, damp, loadGlove, smooth } from "./scenes/kit";
+
+const wait = (ms: number) =>
+  new Promise((resolve) => window.setTimeout(resolve, ms));
 import { createPottery, type PotteryForm } from "./scenes/pottery";
 import { createPhotography } from "./scenes/photography";
 import { createForaging } from "./scenes/foraging";
@@ -220,15 +223,24 @@ export function mountHobbyScene(
     let ready = compiled.get(id);
     if (!ready) {
       const ex = exhibit(id);
-      const shown = ex.root.visible;
-      ex.root.visible = true;
-      // Never wait on the GPU forever: after a short grace period the
-      // exhibit is shown and any remaining programs compile on first draw.
+      // The glove model is shared by the hands; wait for it (briefly) so its
+      // skinned programs compile with everything else.
+      const compile = () => {
+        if (disposed) return undefined;
+        const shown = ex.root.visible;
+        ex.root.visible = true;
+        const done = renderer
+          .compileAsync(ex.root, camera, world)
+          .catch(() => undefined);
+        ex.root.visible = shown;
+        return done;
+      };
+      // Never wait on the network or GPU forever: after a short grace period
+      // the exhibit is shown and anything left compiles on first draw.
       ready = Promise.race([
-        renderer.compileAsync(ex.root, camera, world).catch(() => undefined),
-        new Promise((resolve) => window.setTimeout(resolve, 2500)),
+        Promise.race([loadGlove(), wait(1500)]).then(compile),
+        wait(3500),
       ]).then(() => undefined);
-      ex.root.visible = shown;
       compiled.set(id, ready);
     }
     return ready;
@@ -414,7 +426,10 @@ export function mountHobbyScene(
     frameCamera(motionPaused ? 0 : dt);
     renderer.render(world, camera);
     // The poster gives way only once a real frame is on the canvas.
-    if (host.dataset.scene !== "ready" && !lost) host.dataset.scene = "ready";
+    if (host.dataset.scene !== "ready" && !lost) {
+      host.dataset.scene = "ready";
+      performance.mark("hobby-scene:first-frame");
+    }
 
     const settling =
       Math.abs(targetYaw - yaw) > 0.0008 ||
@@ -576,12 +591,14 @@ export function mountHobbyScene(
   renderer.domElement.addEventListener("webglcontextlost", onLost);
   renderer.domElement.addEventListener("webglcontextrestored", onRestored);
   host.dataset.scene = "loading";
+  performance.mark("hobby-scene:built");
   resize();
   // Keep the poster up until the first exhibit's programs are ready, then
   // warm the other exhibits one idle period at a time.
   void prepare(initial).then(() => {
     if (disposed) return;
     primed = true;
+    performance.mark("hobby-scene:compiled");
     request();
     const queue = (Object.keys(BUILDERS) as HobbyModel[]).filter(
       (id) => id !== initial,

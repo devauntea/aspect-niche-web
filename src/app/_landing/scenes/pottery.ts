@@ -24,7 +24,7 @@ import {
   type PointerInfo,
   seeded,
   seg,
-  skinMaterials,
+  gloveMaterials,
   smooth,
 } from "./kit";
 
@@ -259,8 +259,43 @@ export function createPottery(context: ExhibitContext): Exhibit {
     clearcoat: 0.5,
     clearcoatRoughness: 0.25,
   });
+  // The splash pan has seen a lot of throwing: dried slip rings on the floor,
+  // splatter up the wall and drips over the lip.
+  const panStains = canvasTexture(
+    512,
+    256,
+    (g, w, h) => {
+      g.fillStyle = "#26344a";
+      g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) {
+        const y = h * (0.08 + random() * 0.32);
+        g.fillStyle = `rgba(${170 + random() * 30},${145 + random() * 25},${120 + random() * 20},${0.08 + random() * 0.14})`;
+        g.fillRect(0, y, w, 1 + random() * 4);
+      }
+      for (let i = 0; i < 220; i++) {
+        const x = random() * w,
+          y = h * (0.05 + Math.pow(random(), 1.6) * 0.8);
+        const r = 0.5 + random() * (y < h * 0.4 ? 2.6 : 1.4);
+        g.fillStyle = `rgba(${165 + random() * 30},${140 + random() * 25},${118 + random() * 20},${0.12 + random() * 0.26})`;
+        g.beginPath();
+        g.ellipse(x, y, r * (1 + random()), r, random() * 3, 0, Math.PI * 2);
+        g.fill();
+      }
+      for (let i = 0; i < 26; i++) {
+        const x = random() * w;
+        const top = h * (0.6 + random() * 0.25);
+        const len = 10 + random() * 40;
+        const grad = g.createLinearGradient(0, top, 0, top - len);
+        grad.addColorStop(0, "rgba(185,160,135,0.55)");
+        grad.addColorStop(1, "rgba(185,160,135,0)");
+        g.fillStyle = grad;
+        g.fillRect(x, top - len, 2 + random() * 3, len);
+      }
+    },
+    { color: true },
+  );
   const pan = physical(env, {
-    color: "#253244",
+    map: panStains,
     roughness: 0.48,
     clearcoat: 0.25,
     bumpMap: noiseTexture(128, 12, 6, [6, 2]),
@@ -271,8 +306,53 @@ export function createPottery(context: ExhibitContext): Exhibit {
     roughness: 0.62,
     metalness: 0.35,
   });
+  // Studio floor: dark troweled concrete with a dusting of dried clay.
+  const floor = canvasTexture(
+    1024,
+    1024,
+    (g, w, h) => {
+      g.fillStyle = "#1a2030";
+      g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 9000; i++) {
+        const v = random();
+        g.fillStyle =
+          v > 0.7
+            ? `rgba(120,128,150,${0.08 + random() * 0.12})`
+            : `rgba(8,10,16,${0.12 + random() * 0.2})`;
+        g.fillRect(
+          random() * w,
+          random() * h,
+          1 + random() * 3,
+          1 + random() * 3,
+        );
+      }
+      for (let i = 0; i < 30; i++) {
+        const x = w / 2 + (random() - 0.5) * w * 0.6,
+          y = h / 2 + (random() - 0.5) * h * 0.6;
+        const r = 20 + random() * 90;
+        const grad = g.createRadialGradient(x, y, 0, x, y, r);
+        grad.addColorStop(0, `rgba(190,170,150,${0.06 + random() * 0.07})`);
+        grad.addColorStop(1, "rgba(190,170,150,0)");
+        g.fillStyle = grad;
+        g.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      for (let i = 0; i < 160; i++) {
+        g.fillStyle = `rgba(170,150,130,${0.1 + random() * 0.18})`;
+        g.beginPath();
+        g.arc(
+          w / 2 + (random() - 0.5) * w * 0.7,
+          h / 2 + (random() - 0.5) * h * 0.7,
+          0.6 + random() * 1.6,
+          0,
+          Math.PI * 2,
+        );
+        g.fill();
+      }
+    },
+    { color: true },
+  );
   const plinthMaterial = physical(env, {
-    color: "#151a25",
+    map: floor,
     roughness: 0.85,
     bumpMap: noiseTexture(256, 5, 10, [3, 3]),
     bumpScale: 1.2,
@@ -354,7 +434,7 @@ export function createPottery(context: ExhibitContext): Exhibit {
       side: THREE.DoubleSide,
     }),
   };
-  const { skin, nail, sleeve } = skinMaterials(env, 1);
+  const gloves = gloveMaterials(env);
 
   /* ---------------------------------------------------------------- set */
   const plinth = mesh(
@@ -443,10 +523,31 @@ export function createPottery(context: ExhibitContext): Exhibit {
   const sponge = mesh(
     new THREE.SphereGeometry(0.16, 14, 10),
     physical(env, {
-      color: "#c9a96a",
+      color: "#d0ae6c",
       roughness: 1,
-      bumpMap: noiseTexture(64, 3, 2, [3, 3]),
-      bumpScale: 2,
+      // Open-cell sponge: a field of little pores.
+      bumpMap: canvasTexture(
+        128,
+        128,
+        (g, w) => {
+          g.fillStyle = "#fff";
+          g.fillRect(0, 0, w, w);
+          for (let i = 0; i < 380; i++) {
+            g.fillStyle = `rgba(0,0,0,${0.4 + random() * 0.5})`;
+            g.beginPath();
+            g.arc(
+              random() * w,
+              random() * w,
+              1 + random() * 3.2,
+              0,
+              Math.PI * 2,
+            );
+            g.fill();
+          }
+        },
+        { repeat: [2, 2] },
+      ),
+      bumpScale: 3,
     }),
     root,
   );
@@ -470,6 +571,147 @@ export function createPottery(context: ExhibitContext): Exhibit {
   );
   rib.rotation.set(-Math.PI / 2, 0, 0.5);
   rib.position.set(0.98, 0.17, 1.02);
+
+  // Tools of the trade on the floor: a cutting wire with toggles, a needle
+  // tool and a loop trimming tool.
+  const steel = physical(env, {
+    color: "#b9bcc2",
+    metalness: 0.9,
+    roughness: 0.28,
+  });
+  const tools = new THREE.Group();
+  tools.position.set(0.55, -0.955, 1.75);
+  tools.rotation.y = 0.25;
+  root.add(tools);
+  const toggle = new THREE.CylinderGeometry(0.035, 0.035, 0.17, 14);
+  for (const x of [-0.45, 0.35]) {
+    const t = mesh(toggle, wood, tools);
+    t.rotation.z = Math.PI / 2;
+    t.position.set(x, 0.035, x < 0 ? 0 : 0.18);
+  }
+  const wire = new THREE.CatmullRomCurve3(
+    [
+      [-0.36, 0.03, 0],
+      [-0.15, 0.012, 0.18],
+      [0.05, 0.01, 0.28],
+      [0.22, 0.012, 0.22],
+      [0.27, 0.03, 0.18],
+    ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+  );
+  mesh(new THREE.TubeGeometry(wire, 40, 0.006, 6, false), steel, tools);
+  const needleHandle = mesh(
+    new THREE.CylinderGeometry(0.03, 0.022, 0.32, 12),
+    wood,
+    tools,
+  );
+  needleHandle.rotation.set(0, 0, Math.PI / 2);
+  needleHandle.position.set(-0.2, 0.03, -0.25);
+  needleHandle.rotation.y = -0.3;
+  const needle = mesh(
+    new THREE.CylinderGeometry(0.004, 0.006, 0.2, 6),
+    steel,
+    tools,
+  );
+  needle.rotation.set(0, -0.3, Math.PI / 2);
+  needle.position.set(0.04, 0.03, -0.32);
+  const loopHandle = mesh(
+    new THREE.CylinderGeometry(0.032, 0.03, 0.36, 12),
+    wood,
+    tools,
+  );
+  loopHandle.rotation.set(0, 0.5, Math.PI / 2);
+  loopHandle.position.set(0.55, 0.033, -0.08);
+  const loop = mesh(
+    new THREE.TorusGeometry(0.06, 0.008, 6, 24, Math.PI * 1.3),
+    steel,
+    tools,
+  );
+  loop.position.set(0.77, 0.05, -0.2);
+  loop.rotation.set(0, 0.5, 0);
+  loop.scale.set(1, 1.4, 1);
+
+  // Wedged clay waiting on a canvas-covered board at the back.
+  const board = mesh(new THREE.BoxGeometry(1.0, 0.06, 0.7), wood, root);
+  board.position.set(-1.75, -0.94, -1.35);
+  board.rotation.y = 0.35;
+  const canvasCloth = mesh(
+    new THREE.PlaneGeometry(0.92, 0.62),
+    physical(env, {
+      color: "#cbbfa8",
+      roughness: 0.95,
+      bumpMap: noiseTexture(64, 77, 1, [8, 8]),
+      bumpScale: 1.5,
+    }),
+    board,
+  );
+  canvasCloth.rotation.x = -Math.PI / 2;
+  canvasCloth.position.y = 0.031;
+  const wedged = physical(env, {
+    color: "#7b6453",
+    roughness: 0.55,
+    clearcoat: 0.3,
+    clearcoatRoughness: 0.4,
+    bumpMap: noiseTexture(128, 55, 3, [2, 2]),
+    bumpScale: 1.2,
+  });
+  [
+    [-0.18, 0.13, 0.05, 0.3],
+    [0.2, 0.11, -0.08, -0.4],
+  ].forEach(([x, y, z, r]) => {
+    const lump = mesh(new THREE.SphereGeometry(0.17, 24, 16), wedged, board);
+    lump.scale.set(1.25, 0.72, 0.95);
+    lump.position.set(x, y, z);
+    lump.rotation.y = r;
+  });
+
+  // The kick pedal and its cable, and vents on the wheel body.
+  const pedal = new THREE.Group();
+  pedal.position.set(-1.55, -0.96, 1.25);
+  pedal.rotation.y = 0.5;
+  root.add(pedal);
+  mesh(new THREE.BoxGeometry(0.42, 0.08, 0.3), body, pedal).position.y = 0.04;
+  const pad = mesh(
+    new THREE.BoxGeometry(0.36, 0.035, 0.26),
+    physical(env, {
+      color: "#0f1218",
+      roughness: 0.9,
+      bumpMap: noiseTexture(64, 9, 1, [6, 6]),
+      bumpScale: 2,
+    }),
+    pedal,
+  );
+  pad.position.y = 0.1;
+  pad.rotation.x = -0.18;
+  const cable = new THREE.CatmullRomCurve3(
+    [
+      [-1.45, -0.94, 1.12],
+      [-1.2, -0.955, 0.95],
+      [-1.0, -0.955, 0.7],
+      [-0.9, -0.85, 0.55],
+    ].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+  );
+  mesh(new THREE.TubeGeometry(cable, 24, 0.018, 8, false), body, root);
+  const vents = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(0.22, 0.018, 0.02),
+    physical(env, { color: "#07090d", roughness: 0.9 }),
+    5,
+  );
+  for (let i = 0; i < 5; i++) {
+    const d = new THREE.Object3D();
+    const y = -0.45 - i * 0.06;
+    d.position.set(0, y, 0.985 + 0.14 * ((-0.19 - y) / 0.78));
+    d.updateMatrix();
+    vents.setMatrixAt(i, d.matrix);
+  }
+  wheel.add(vents);
+  const knob = mesh(
+    new THREE.CylinderGeometry(0.05, 0.05, 0.04, 20),
+    physical(env, { color: "#b9a6e3", roughness: 0.35, clearcoat: 0.6 }),
+    wheel,
+  );
+  knob.rotation.x = Math.PI / 2;
+  knob.position.set(0.4, -0.42, 0.955);
+  knob.rotation.y = 0.4;
 
   // A wooden stool with a ware board for the finished companion piece.
   const stool = new THREE.Group();
@@ -529,9 +771,9 @@ export function createPottery(context: ExhibitContext): Exhibit {
   const scratch = new THREE.Color();
 
   /* -------------------------------------------------------------- hands */
-  const handScale = 0.54;
-  const right = createHand(skin, nail, sleeve);
-  const left = createHand(skin, nail, sleeve);
+  const handScale = 0.44;
+  const right = createHand(gloves.glove, gloves.arm, "clay");
+  const left = createHand(gloves.glove, gloves.arm, "clay");
   left.root.scale.set(-handScale, handScale, handScale);
   right.root.scale.setScalar(handScale);
   root.add(right.root, left.root);
@@ -720,7 +962,7 @@ export function createPottery(context: ExhibitContext): Exhibit {
       true;
     clay.roughness = lerp(0.48, 0.94, s.dry);
     clay.clearcoat = lerp(0.55, 0, smooth(clamp(s.dry * 1.4)));
-    clay.bumpScale = lerp(0.25, 0.7, s.dry);
+    clay.bumpScale = lerp(0.25, 0.38, s.dry);
     return s;
   }
 
@@ -749,7 +991,7 @@ export function createPottery(context: ExhibitContext): Exhibit {
     const f = forward.clone().normalize();
     const at = contact
       .clone()
-      .addScaledVector(f, -0.52 * handScale)
+      .addScaledVector(f, -right.palm.y * handScale)
       .addScaledVector(facing.clone().normalize(), -offset);
     return { at, forward: f, facing, pose };
   };
@@ -761,7 +1003,7 @@ export function createPottery(context: ExhibitContext): Exhibit {
   ): HandState => {
     const f = forward.clone().normalize();
     return {
-      at: tip.clone().addScaledVector(f, -1.62 * handScale),
+      at: tip.clone().addScaledVector(f, -1.72 * handScale),
       forward: f,
       facing,
       pose,
