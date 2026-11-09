@@ -169,3 +169,51 @@ The preview:
 - `src/app/_landing/immersive.css`: stage overlays, hint, simulated cursor, buttons.
 - `public/landing/instant/*.webp` and `PHOTO-CREDITS.md`: the prints and their provenance.
 - `docs/hobby-scenes/README.md`: this file.
+
+## 4. Verification (November 9, 2026, local dev server)
+
+- `npm test`: 90 tests across 14 files pass, including five new preview-policy tests.
+- `eslint src/app/_landing`: clean. `tsc --noEmit`: clean. `next build`: passes.
+- In the Browser pane, at 1280×800 and 375×812:
+  - Pottery: click throws; the stages run in order; a drag while shaping reads
+    "Width 128%" and the finished vase is visibly wider; Bowl and the V key
+    switch form; Enter, Space and ← → work on the focused stage; the
+    completion is announced in the live region.
+  - Photography: a camera click takes a photo with focus, flash, eject,
+    develop and pin; two quick shots follow; a click enlarges a print and
+    Escape returns it; dragging moves a print on the board.
+  - Foraging: the sequence reveals the pinecone and the hand gathers it into
+    the basket ("1 of 3"); clicking the acorn gathers it ("2 of 3").
+  - Preview: it plays pottery → photography → foraging with Skip, chips in step
+    and the cursor ring; a real click elsewhere stops it; it does not replay on
+    reload.
+  - Pause motion: an active throw jumps to finished, and actions resolve
+    instantly.
+  - Context loss (`WEBGL_lose_context`): the poster takes over; after restore
+    the scene remounts and is ready.
+  - Touch (synthetic touch pointers on the mobile preset): a tap plays, a
+    sideways drag turns and does not replay, and `touch-action: pan-y` keeps
+    vertical scrolling.
+- Layout regression check against an unmodified `main` running side by side:
+  the stage, caption and chip-row positions are identical at 1280×800.
+  `main` already overlaps the chips with "Follow the thread" by about 13 px at
+  that height; that is unchanged. Document width equals viewport width at
+  375 px.
+
+## 5. Limitations
+
+- Hands are stylised capsule anatomy with forward-kinematics joints, not
+  scanned or skinned meshes. They read clearly as hands, but closer to a
+  well-made figure than a photograph. A skinned glTF hand would be the step up;
+  it was not added, to avoid a new loader and dependency.
+- Clay deformation is driven by profile blending, not physics. Fingers
+  sometimes meet the wall slightly inside or outside it.
+- Only two licensed source photographs exist, so the six prints are crops of
+  them. More variety needs more licensed photos.
+- Most of the browser session ran with the Browser pane hidden, which throttles
+  frames, so timings were checked through a deterministic `step()` hook and
+  forced frames. Field frame rate, battery and thermals on real phones, real
+  iOS Safari touch, VoiceOver and a live OS reduced-motion switch were not
+  exercised.
+- The posters grew from 6–10 KB to 10–48 KB (foraging is the largest), because
+  they are now real renders of the new scenes.
