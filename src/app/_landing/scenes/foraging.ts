@@ -24,7 +24,7 @@ import {
   radialTexture,
   seeded,
   seg,
-  skinMaterials,
+  gloveMaterials,
   smooth,
 } from "./kit";
 
@@ -746,6 +746,377 @@ export function createForaging(context: ExhibitContext): Exhibit {
     pebble.scale.set(s * 1.3, s * 0.65, s);
   });
 
+  /* ------------------------------------------ the fallen log */
+  // Furrowed bark around the side, growth rings on the cut end, moss on top.
+  const barkTexture = canvasTexture(
+    512,
+    256,
+    (g, w, h) => {
+      g.fillStyle = "#4a3828";
+      g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 140; i++) {
+        const x = random() * w;
+        g.strokeStyle = `rgba(${20 + random() * 20},${12 + random() * 12},${8},${0.4 + random() * 0.4})`;
+        g.lineWidth = 1 + random() * 4;
+        g.beginPath();
+        let xx = x;
+        for (let y = 0; y <= h; y += 16) {
+          xx += (random() - 0.5) * 8;
+          g.lineTo(xx, y);
+        }
+        g.stroke();
+      }
+      for (let i = 0; i < 500; i++) {
+        g.fillStyle = `rgba(${120 + random() * 50},${100 + random() * 40},${70 + random() * 30},${0.12 + random() * 0.2})`;
+        g.fillRect(
+          random() * w,
+          random() * h,
+          2 + random() * 5,
+          1 + random() * 2,
+        );
+      }
+      for (let i = 0; i < 40; i++) {
+        g.fillStyle = `rgba(${90 + random() * 40},${120 + random() * 40},${60},${0.2 + random() * 0.25})`;
+        g.beginPath();
+        g.ellipse(
+          random() * w,
+          random() * h * 0.45,
+          6 + random() * 18,
+          3 + random() * 8,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        g.fill();
+      }
+    },
+    { color: true, repeat: [2, 1] },
+  );
+  const logBark = physical(env, {
+    map: barkTexture,
+    bumpMap: barkTexture,
+    bumpScale: 3,
+    roughness: 0.92,
+  });
+  const logEnd = physical(env, {
+    map: canvasTexture(
+      256,
+      256,
+      (g, w) => {
+        g.fillStyle = "#b08a5c";
+        g.fillRect(0, 0, w, w);
+        for (let r = 4; r < w / 2; r += 4 + random() * 4) {
+          g.strokeStyle = `rgba(100,70,40,${0.25 + random() * 0.3})`;
+          g.lineWidth = 1 + random() * 1.5;
+          g.beginPath();
+          g.ellipse(
+            w / 2 + random() * 3,
+            w / 2 + random() * 3,
+            r,
+            r * 0.95,
+            0,
+            0,
+            Math.PI * 2,
+          );
+          g.stroke();
+        }
+        g.strokeStyle = "#3d2a1b";
+        g.lineWidth = 12;
+        g.beginPath();
+        g.arc(w / 2, w / 2, w / 2 - 6, 0, Math.PI * 2);
+        g.stroke();
+      },
+      { color: true },
+    ),
+    roughness: 0.85,
+  });
+  const log = new THREE.Group();
+  log.position.copy(onGround(0.2, -1.5, 0.12));
+  log.rotation.y = -0.2;
+  floor.add(log);
+  const trunk = mesh(
+    new THREE.CylinderGeometry(0.17, 0.19, 1.45, 28, 1, true),
+    logBark,
+    log,
+  );
+  trunk.rotation.z = Math.PI / 2;
+  for (const side of [-1, 1]) {
+    const end = mesh(
+      new THREE.CircleGeometry(side < 0 ? 0.19 : 0.17, 28),
+      logEnd,
+      log,
+    );
+    end.position.x = side * -0.725;
+    end.rotation.y = side < 0 ? -Math.PI / 2 : Math.PI / 2;
+  }
+  const logMoss = new THREE.InstancedMesh(
+    new THREE.IcosahedronGeometry(0.06, 1),
+    moss,
+    26,
+  );
+  for (let i = 0; i < 26; i++) {
+    const a = Math.PI / 2 + (random() - 0.5) * 1.3;
+    dummy.position.set(
+      (random() - 0.5) * 1.2,
+      Math.sin(a) * 0.17,
+      Math.cos(a) * 0.17,
+    );
+    dummy.scale.set(1 + random(), 0.45, 1 + random() * 0.6);
+    dummy.rotation.set(0, random() * 6, (random() - 0.5) * 0.4);
+    dummy.updateMatrix();
+    logMoss.setMatrixAt(i, dummy.matrix);
+    logMoss.setColorAt(
+      i,
+      tint.setHSL(0.24 + random() * 0.05, 0.55, 0.07 + random() * 0.05),
+    );
+  }
+  log.add(logMoss);
+  const logShadow = contactShadow(1.9, 0.7, 0.5);
+  logShadow.position.copy(onGround(0.2, -1.45, 0.005));
+  logShadow.rotation.z = 0.2;
+  floor.add(logShadow);
+
+  /* -------------------------------------- wildflowers and clover */
+  // Each flower is one merged mesh (stem, five petals, centre) so the
+  // breeze bends it from the ground as a whole.
+  const petalShape = new THREE.Shape();
+  petalShape.moveTo(0, 0);
+  petalShape.bezierCurveTo(0.018, 0.012, 0.016, 0.04, 0, 0.05);
+  petalShape.bezierCurveTo(-0.016, 0.04, -0.018, 0.012, 0, 0);
+  const flowerParts: THREE.BufferGeometry[] = [];
+  const stemGeometry = new THREE.CylinderGeometry(0.004, 0.005, 0.2, 5);
+  stemGeometry.translate(0, 0.1, 0);
+  for (let k = 0; k < 5; k++) {
+    const petal = new THREE.ShapeGeometry(petalShape, 4);
+    petal.rotateX(-Math.PI / 2 + 0.35);
+    petal.rotateY((k / 5) * Math.PI * 2);
+    petal.translate(0, 0.2, 0);
+    flowerParts.push(petal);
+  }
+  const centre = new THREE.SphereGeometry(0.013, 8, 6);
+  centre.translate(0, 0.205, 0);
+  const flowerGeometry = mergeGeometries(
+    [stemGeometry, ...flowerParts, centre].map((g) => g.toNonIndexed()),
+  );
+  // Vertex colours: green stem, petal colour set per instance via a white base.
+  {
+    const count = flowerGeometry.getAttribute("position").count;
+    const colors = new Float32Array(count * 3);
+    const stemCount = stemGeometry
+      .toNonIndexed()
+      .getAttribute("position").count;
+    const centreCount = centre.toNonIndexed().getAttribute("position").count;
+    for (let i = 0; i < count; i++) {
+      const c =
+        i < stemCount
+          ? [0.18, 0.32, 0.14]
+          : i >= count - centreCount
+            ? [1, 0.82, 0.3]
+            : [1, 1, 1];
+      colors.set(c, i * 3);
+    }
+    flowerGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  }
+  [stemGeometry, ...flowerParts, centre].forEach((g) => g.dispose());
+  const flowerMaterial = windy(
+    physical(env, {
+      color: "#ffffff",
+      vertexColors: true,
+      roughness: 0.6,
+      side: THREE.DoubleSide,
+      sheen: 0.3,
+      sheenColor: new THREE.Color("#ffffff"),
+    }),
+    0.25,
+  );
+  const flowerSpots = [
+    ...scatter(9, [-0.15, -0.75], 0.32),
+    ...scatter(7, [1.25, -0.25], 0.25),
+    ...scatter(6, [-1.35, 0.15], 0.25),
+  ];
+  const petalTints = ["#f4f1ea", "#d9cdf4", "#f6e7a8", "#c6b4ee"];
+  const flowers = new THREE.InstancedMesh(
+    flowerGeometry,
+    flowerMaterial,
+    flowerSpots.length,
+  );
+  flowerSpots.forEach(([x, z], i) => {
+    dummy.position.copy(onGround(x, z, -0.01));
+    dummy.rotation.set(
+      (random() - 0.5) * 0.25,
+      random() * 6,
+      (random() - 0.5) * 0.25,
+    );
+    dummy.scale.setScalar(0.8 + random() * 0.6);
+    dummy.updateMatrix();
+    flowers.setMatrixAt(i, dummy.matrix);
+    flowers.setColorAt(i, tint.set(petalTints[i % petalTints.length]));
+  });
+  floor.add(flowers);
+  const flowerTops = flowerSpots.map(([x, z]) => onGround(x, z, 0.22));
+
+  const leafletShape = new THREE.Shape();
+  leafletShape.moveTo(0, 0);
+  leafletShape.bezierCurveTo(0.03, 0.01, 0.035, 0.045, 0.012, 0.05);
+  leafletShape.bezierCurveTo(0.004, 0.05, 0, 0.042, 0, 0.038);
+  leafletShape.bezierCurveTo(0, 0.042, -0.004, 0.05, -0.012, 0.05);
+  leafletShape.bezierCurveTo(-0.035, 0.045, -0.03, 0.01, 0, 0);
+  const cloverParts: THREE.BufferGeometry[] = [];
+  const cloverStem = new THREE.CylinderGeometry(0.003, 0.003, 0.08, 4);
+  cloverStem.translate(0, 0.04, 0);
+  cloverParts.push(cloverStem);
+  for (let k = 0; k < 3; k++) {
+    const leaflet = new THREE.ShapeGeometry(leafletShape, 4);
+    leaflet.rotateX(-Math.PI / 2 + 0.2);
+    leaflet.rotateY((k / 3) * Math.PI * 2);
+    leaflet.translate(0, 0.08, 0);
+    cloverParts.push(leaflet);
+  }
+  const cloverGeometry = mergeGeometries(
+    cloverParts.map((g) => g.toNonIndexed()),
+  );
+  cloverParts.forEach((g) => g.dispose());
+  const cloverSpots = [
+    ...scatter(40, [0.75, 1.35], 0.4),
+    ...scatter(30, [-0.9, 1.45], 0.3),
+  ];
+  const clover = new THREE.InstancedMesh(
+    cloverGeometry,
+    windy(
+      physical(env, {
+        color: "#ffffff",
+        roughness: 0.6,
+        side: THREE.DoubleSide,
+      }),
+      0.1,
+    ),
+    cloverSpots.length,
+  );
+  cloverSpots.forEach(([x, z], i) => {
+    dummy.position.copy(onGround(x, z, -0.005));
+    dummy.rotation.set(0, random() * 6, 0);
+    dummy.scale.setScalar(0.9 + random() * 0.7);
+    dummy.updateMatrix();
+    clover.setMatrixAt(i, dummy.matrix);
+    clover.setColorAt(
+      i,
+      tint.setHSL(0.27 + random() * 0.04, 0.5, 0.08 + random() * 0.05),
+    );
+  });
+  floor.add(clover);
+
+  // Gravel and small stones near the rim.
+  const gravelSpots = scatter(
+    34,
+    [0, 0],
+    RADIUS - 0.15,
+    (x, z) => Math.hypot(x, z) < 1.3,
+  );
+  const gravel = new THREE.InstancedMesh(
+    new THREE.IcosahedronGeometry(1, 1),
+    stone,
+    gravelSpots.length,
+  );
+  gravelSpots.forEach(([x, z], i) => {
+    const size = 0.025 + random() * 0.045;
+    dummy.position.copy(onGround(x, z, size * 0.3));
+    dummy.scale.set(size * (1 + random() * 0.5), size * 0.6, size);
+    dummy.rotation.set(random(), random() * 6, random());
+    dummy.updateMatrix();
+    gravel.setMatrixAt(i, dummy.matrix);
+    gravel.setColorAt(
+      i,
+      tint.setHSL(0.07 + random() * 0.05, 0.08, 0.16 + random() * 0.16),
+    );
+  });
+  floor.add(gravel);
+
+  /* -------------------------------------------------- a butterfly */
+  const wingTexture = canvasTexture(
+    128,
+    128,
+    (g, w) => {
+      g.clearRect(0, 0, w, w);
+      const wing = (
+        cx: number,
+        cy: number,
+        rx: number,
+        ry: number,
+        rot: number,
+      ) => {
+        g.save();
+        g.translate(cx, cy);
+        g.rotate(rot);
+        const grad = g.createRadialGradient(0, 0, 2, 0, 0, rx);
+        grad.addColorStop(0, "#f2e7ff");
+        grad.addColorStop(0.55, "#b79be6");
+        grad.addColorStop(0.92, "#5c4a8a");
+        grad.addColorStop(1, "#2a2140");
+        g.fillStyle = grad;
+        g.beginPath();
+        g.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = "rgba(255,250,235,0.85)";
+        g.beginPath();
+        g.arc(rx * 0.45, -ry * 0.2, rx * 0.13, 0, Math.PI * 2);
+        g.fill();
+        g.restore();
+      };
+      wing(70, 44, 52, 34, -0.35);
+      wing(58, 92, 34, 24, 0.5);
+    },
+    { color: true },
+  );
+  const wingMaterial = new THREE.MeshStandardMaterial({
+    map: wingTexture,
+    alphaTest: 0.4,
+    side: THREE.DoubleSide,
+    roughness: 0.6,
+  });
+  const butterfly = new THREE.Group();
+  floor.add(butterfly);
+  const wingGeometry = new THREE.PlaneGeometry(0.16, 0.16);
+  wingGeometry.translate(0.08, 0, 0);
+  wingGeometry.rotateX(-Math.PI / 2);
+  const wingL = new THREE.Mesh(wingGeometry, wingMaterial);
+  const wingR = new THREE.Mesh(wingGeometry, wingMaterial);
+  wingR.scale.x = -1;
+  butterfly.add(wingL, wingR);
+  const thorax = mesh(
+    new THREE.CapsuleGeometry(0.008, 0.06, 4, 8),
+    physical(env, { color: "#2a2233", roughness: 0.7 }),
+    butterfly,
+  );
+  thorax.rotation.x = Math.PI / 2;
+  const flight = new THREE.Vector3();
+  const nextPoint = new THREE.Vector3();
+  function placeButterfly(time: number) {
+    // A loose loop over the clearing; every ~9 s it settles on a flower.
+    const cycle = 9;
+    const k = Math.floor(time / cycle);
+    const local = time - k * cycle;
+    const flower = flowerTops[k % flowerTops.length];
+    const flyAt = (t: number, out: THREE.Vector3) =>
+      out.set(
+        Math.sin(t * 0.37) * 1.2 + Math.sin(t * 1.3) * 0.2,
+        0.75 + Math.sin(t * 0.9) * 0.18,
+        Math.cos(t * 0.29) * 0.9 + Math.cos(t * 1.1) * 0.15,
+      );
+    const land =
+      smooth(seg(local, 5.4, 6.2)) * (1 - smooth(seg(local, 7.6, 8.5)));
+    flyAt(time, flight).lerp(flower, land);
+    flyAt(time + 0.05, nextPoint).lerp(flower, land);
+    butterfly.position.copy(flight);
+    const heading = Math.atan2(nextPoint.x - flight.x, nextPoint.z - flight.z);
+    butterfly.rotation.set(0, heading, 0);
+    const beat =
+      land > 0.95
+        ? 0.35 + Math.sin(time * 2.5) * 0.25
+        : 0.25 + Math.sin(time * 22) * 0.95;
+    wingL.rotation.z = beat;
+    wingR.rotation.z = -beat;
+  }
+
   /* -------------------------------------------------------------- finds */
   const glowTexture = radialTexture(
     "rgba(214,196,255,0.9)",
@@ -1093,9 +1464,9 @@ export function createForaging(context: ExhibitContext): Exhibit {
   basket.rotation.y = -0.35;
 
   /* -------------------------------------------------------------- hand */
-  const { skin, nail, sleeve } = skinMaterials(env, 0);
-  const hand = createHand(skin, nail, sleeve);
-  const handScale = 0.36;
+  const gloves = gloveMaterials(env);
+  const hand = createHand(gloves.glove, gloves.arm);
+  const handScale = 0.3;
   hand.root.scale.setScalar(handScale);
   hand.root.visible = false;
   floor.add(hand.root);
@@ -1370,6 +1741,7 @@ export function createForaging(context: ExhibitContext): Exhibit {
     );
     placeBasket();
     placeHandAndFinds();
+    placeButterfly(clock);
     // Pollen drifts up through the light, turns in the gust.
     for (let i = 0; i < POLLEN; i++) {
       const [x, y, z, ph, speed] = pollenSeeds[i];

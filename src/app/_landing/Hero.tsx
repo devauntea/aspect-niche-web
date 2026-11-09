@@ -98,7 +98,9 @@ export default function Hero() {
     let cancelled = false;
     const load = async () => {
       try {
+        performance.mark("hobby-scene:import");
         const { mountHobbyScene } = await import("./hobbyScene");
+        performance.mark("hobby-scene:imported");
         if (cancelled) return;
         api.current = mountHobbyScene(
           host,

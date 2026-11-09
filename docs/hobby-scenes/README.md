@@ -217,3 +217,51 @@ The preview:
   exercised.
 - The posters grew from 6–10 KB to 10–48 KB (foraging is the largest), because
   they are now real renders of the new scenes.
+
+## 6. Glove hands and added detail (follow-up)
+
+**Hands.** The pottery and foraging hands are now the supplied white-glove model
+(`white glove hand 3d model.glb`, a Tripo export). Its own skeleton was a
+full-body Mixamo rig whose weights pulled the hand toward head and leg bones,
+so it could not be used. `scripts/rig_glove.py` rebuilds it:
+
+1. welds the triangle soup (21,262 → 5,241 vertices);
+2. orients and scales it to the scenes' hand convention;
+3. finds each digit's axis from the geometry;
+4. skins it to a 16-bone finger chain with smooth weights.
+
+Output is `public/landing/models/glove.bin` (167 KB) plus
+`scenes/gloveRig.ts`. The script reproduces the shipped binary byte for byte.
+The model's 4096 px baked texture (1.1 MB of grey blotches) was dropped in
+favour of a white satin material. Vertex colour gives a faint weave, darker
+creases and, on the potter, wet slip on the fingertips and palm.
+
+Forearms follow the reference picture: tapered, glossy black, tucked into the
+glove's rolled cuff. They fade into the stage along their length instead of
+showing a cut end. The glove loads once, is shared, and is awaited before
+shader precompilation. If it fails to load, the hands are simply absent.
+
+**Camera:**
+
+- **Body:** pebble-grain leatherette, a brushed satin top and bottom plate,
+  trim lines, slotted screws.
+- **Lens:** engraved aperture (f/2.8–22) and distance (∞–1 m) scales, a spec
+  ring ("1:2.8 f = 60 mm Ø 49 · multi-coated", no brand).
+- **Controls:** a shutter-speed dial face, an accessory shoe, a film-advance
+  lever, a honeycomb meter cell and a self-timer lever.
+- **On the desk:** a stitched leather strap draped across a walnut desk, and
+  a knurled lens cap.
+
+**Pottery:** splash-pan slip stains and drips, a concrete studio floor with
+clay dust, an open-cell sponge, a cutting wire with toggles, needle and loop
+tools, wedged clay on a canvas board, a kick pedal with its cable, and wheel
+vents and a knob.
+
+**Foraging:**
+
+- a fallen log with furrowed bark, a ringed cut end and moss;
+- wildflowers and clover that sway in the breeze;
+- rim gravel;
+- a lavender butterfly that loops the clearing and settles on a flower.
+
+Posters were re-rendered from these scenes.

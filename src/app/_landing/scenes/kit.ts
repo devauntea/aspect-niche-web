@@ -1,5 +1,11 @@
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import {
+  GLOVE_BONES,
+  GLOVE_DIGITS,
+  GLOVE_INDICES,
+  GLOVE_URL,
+  GLOVE_VERTICES,
+} from "./gloveRig";
 
 /*
  * Shared pieces for the hobby exhibits: the contract every exhibit implements,
@@ -204,6 +210,208 @@ export function contactShadow(width: number, depth: number, opacity = 0.55) {
   return shadow;
 }
 
+/** Leather or leatherette grain: packed, slightly domed pebbles. */
+export function pebbleTexture(
+  size: number,
+  seed: number,
+  repeat: [number, number],
+) {
+  const random = seeded(seed);
+  return canvasTexture(
+    size,
+    size,
+    (g, w, h) => {
+      g.fillStyle = "#6a6a6a";
+      g.fillRect(0, 0, w, h);
+      const count = Math.round((w * h) / 22);
+      for (let i = 0; i < count; i++) {
+        const x = random() * w,
+          y = random() * h,
+          r = 1.6 + random() * 2.8;
+        const grad = g.createRadialGradient(
+          x - r * 0.3,
+          y - r * 0.3,
+          0,
+          x,
+          y,
+          r,
+        );
+        grad.addColorStop(
+          0,
+          `rgb(${190 + random() * 40},${190 + random() * 40},${190 + random() * 40})`,
+        );
+        grad.addColorStop(1, "rgba(60,60,60,0)");
+        g.fillStyle = grad;
+        g.beginPath();
+        g.ellipse(
+          x,
+          y,
+          r,
+          r * (0.7 + random() * 0.5),
+          random() * 3,
+          0,
+          Math.PI * 2,
+        );
+        g.fill();
+      }
+    },
+    { repeat },
+  );
+}
+
+/**
+ * Engraved markings laid out on a circle for a flat ring or dial face whose
+ * UVs are planar (RingGeometry, CircleGeometry). Angles in degrees, 0 = top,
+ * clockwise. `radius` is a fraction of the face's outer radius.
+ */
+export function dialTexture(
+  marks: { text: string; angle: number; color?: string; size?: number }[],
+  options: {
+    base: string;
+    radius: number;
+    ticks?: number[];
+    tickColor?: string;
+    size?: number;
+  },
+) {
+  const size = options.size ?? 512;
+  return canvasTexture(
+    size,
+    size,
+    (g, w) => {
+      const c = w / 2;
+      g.fillStyle = options.base;
+      g.fillRect(0, 0, w, w);
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      for (const angle of options.ticks ?? []) {
+        g.save();
+        g.translate(c, c);
+        g.rotate((angle * Math.PI) / 180);
+        g.fillStyle = options.tickColor ?? "#e9e4da";
+        g.fillRect(-1.2, -c * (options.radius + 0.1), 2.4, c * 0.06);
+        g.restore();
+      }
+      for (const mark of marks) {
+        g.save();
+        g.translate(c, c);
+        g.rotate((mark.angle * Math.PI) / 180);
+        g.translate(0, -c * options.radius);
+        g.fillStyle = mark.color ?? "#ece7dc";
+        g.font = `600 ${Math.round((mark.size ?? 0.07) * w)}px "DM Sans", Arial, sans-serif`;
+        g.fillText(mark.text, 0, 0);
+        g.restore();
+      }
+    },
+    { color: true },
+  );
+}
+
+/**
+ * Markings around a cylinder band (CylinderGeometry UVs: u runs around, v
+ * along the axis). `at` is the u position, 0.5 is the top once the band is
+ * turned to face the viewer.
+ */
+export function bandTexture(
+  marks: { text: string; at: number; color?: string }[],
+  options: {
+    base: string;
+    ticks?: number[];
+    tickColor?: string;
+    fontSize?: number;
+    stripe?: string;
+  },
+) {
+  return canvasTexture(
+    1024,
+    64,
+    (g, w, h) => {
+      g.fillStyle = options.base;
+      g.fillRect(0, 0, w, h);
+      if (options.stripe) {
+        g.fillStyle = options.stripe;
+        g.fillRect(0, h - 6, w, 3);
+      }
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.font = `600 ${options.fontSize ?? 26}px "DM Sans", Arial, sans-serif`;
+      for (const at of options.ticks ?? []) {
+        g.fillStyle = options.tickColor ?? "#e9e4da";
+        g.fillRect(at * w - 1, 4, 2, 14);
+      }
+      for (const mark of marks) {
+        g.fillStyle = mark.color ?? "#ece7dc";
+        g.fillText(mark.text, mark.at * w, h * 0.58);
+      }
+    },
+    { color: true },
+  );
+}
+
+/**
+ * A flat strap or ribbon with thickness along a curve: u runs along the
+ * length, v across the width, so stitching textures line up.
+ */
+export function ribbonGeometry(
+  curve: THREE.Curve<THREE.Vector3>,
+  width: number,
+  thickness: number,
+  segments: number,
+  across = new THREE.Vector3(0, 0, 1),
+) {
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const length = curve.getLength();
+  const tangent = new THREE.Vector3();
+  const side = new THREE.Vector3();
+  const normal = new THREE.Vector3();
+  const corners: [number, number][] = [
+    [-0.5, 0.5],
+    [0.5, 0.5],
+    [0.5, -0.5],
+    [-0.5, -0.5],
+  ];
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const p = curve.getPointAt(t);
+    curve.getTangentAt(t, tangent);
+    // Width runs along `across` (kept perpendicular to the path), so a strap
+    // lies flat on a desk and hangs face-on from its lugs without twisting.
+    side.copy(across).addScaledVector(tangent, -across.dot(tangent));
+    if (side.lengthSq() < 1e-6) side.set(1, 0, 0);
+    side.normalize();
+    normal.crossVectors(side, tangent).normalize();
+    for (let k = 0; k < 4; k++) {
+      const [a, b] = corners[k];
+      positions.push(
+        p.x + side.x * a * width + normal.x * b * thickness,
+        p.y + side.y * a * width + normal.y * b * thickness,
+        p.z + side.z * a * width + normal.z * b * thickness,
+      );
+      uvs.push((t * length) / width, k === 0 || k === 3 ? 0 : 1);
+    }
+  }
+  for (let i = 0; i < segments; i++) {
+    for (let k = 0; k < 4; k++) {
+      const a = i * 4 + k,
+        b = i * 4 + ((k + 1) % 4),
+        c = a + 4,
+        d = b + 4;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 /* ------------------------------------------------------------- materials */
 
 export function physical(
@@ -255,6 +463,8 @@ export function disposeTree(
       }
     }
     if (object instanceof THREE.InstancedMesh) object.dispose();
+    if (object instanceof THREE.SkinnedMesh) object.skeleton.dispose();
+    object.userData.disposed = true;
   });
   geometries.forEach((g) => g.dispose());
   materials.forEach((m) => m.dispose());
@@ -318,249 +528,241 @@ export function mixPose(a: HandPose, b: HandPose, t: number): HandPose {
   };
 }
 
+/* --------------------------------------------------- the glove asset */
+
+type GloveData = {
+  positions: Float32Array;
+  skinIndex: Uint8Array;
+  skinWeight: Uint8Array;
+  index: Uint16Array;
+};
+
+let glove: Promise<GloveData | null> | null = null;
+
 /**
- * A posable right hand with forearm and rolled sleeve, built from tapered
- * capsules with real joints (forward kinematics). Mirror with scale.x = -1 for
- * a left hand. Fingers point along +Y, the palm faces +Z, the thumb sits at +X.
+ * The supplied white-glove model, re-rigged (see gloveRig.ts). Fetched once
+ * and shared by every hand; resolves to null if it cannot be loaded, in which
+ * case hands simply stay empty rather than breaking a scene.
+ */
+export function loadGlove() {
+  glove ??= fetch(GLOVE_URL)
+    .then((response) =>
+      response.ok ? response.arrayBuffer() : Promise.reject(),
+    )
+    .then((buffer) => {
+      const n = GLOVE_VERTICES;
+      let at = 0;
+      const positions = new Float32Array(buffer, at, n * 3);
+      at += n * 12;
+      const skinIndex = new Uint8Array(buffer, at, n * 4);
+      at += n * 4;
+      const skinWeight = new Uint8Array(buffer, at, n * 4);
+      at += n * 4;
+      const index = new Uint16Array(buffer, at, GLOVE_INDICES);
+      return { positions, skinIndex, skinWeight, index };
+    })
+    .catch(() => null);
+  return glove;
+}
+
+/** Where clay, soil or nothing has rubbed into the glove. */
+export type GloveWear = "clean" | "clay";
+
+function gloveGeometry(data: GloveData, wear: GloveWear) {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(data.positions, 3),
+  );
+  geometry.setAttribute(
+    "skinIndex",
+    new THREE.Uint8BufferAttribute(data.skinIndex, 4),
+  );
+  geometry.setAttribute(
+    "skinWeight",
+    new THREE.Uint8BufferAttribute(data.skinWeight, 4, true),
+  );
+  geometry.setIndex(new THREE.BufferAttribute(data.index, 1));
+  geometry.computeVertexNormals();
+  // Vertex colour carries the fabric's life: a faint weave mottling, darker
+  // seams in the finger creases, and, for the potter, wet slip that is
+  // heaviest on the fingertips and the palm that meets the clay.
+  const count = data.positions.length / 3;
+  const colors = new Float32Array(count * 3);
+  const white = new THREE.Color("#f7f4ee");
+  const crease = new THREE.Color("#d9d4cc");
+  const slip = new THREE.Color("#8f735e");
+  const c = new THREE.Color();
+  for (let i = 0; i < count; i++) {
+    const x = data.positions[i * 3],
+      y = data.positions[i * 3 + 1],
+      z = data.positions[i * 3 + 2];
+    const weave =
+      0.5 +
+      0.5 * Math.sin(x * 61 + Math.sin(y * 37) * 2) * Math.sin(y * 53 + z * 29);
+    c.copy(white).lerp(crease, weave * 0.18);
+    if (wear === "clay") {
+      const blot =
+        0.5 +
+        0.5 *
+          Math.sin(x * 9.1 + y * 4.3) *
+          Math.sin(y * 7.7 - z * 5.9 + 1.3) *
+          Math.sin(z * 11 + x * 3);
+      // Fingertips are soaked, the palm side is smeared, the back stays clean.
+      const tips = clamp((y - 1.0) * 1.8);
+      const palm = clamp(z * 2.5 + 0.2) * clamp((y - 0.25) * 2.5);
+      const amount = clamp(tips * 0.85 + palm * 0.55 + (blot - 0.5) * 0.9);
+      c.lerp(slip, amount * 0.8);
+    }
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  return geometry;
+}
+
+/** White satin glove fabric and the glossy black arm from the reference. */
+export function gloveMaterials(environment: THREE.Texture) {
+  const glove = physical(environment, {
+    color: "#ffffff",
+    vertexColors: true,
+    roughness: 0.58,
+    sheen: 0.7,
+    sheenColor: new THREE.Color("#ffffff"),
+    sheenRoughness: 0.45,
+    clearcoat: 0.08,
+    envMapIntensity: 0.55,
+  });
+  // The arm fades out along its length (lathe v runs wrist → elbow), so it
+  // dissolves into the dark stage instead of showing a cut end.
+  const fade = canvasTexture(4, 256, (g, w, h) => {
+    const grad = g.createLinearGradient(0, h, 0, 0);
+    grad.addColorStop(0, "#fff");
+    grad.addColorStop(0.42, "#fff");
+    grad.addColorStop(0.74, "#000");
+    grad.addColorStop(1, "#000");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, w, h);
+  });
+  // Smoked, translucent arms: the scene stays visible through them, and the
+  // glossy rim light keeps their shape readable.
+  const arm = physical(environment, {
+    color: "#2a3040",
+    roughness: 0.2,
+    metalness: 0.0,
+    clearcoat: 0.85,
+    clearcoatRoughness: 0.15,
+    envMapIntensity: 1.0,
+    alphaMap: fade,
+    opacity: 0.5,
+    transparent: true,
+    depthWrite: false,
+    // Highlights fade with the arm instead of floating where it has gone.
+    premultipliedAlpha: true,
+  });
+  return { glove, arm };
+}
+
+/**
+ * A posable right hand: the supplied cartoon glove, skinned to a finger rig,
+ * on a tapered glossy black forearm modelled after the reference picture.
+ * Mirror with scale.x = -1 for a left hand. Fingers point along +Y, the palm
+ * faces +Z, the thumb sits at +X, the cuff centre is the origin.
  */
 export function createHand(
-  skin: THREE.Material,
-  nail: THREE.Material,
-  sleeve: THREE.Material,
+  gloveMaterial: THREE.Material,
+  armMaterial: THREE.Material,
+  wear: GloveWear = "clean",
 ): Hand {
   const root = new THREE.Group();
   root.name = "hand";
 
-  const forearmGeometry = new THREE.CapsuleGeometry(0.25, 2.3, 6, 16);
-  {
-    const p = forearmGeometry.getAttribute("position");
-    for (let i = 0; i < p.count; i++) {
-      const y = p.getY(i);
-      const t = clamp((y + 1.4) / 2.8);
-      const widen = lerp(1.18, 0.78, t);
-      p.setXYZ(i, p.getX(i) * widen * 1.18, y - 1.32, p.getZ(i) * widen * 0.82);
-    }
-    forearmGeometry.computeVertexNormals();
-  }
-  mesh(forearmGeometry, skin, root);
-
-  const sleeveGeometry = new THREE.CylinderGeometry(
-    0.43,
-    0.47,
-    2.4,
-    22,
-    1,
-    true,
+  // The arm: a long, smoothly tapering tube that widens toward the elbow and
+  // tucks up inside the glove's rolled cuff.
+  const arm = new THREE.LatheGeometry(
+    [
+      [0.001, 0.05],
+      [0.29, 0.05],
+      [0.33, -0.06],
+      [0.35, -0.6],
+      [0.38, -1.6],
+      [0.42, -3.2],
+      [0.45, -5],
+      [0.47, -12],
+      [0.001, -12],
+    ].map(([r, y]) => new THREE.Vector2(r, y)),
+    40,
   );
-  sleeveGeometry.translate(0, -3.05, 0);
-  const sleeveMesh = mesh(sleeveGeometry, sleeve, root);
-  sleeveMesh.scale.set(1.06, 1, 0.88);
-  const cuff = mesh(new THREE.TorusGeometry(0.43, 0.085, 10, 26), sleeve, root);
-  cuff.rotation.x = Math.PI / 2;
-  cuff.position.y = -1.86;
-  cuff.scale.set(1.06, 0.88, 1.2);
+  arm.scale(1.12, 1, 0.92);
+  mesh(arm, armMaterial, root);
 
-  // The palm: a rounded block that widens toward the knuckles and is fuller
-  // in the middle, plus the thumb's fleshy base and a wrist transition.
-  const palmGeometry = new RoundedBoxGeometry(0.86, 0.98, 0.3, 4, 0.14);
-  {
-    const p = palmGeometry.getAttribute("position");
-    for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i),
-        y = p.getY(i),
-        z = p.getZ(i);
-      const t = clamp((y + 0.49) / 0.98);
-      const width = lerp(0.8, 1.02, Math.sqrt(t));
-      const belly =
-        z > 0 ? 1 + 0.25 * Math.sin(Math.PI * t) * (1 - Math.abs(x) * 1.3) : 1;
-      p.setXYZ(i, x * width, y, z * belly);
+  const bones = GLOVE_BONES.map(([name, , x, y, z]) => {
+    const bone = new THREE.Bone();
+    bone.name = name;
+    bone.position.set(x, y, z);
+    return bone;
+  });
+  GLOVE_BONES.forEach(([, parent], i) => {
+    if (parent >= 0) {
+      const p = GLOVE_BONES[parent];
+      bones[i].position.sub(new THREE.Vector3(p[2], p[3], p[4]));
+      bones[parent].add(bones[i]);
     }
-    palmGeometry.computeVertexNormals();
-  }
-  palmGeometry.translate(0, 0.5, 0);
-  mesh(palmGeometry, skin, root);
-  const sphere = new THREE.SphereGeometry(1, 20, 14);
-  const thenar = mesh(sphere, skin, root);
-  thenar.position.set(0.24, 0.32, 0.07);
-  thenar.scale.set(0.22, 0.3, 0.13);
-  thenar.rotation.z = -0.4;
-  const wrist = mesh(sphere, skin, root);
-  wrist.position.set(0, 0.04, 0);
-  wrist.scale.set(0.36, 0.22, 0.2);
-
-  type Digit = { joints: THREE.Group[]; kind: "finger" | "thumb" };
-  const digits: Digit[] = [];
-  const nailGeometry = new THREE.SphereGeometry(1, 12, 8);
-
-  const segment = (
-    parent: THREE.Object3D,
-    length: number,
-    radius: number,
-    tipRadius: number,
-  ) => {
-    const joint = new THREE.Group();
-    parent.add(joint);
-    const geometry = new THREE.CapsuleGeometry(
-      radius,
-      Math.max(0.02, length - radius * 0.5),
-      5,
-      12,
-    );
-    const p = geometry.getAttribute("position");
-    const half = length / 2 + radius;
-    for (let i = 0; i < p.count; i++) {
-      const y = p.getY(i);
-      const taper = lerp(1, tipRadius / radius, clamp((y + half) / (2 * half)));
-      p.setXYZ(i, p.getX(i) * taper, y, p.getZ(i) * taper * 0.88);
-    }
-    geometry.translate(0, length / 2, 0);
-    geometry.computeVertexNormals();
-    mesh(geometry, skin, joint);
-    return joint;
+  });
+  const skeletonRoot = bones[0];
+  const axes = GLOVE_DIGITS.map((d) => new THREE.Vector3(...d.axis));
+  const spreadAxis = new THREE.Vector3(0, 0, 1);
+  const fan: Record<string, number> = {
+    index: -0.12,
+    middle: -0.03,
+    ring: 0.05,
+    pinky: 0.14,
+    thumb: 0,
   };
-
-  const fingers = [
-    { x: 0.29, lengths: [0.46, 0.28, 0.21], radius: 0.088, fan: -0.1 },
-    { x: 0.095, lengths: [0.5, 0.31, 0.22], radius: 0.09, fan: -0.03 },
-    { x: -0.1, lengths: [0.47, 0.29, 0.21], radius: 0.085, fan: 0.04 },
-    { x: -0.29, lengths: [0.37, 0.23, 0.18], radius: 0.074, fan: 0.12 },
-  ];
-  for (const finger of fingers) {
-    const base = new THREE.Group();
-    base.position.set(finger.x, 0.95, 0.01);
-    base.userData.fan = finger.fan;
-    root.add(base);
-    const knuckle = mesh(sphere, skin, base);
-    knuckle.position.set(0, 0, -0.035);
-    knuckle.scale.set(
-      finger.radius * 1.12,
-      finger.radius * 0.95,
-      finger.radius,
-    );
-    const joints: THREE.Group[] = [];
-    let parent: THREE.Object3D = base;
-    let radius = finger.radius;
-    finger.lengths.forEach((length, i) => {
-      const tip = radius * (i === 2 ? 0.86 : 0.93);
-      const joint = segment(parent, length, radius, tip);
-      if (i > 0) joint.position.y = finger.lengths[i - 1];
-      joints.push(joint);
-      parent = joint;
-      radius = tip;
-    });
-    const nailMesh = mesh(nailGeometry, nail, joints[2]);
-    nailMesh.position.set(0, finger.lengths[2] * 0.6, -radius * 0.74);
-    nailMesh.scale.set(radius * 0.78, finger.lengths[2] * 0.36, radius * 0.28);
-    nailMesh.rotation.x = 0.12;
-    digits.push({ joints: [base, ...joints], kind: "finger" });
-  }
-  {
-    const base = new THREE.Group();
-    base.position.set(0.32, 0.22, 0.06);
-    root.add(base);
-    const lengths = [0.4, 0.3, 0.24];
-    const joints: THREE.Group[] = [];
-    let parent: THREE.Object3D = base;
-    let radius = 0.118;
-    lengths.forEach((length, i) => {
-      const tip = radius * 0.88;
-      const joint = segment(parent, length, radius, tip);
-      if (i > 0) joint.position.y = lengths[i - 1];
-      joints.push(joint);
-      parent = joint;
-      radius = tip;
-    });
-    const nailMesh = mesh(nailGeometry, nail, joints[2]);
-    nailMesh.position.set(0, lengths[2] * 0.58, -radius * 0.76);
-    nailMesh.scale.set(radius * 0.8, lengths[2] * 0.36, radius * 0.28);
-    digits.push({ joints: [base, ...joints], kind: "thumb" });
-  }
+  const q = new THREE.Quaternion();
+  const qs = new THREE.Quaternion();
+  let current: HandPose = openHand;
 
   const pose = (next: HandPose) => {
-    digits.forEach((digit, index) => {
-      const [base, a, b, c] = digit.joints;
-      if (digit.kind === "finger") {
-        const curl = next.curl[index];
-        base.rotation.set(
-          0,
-          0,
-          (base.userData.fan as number) * (0.4 + next.spread),
-        );
-        a.rotation.x = curl * 1.2;
-        b.rotation.x = 0.06 + curl * 1.45;
-        c.rotation.x = 0.04 + curl * 0.95;
-      } else {
-        const t = next.thumb;
-        base.rotation.set(0.15 + t * 0.55, -0.35 - t * 0.55, -0.8 + t * 0.42);
-        a.rotation.x = 0.1 + t * 0.3;
-        b.rotation.x = 0.12 + t * 0.6;
-        c.rotation.x = 0.1 + t * 0.55;
-      }
+    current = next;
+    GLOVE_DIGITS.forEach((digit, d) => {
+      const isThumb = digit.digit === "thumb";
+      const c = isThumb
+        ? next.thumb
+        : next.curl[["index", "middle", "ring", "pinky"].indexOf(digit.digit)];
+      const angles = isThumb
+        ? [0.15 + c * 0.6, c * 0.85, c * 0.75]
+        : [c * 1.15, 0.05 + c * 1.35, 0.03 + c * 0.95];
+      digit.bones.forEach((b, k) => {
+        q.setFromAxisAngle(axes[d], angles[k]);
+        if (k === 0 && !isThumb)
+          q.premultiply(
+            qs.setFromAxisAngle(
+              spreadAxis,
+              fan[digit.digit] * (next.spread - 0.4),
+            ),
+          );
+        bones[b].quaternion.copy(q);
+      });
     });
   };
-  pose(openHand);
-  return { root, palm: new THREE.Vector3(0, 0.5, 0.16), reach: 1.95, pose };
-}
 
-/** A lightly freckled skin with fine pores. `slip` adds dried clay. */
-export function skinMaterials(environment: THREE.Texture, slip = 0) {
-  const pores = noiseTexture(128, 911, 3, [6, 6]);
-  const map = canvasTexture(
-    256,
-    256,
-    (g, w, h) => {
-      g.fillStyle = "#a9775d";
-      g.fillRect(0, 0, w, h);
-      const random = seeded(77);
-      for (let i = 0; i < 260; i++) {
-        g.fillStyle = `rgba(${120 + random() * 40},${70 + random() * 30},${55 + random() * 20},${0.08 + random() * 0.08})`;
-        g.beginPath();
-        g.arc(random() * w, random() * h, 2 + random() * 9, 0, Math.PI * 2);
-        g.fill();
-      }
-      if (slip) {
-        for (let i = 0; i < 140 * slip; i++) {
-          g.fillStyle = `rgba(${165 + random() * 30},${140 + random() * 25},${120 + random() * 20},${0.12 + random() * 0.2})`;
-          g.beginPath();
-          g.ellipse(
-            random() * w,
-            random() * h,
-            3 + random() * 10,
-            2 + random() * 5,
-            random() * 3,
-            0,
-            Math.PI * 2,
-          );
-          g.fill();
-        }
-      }
-    },
-    { color: true, repeat: [2, 2] },
-  );
-  const skin = physical(environment, {
-    map,
-    roughness: 0.62,
-    sheen: 0.55,
-    sheenColor: new THREE.Color("#ffc1a6"),
-    sheenRoughness: 0.55,
-    bumpMap: pores,
-    bumpScale: 0.6,
-    envMapIntensity: 0.55,
+  void loadGlove().then((data) => {
+    if (!data || root.userData.disposed) return;
+    const skinned = new THREE.SkinnedMesh(
+      gloveGeometry(data, wear),
+      gloveMaterial,
+    );
+    skinned.name = "glove";
+    skinned.add(skeletonRoot);
+    skinned.bind(new THREE.Skeleton(bones));
+    // Skinned bounds change with the pose; never cull a hand mid-gesture.
+    skinned.frustumCulled = false;
+    root.add(skinned);
+    pose(current);
   });
-  const nail = physical(environment, {
-    color: "#d8aa98",
-    roughness: 0.28,
-    clearcoat: 0.6,
-    clearcoatRoughness: 0.3,
-  });
-  const sleeve = physical(environment, {
-    color: "#545b63",
-    roughness: 0.92,
-    sheen: 0.6,
-    sheenColor: new THREE.Color("#8e96a3"),
-    bumpMap: noiseTexture(64, 41, 2, [8, 8]),
-    bumpScale: 1.4,
-    envMapIntensity: 0.4,
-  });
-  return { skin, nail, sleeve };
+
+  pose(openHand);
+  return { root, palm: new THREE.Vector3(0, 0.72, 0.18), reach: 1.95, pose };
 }
