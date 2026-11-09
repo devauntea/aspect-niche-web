@@ -622,7 +622,7 @@ function gloveGeometry(data: GloveData, wear: GloveWear) {
   return geometry;
 }
 
-/** White satin glove fabric and the glossy black arm from the reference. */
+/** White satin glove fabric. */
 export function gloveMaterials(environment: THREE.Texture) {
   const glove = physical(environment, {
     color: "#ffffff",
@@ -634,68 +634,220 @@ export function gloveMaterials(environment: THREE.Texture) {
     clearcoat: 0.08,
     envMapIntensity: 0.55,
   });
-  // The arm fades out along its length (lathe v runs wrist → elbow), so it
-  // dissolves into the dark stage instead of showing a cut end.
-  const fade = canvasTexture(4, 256, (g, w, h) => {
-    const grad = g.createLinearGradient(0, h, 0, 0);
-    grad.addColorStop(0, "#fff");
-    grad.addColorStop(0.42, "#fff");
-    grad.addColorStop(0.74, "#000");
-    grad.addColorStop(1, "#000");
-    g.fillStyle = grad;
-    g.fillRect(0, 0, w, h);
+  return { glove };
+}
+
+const starVertex = /* glsl */ `
+  attribute float size;
+  attribute float phase;
+  attribute float fade;
+  uniform float uTime;
+  uniform float uHalfHeight;
+  uniform float uScale;
+  varying float vAlpha;
+  varying float vCore;
+  void main() {
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    float twinkle = 0.62 + 0.38 * sin(uTime * (1.4 + fract(phase * 7.0) * 1.8) + phase * 6.2831);
+    vAlpha = fade * twinkle;
+    vCore = step(0.15, size);
+    gl_PointSize = size * uScale * projectionMatrix[1][1] * uHalfHeight / -mv.z * (0.85 + 0.3 * twinkle);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+const starFragment = /* glsl */ `
+  uniform vec3 uColor;
+  varying float vAlpha;
+  varying float vCore;
+  void main() {
+    vec2 c = gl_PointCoord - 0.5;
+    float d = length(c);
+    float halo = smoothstep(0.5, 0.0, d);
+    float core = smoothstep(0.12, 0.0, d);
+    // Bright stars get a faint four-point glint.
+    float glint = vCore * (smoothstep(0.035, 0.0, abs(c.x)) + smoothstep(0.035, 0.0, abs(c.y))) * smoothstep(0.5, 0.1, d);
+    vec3 colour = mix(uColor, vec3(1.0), clamp(core + glint * 0.6, 0.0, 1.0));
+    gl_FragColor = vec4(colour, (halo * halo * 0.85 + core + glint * 0.5) * vAlpha);
+    #include <colorspace_fragment>
+  }
+`;
+
+/**
+ * What holds the glove up: not an arm but a little constellation — star
+ * nodes joined by fine lavender lines, a drift of twinkling stardust and a
+ * glow spilling from the cuff — fading out toward where an elbow would be.
+ * Built in hand space (the cuff at the origin, trailing down -Y).
+ */
+function createConstellation() {
+  const group = new THREE.Group();
+  group.name = "constellation";
+  const lavender = new THREE.Color("#c9b6ff");
+  const random = seeded(4242);
+  const nodes = [
+    [0, -0.28, 0],
+    [0.26, -1.0, 0.1],
+    [-0.16, -1.8, -0.05],
+    [0.34, -2.7, 0.12],
+    [0.0, -3.6, 0.0],
+    [0.46, -4.5, -0.1],
+    [0.12, -5.4, 0.05],
+    [-0.72, -2.3, 0.12],
+    [-0.52, -4.05, -0.1],
+    [0.95, -5.05, 0.0],
+  ].map(([x, y, z]) => new THREE.Vector3(x, y, z));
+  const links = [
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 4],
+    [4, 5],
+    [5, 6],
+    [2, 7],
+    [4, 8],
+    [5, 9],
+  ];
+  const fadeAt = (y: number) => clamp(1 - (-y - 0.2) / 5.6) ** 1.3;
+
+  // Lines: additive, so fading the colour to black fades the line.
+  const linePositions: number[] = [];
+  const lineColors: number[] = [];
+  for (const [a, b] of links) {
+    for (const node of [nodes[a], nodes[b]]) {
+      linePositions.push(node.x, node.y, node.z);
+      const f = fadeAt(node.y) * 0.9;
+      lineColors.push(lavender.r * f, lavender.g * f, lavender.b * f);
+    }
+  }
+  const lineGeometry = new THREE.BufferGeometry();
+  lineGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(linePositions, 3),
+  );
+  lineGeometry.setAttribute(
+    "color",
+    new THREE.Float32BufferAttribute(lineColors, 3),
+  );
+  const lines = new THREE.LineSegments(
+    lineGeometry,
+    new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  group.add(lines);
+
+  // Stars at the nodes plus stardust drifting around the path.
+  const positions: number[] = [];
+  const sizes: number[] = [];
+  const phases: number[] = [];
+  const fades: number[] = [];
+  nodes.forEach((node, i) => {
+    positions.push(node.x, node.y, node.z);
+    sizes.push(i === 0 ? 0.0 : 0.19 + random() * 0.12);
+    phases.push(random());
+    fades.push(fadeAt(node.y));
   });
-  // Smoked, translucent arms: the scene stays visible through them, and the
-  // glossy rim light keeps their shape readable.
-  const arm = physical(environment, {
-    color: "#2a3040",
-    roughness: 0.2,
-    metalness: 0.0,
-    clearcoat: 0.85,
-    clearcoatRoughness: 0.15,
-    envMapIntensity: 1.0,
-    alphaMap: fade,
-    opacity: 0.5,
-    transparent: true,
-    depthWrite: false,
-    // Highlights fade with the arm instead of floating where it has gone.
-    premultipliedAlpha: true,
-  });
-  return { glove, arm };
+  for (let i = 0; i < 150; i++) {
+    const t = Math.pow(random(), 0.8);
+    const y = -0.15 - t * 5.6;
+    const spread = 0.25 + t * 0.55;
+    positions.push(
+      (random() - 0.5) * spread * 2 + Math.sin(y * 0.9) * 0.2,
+      y,
+      (random() - 0.5) * spread * 1.4,
+    );
+    sizes.push(0.04 + random() * 0.07);
+    phases.push(random());
+    fades.push(fadeAt(y) * (0.5 + random() * 0.5));
+  }
+  const starGeometry = new THREE.BufferGeometry();
+  starGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  starGeometry.setAttribute("size", new THREE.Float32BufferAttribute(sizes, 1));
+  starGeometry.setAttribute(
+    "phase",
+    new THREE.Float32BufferAttribute(phases, 1),
+  );
+  starGeometry.setAttribute("fade", new THREE.Float32BufferAttribute(fades, 1));
+  const uniforms = {
+    uTime: { value: 0 },
+    uHalfHeight: { value: 400 },
+    uScale: { value: 1 },
+    uColor: { value: lavender.clone() },
+  };
+  const stars = new THREE.Points(
+    starGeometry,
+    new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: starVertex,
+      fragmentShader: starFragment,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  stars.frustumCulled = false;
+  const size = new THREE.Vector2();
+  const scale = new THREE.Vector3();
+  stars.onBeforeRender = (renderer) => {
+    uniforms.uTime.value = performance.now() / 1000;
+    renderer.getDrawingBufferSize(size);
+    uniforms.uHalfHeight.value = size.y / 2;
+    stars.matrixWorld.decompose(
+      new THREE.Vector3(),
+      new THREE.Quaternion(),
+      scale,
+    );
+    uniforms.uScale.value = Math.abs(scale.y);
+  };
+  group.add(stars);
+
+  // Light spilling out of the cuff: a soft disc inside and a halo around it.
+  const spill = new THREE.Mesh(
+    new THREE.CircleGeometry(0.4, 32),
+    new THREE.MeshBasicMaterial({
+      map: radialTexture("rgba(236,226,255,1)", "rgba(201,182,255,0)"),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    }),
+  );
+  spill.rotation.x = Math.PI / 2;
+  spill.position.y = -0.08;
+  const halo = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: radialTexture("rgba(201,182,255,0.75)", "rgba(201,182,255,0)"),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  halo.scale.setScalar(1.9);
+  halo.position.y = -0.2;
+  group.add(spill, halo);
+  // Purely decorative: never intercept the pointer.
+  group.traverse((o) => (o.raycast = () => {}));
+  return group;
 }
 
 /**
  * A posable right hand: the supplied cartoon glove, skinned to a finger rig,
- * on a tapered glossy black forearm modelled after the reference picture.
- * Mirror with scale.x = -1 for a left hand. Fingers point along +Y, the palm
- * faces +Z, the thumb sits at +X, the cuff centre is the origin.
+ * held up by a small constellation instead of an arm. Mirror with
+ * scale.x = -1 for a left hand. Fingers point along +Y, the palm faces +Z,
+ * the thumb sits at +X, the cuff centre is the origin.
  */
 export function createHand(
   gloveMaterial: THREE.Material,
-  armMaterial: THREE.Material,
   wear: GloveWear = "clean",
 ): Hand {
   const root = new THREE.Group();
   root.name = "hand";
-
-  // The arm: a long, smoothly tapering tube that widens toward the elbow and
-  // tucks up inside the glove's rolled cuff.
-  const arm = new THREE.LatheGeometry(
-    [
-      [0.001, 0.05],
-      [0.29, 0.05],
-      [0.33, -0.06],
-      [0.35, -0.6],
-      [0.38, -1.6],
-      [0.42, -3.2],
-      [0.45, -5],
-      [0.47, -12],
-      [0.001, -12],
-    ].map(([r, y]) => new THREE.Vector2(r, y)),
-    40,
-  );
-  arm.scale(1.12, 1, 0.92);
-  mesh(arm, armMaterial, root);
+  root.add(createConstellation());
 
   const bones = GLOVE_BONES.map(([name, , x, y, z]) => {
     const bone = new THREE.Bone();

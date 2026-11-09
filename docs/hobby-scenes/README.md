@@ -265,3 +265,10 @@ vents and a knob.
 - a lavender butterfly that loops the clearing and settles on a flower.
 
 Posters were re-rendered from these scenes.
+
+**Constellation arms (follow-up).** The forearms were removed. Each glove is
+now held by a small lavender constellation: ten star nodes joined by fine
+additive lines, 150 twinkling motes of stardust, and light spilling from the
+cuff with a soft halo, all fading out over about 5.5 hand-lengths. The stars
+are a single `Points` draw with a small twinkle shader. The constellation is
+decorative and never takes pointer hits.
