@@ -645,15 +645,19 @@ export function gloveMaterials(environment: THREE.Texture) {
     g.fillStyle = grad;
     g.fillRect(0, 0, w, h);
   });
+  // Smoked, translucent arms: the scene stays visible through them, and the
+  // glossy rim light keeps their shape readable.
   const arm = physical(environment, {
-    color: "#0d0f14",
-    roughness: 0.38,
+    color: "#2a3040",
+    roughness: 0.2,
     metalness: 0.0,
-    clearcoat: 0.45,
-    clearcoatRoughness: 0.32,
-    envMapIntensity: 0.5,
+    clearcoat: 0.85,
+    clearcoatRoughness: 0.15,
+    envMapIntensity: 1.0,
     alphaMap: fade,
+    opacity: 0.5,
     transparent: true,
+    depthWrite: false,
     // Highlights fade with the arm instead of floating where it has gone.
     premultipliedAlpha: true,
   });
