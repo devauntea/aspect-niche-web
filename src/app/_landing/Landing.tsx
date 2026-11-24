@@ -20,6 +20,7 @@ import DiscoveryStory from "./DiscoveryStory";
 import ThemeStudio from "./ThemeStudio";
 import MemoryWalk from "./MemoryWalk";
 import Walkthrough from "./Walkthrough";
+import { APP_STORE_URL } from "@/lib/appStore";
 
 // The landing page.
 //
@@ -54,8 +55,8 @@ function Closing() {
         <br />
         the <em>rabbit hole.</em>
       </h2>
-      <a className="button light" href="#app">
-        Explore the app <span aria-hidden="true">↗</span>
+      <a className="button light" href={APP_STORE_URL}>
+        Download on the App Store <span aria-hidden="true">↗</span>
       </a>
       <p>A little curiosity looks good on you.</p>
     </section>
@@ -145,6 +146,7 @@ export default function Landing() {
           <p>Follow your curiosity.</p>
           {/* Kept from the previous site: the store requires a reachable
               privacy policy and the footer is where a reviewer looks. */}
+          <a href={APP_STORE_URL}>App Store</a>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/support">Support</Link>

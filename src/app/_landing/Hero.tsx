@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useMotion } from "./useMotion";
 import type { HobbyModel, HobbyScene, PotteryForm } from "./hobbyScene";
 import { previewPlan, markPreviewSeen } from "./previewPolicy";
+import { APP_STORE_URL } from "@/lib/appStore";
 
 const HOBBIES: {
   id: HobbyModel;
@@ -252,9 +253,19 @@ export default function Hero() {
           <br />
           Then see where it takes you.
         </p>
-        <a className="button light" href="#app">
-          Down the rabbit hole <span aria-hidden="true">↘</span>
-        </a>
+        <div className="hero-actions">
+          <a className="button light" href={APP_STORE_URL}>
+            Download on the App Store <span aria-hidden="true">↗</span>
+          </a>
+          <a className="button outline" href="#app">
+            Down the rabbit hole <span aria-hidden="true">↘</span>
+          </a>
+        </div>
+        <p className="launch-note">
+          <strong>Out now on iPhone.</strong> Pick what you&rsquo;re curious
+          about and a graph of hobbies grows around it, each with a plan for
+          your first session and places near you picked for a first visit.
+        </p>
       </div>
       <div className="hobby-exhibit">
         <div className="exhibit-label">

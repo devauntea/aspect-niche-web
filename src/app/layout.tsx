@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { APP_STORE_ID } from "@/lib/appStore";
 import "./globals.css";
 
 // Space Grotesk for display/wordmark, Inter for body/UI.
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
   title: "Aspect Niche — Navigate the Hobby Verse",
   description:
     "A graph-based hobby discovery app. Pick your interests, explore connections, and find your next obsession.",
+  // Safari's Smart App Banner, pointing at the App Store listing.
+  itunes: { appId: APP_STORE_ID },
   verification: {
     google: "1nckGrUiOr3RnFW-mKpxgNgifxwrO6Z9DUL2GQjFdJQ",
   },
