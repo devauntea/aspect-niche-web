@@ -7,6 +7,6 @@ describe("apple-app-site-association", () => {
     const details = body.applinks.details[0];
     expect(details.appIDs).toEqual(["ABCDE12345.com.aspectniche.app"]);
     const paths = details.components.map((c) => `${c.exclude ? "!" : ""}${c["/"]}`);
-    expect(paths).toEqual(["!/i/card*", "!/p/card*", "/i", "/r", "/p", "/pr", "/s", "/g"]);
+    expect(paths).toEqual(["!/i/card*", "!/p/card*", "/i", "/r", "/p", "/pr", "/s", "/g", "/h/*"]);
   });
 });

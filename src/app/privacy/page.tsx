@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="3 November 2026"
+      updated="24 November 2026"
       lede="Aspect Niche keeps what you make on your own phone first. An account
             is optional; if you make one, a copy travels with it. This page
             says exactly what goes where, and who handles it."
@@ -57,7 +57,7 @@ export default function PrivacyPolicy() {
         <p>Sign in with an email address and password, or an email code. Supported app builds also offer Sign in with Apple and Google. Supabase stores your email, account identifier and a password hash if you set a password.</p>
         <p>If you choose Apple or Google, that provider authenticates you and shares an account identifier, your email address, and your name or profile picture when provided. Apple lets you share a private relay email instead of your personal address. We use these details to create or sign in to your account; we do not receive your Apple or Google password or request access to your mail, contacts or files.</p>
         <p>For Apple sign-in, our server exchanges a one-time authorization code and stores an encrypted refresh token so it can revoke the Apple authorization when you delete your account. The encryption key is stored separately from the database, and app clients cannot read the token. Google sign-in credentials are managed by its native SDK; we do not request offline access to Google APIs.</p>
-        <p>Your account stores a synced copy of your collection, pinned notes, sessions, plans, custom hobbies, settings and last searched location. The last searched location can include precise latitude and longitude. Eligible photo backups include a reduced image and the date and location metadata saved with it, which can also contain precise coordinates.</p>
+        <p>Your account stores a synced copy of your collection, pinned notes, sessions, plans, custom hobbies, settings and last searched location. The last searched location can include precise latitude and longitude. Eligible photo backups include a reduced image and the date and location metadata saved with it, which can also contain precise coordinates. A photo or video you add to a shared hobby is the same backed-up copy; the people in that shared hobby can view it while it is shared.</p>
         <p>Draft notes, vision boards, selected contacts and photos beyond your backup limit remain on the device. Keep an independent copy of anything important.</p>
       </Section>
 
@@ -72,6 +72,10 @@ export default function PrivacyPolicy() {
 
       <Section title="Clubs">
         <p>Clubs are not available in this release. If you used an earlier test version, existing club records remain subject to account deletion and the support process.</p>
+      </Section>
+
+      <Section title="Shared hobbies">
+        <p>A shared hobby needs an account, on your side and on each friend&rsquo;s. When you share a hobby, we store the hobby&rsquo;s name, a random invite code for its link, and, for each person in it, the display name they typed, when they joined, whether they muted its notifications, and their number of sessions and hours on that hobby, which are shown to the others only added together with everyone else&rsquo;s. When you add a memory to a shared hobby, we store which memory it is and when it was taken. For a photo or video, we don&rsquo;t make a copy: the other people in the shared hobby can view the reduced copy already in your backup while it stays shared. For a note, we store its words as they were when you shared it. Only the people in a shared hobby can see it, its members&rsquo; names and its memories, and nobody can find it without the link. Up to eight people can be in one. If you leave, are removed, or delete your account, everything you added leaves the shared hobby, and your own copies stay on your phone. If the person who shared it stops sharing or deletes their account, the shared hobby closes for everyone, and everyone keeps their own copies. If you report a memory or a person, we store the report, including what was reported, for a moderator; nobody in the shared hobby is told who reported it. If you block someone, neither of you can see the other&rsquo;s name or memories in any shared hobby.</p>
       </Section>
 
       <Section title="Photo locations">
@@ -166,10 +170,14 @@ export default function PrivacyPolicy() {
           If you allow notifications, the app also tells you when something
           changes in an invitation or a series you follow: a guest answered, a
           game moved or was cancelled, a host sent a message, or a game is
-          tomorrow and you have not answered. To do that, your phone stores a
+          tomorrow and you have not answered, or someone adds a memory to a
+          hobby you share. To do that, your phone stores a
           push token with us, along with its time zone, its notification
           switches, and each invitation or series it follows with the name you
           answered under. Shared activity subscriptions require sign-in, and the token is attached to your account. Older signed-out device records may remain until their retention period expires.
+          You can mute a single shared hobby from its Together screen; that
+          switch is kept with your account, so it applies to every phone you
+          are signed in on.
         </p>
         <p>
           To deliver a notification, its text &mdash; a name, an event title, a
@@ -249,7 +257,7 @@ export default function PrivacyPolicy() {
         </p>
         <List
           items={[
-            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, replies, series, moderation records, membership status and AI usage counts.",
+            "Supabase — our servers and database: accounts, synced copies, backed-up photos, invitation photos, shared hobbies, replies, series, moderation records, membership status and AI usage counts.",
             "Resend — sends the sign-in code to your email address.",
             "Apple — optional Sign in with Apple, App Store purchases and payment, delivery of notifications to iPhones.",
             "Expo — passes notifications to Apple's push service.",
@@ -293,7 +301,9 @@ export default function PrivacyPolicy() {
           servers hold for it: the synced copy, backed-up photos, photos behind
           your invitations, clubs you made
           (their other members lose them too), your club memberships,
-          invitations and the replies to them, series you host and every answer to them, your membership record and AI
+          everything you added to hobbies you share, the hobbies you shared
+          (the other people in them lose the shared view, not their own
+          copies), invitations and the replies to them, series you host and every answer to them, your membership record and AI
           usage counts, and your customer record with RevenueCat when configured. Everything on
           your phone stays. Moderation reports may be retained with account identifiers detached; details you typed may still identify you.
         </p>

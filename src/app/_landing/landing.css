@@ -214,6 +214,31 @@
   color: #bcc0bc;
   margin-bottom: 35px;
 }
+.anl .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.anl .button.outline {
+  border: 1px solid #f1eee75c;
+  color: var(--paper);
+}
+.anl .button.outline:hover {
+  background: #f1eee714;
+  border-color: var(--purple);
+}
+/* The launch, said once and plainly, under the two ways in. */
+.anl .launch-note {
+  max-width: 470px;
+  margin: 28px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #bcc0bc;
+}
+.anl .launch-note strong {
+  color: var(--paper);
+  font-weight: 600;
+}
 .anl .hero-universe {
   position: absolute;
   width: min(59vw, 880px);

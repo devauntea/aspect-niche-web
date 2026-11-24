@@ -292,6 +292,19 @@
   background: #1b1e36;
 }
 
+/* The filled control as a link (the shared-hobby page's "Open in Aspect
+   Niche"), so it reads and sizes like the button it stands in for. */
+.invite-link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+.invite-link-button:hover {
+  background: #fffdf0;
+}
+
 .invite-broken-title {
   margin: 0 0 14px;
   font-family: var(--font-grotesk), var(--font-inter), system-ui, sans-serif;
