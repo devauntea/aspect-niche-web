@@ -23,7 +23,7 @@ export default function Terms() {
   return (
     <LegalPage
       title="Terms of Use"
-      updated="3 November 2026"
+      updated="24 November 2026"
       lede="Aspect Niche offers private hobby planning without an account. An
             account enables sync and shared activities, and membership may add room when offered. These terms explain what you can
             expect from it and what it expects from you."
@@ -200,6 +200,14 @@ export default function Terms() {
         <p>Clubs are unavailable in this release. Shared invitations and repeating activities require an account. Names, event details and replies are visible to the relevant participants; invitation previews may also appear wherever you share a link. Do not publish unlawful, threatening, hateful, sexually exploitative, deceptive or abusive content, spam, or material you do not have the right to share.</p>
         <p>Shared text is filtered and people can report content or block accounts from the activity. Reports are reviewed privately; we may remove content, suspend sharing or terminate accounts for abuse. Contact <a href="mailto:devauntaenorman@gmail.com">devauntaenorman@gmail.com</a> about safety concerns. Blocking stops shared activity access and updates between accounts; it does not remove messages already sent through outside messaging apps.</p>
         <p>New public invitation backgrounds are limited to curated artwork while image moderation is unavailable. Private photo memories and backups remain available. Replies are recorded through the signed-in service; older reply links are not automatically added to guest lists.</p>
+      </Section>
+
+      <Section title="Sharing a hobby with friends">
+        <p>You can share a hobby with up to seven other people by sending them its invite link. Only share the link with people you know. You are responsible for what you add to a shared hobby: only add photos, videos and notes you have the right to share, that the people in them would agree to share, and that follow the content rules below. The person who shared a hobby can remove anyone from it and can make a new link that stops the old one working. Anyone can leave, report a memory or a person, or block someone. We may remove content or suspend accounts that break these terms, and we review reports as described in our moderation process.</p>
+      </Section>
+
+      <Section title="Content rules">
+        <p>Don&rsquo;t add anything that is hateful, harassing, sexual, violent, illegal, spam, or that shows someone without their consent. Don&rsquo;t use a shared hobby to contact people who have blocked you.</p>
       </Section>
 
       <Section title="Places to go">
