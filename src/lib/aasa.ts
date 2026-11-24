@@ -11,6 +11,8 @@ export function aasaBody(teamId: string) {
     { "/": "/i/card*", exclude: true },
     { "/": "/p/card*", exclude: true },
     ...["/i", "/r", "/p", "/pr", "/s", "/g"].map((p) => ({ "/": p })),
+    // A shared hobby's invite link carries its token in the path: /h/<token>.
+    { "/": "/h/*" },
   ];
   return {
     applinks: {

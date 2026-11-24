@@ -14,6 +14,8 @@ describe("apple-app-site-association route", () => {
     const res = GET();
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("application/json");
-    expect((await res.json()).applinks.details[0].appIDs).toEqual(["ABCDE12345.com.aspectniche.app"]);
+    const details = (await res.json()).applinks.details[0];
+    expect(details.appIDs).toEqual(["ABCDE12345.com.aspectniche.app"]);
+    expect(details.components).toContainEqual({ "/": "/h/*" });
   });
 });
